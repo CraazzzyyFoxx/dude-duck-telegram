@@ -1,0 +1,9 @@
+Hello!<br>
+<br>
+You have been applied for Order #{{order.order_id}} and selected start time in {% if resp.extra.eta %} {{resp.extra.eta.seconds / 60}} {% else %} 0 {% endif %} min.<br>
+Here is full order information. 👇<br>
+<br>
+{{rendered_order}}
+<br>
+<br>
+Here is your Discord conference invite, please join and start the order. 👆<br>

@@ -1,0 +1,60 @@
+{
+  "name": "DF",
+  "fields": {
+    "items": [
+      {
+        "name": "Region & Faction",
+        "fields": [
+          {
+            "attr": "region_fraction",
+            "storage": [
+              "order"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": null,
+        "separator": " "
+      },
+      {
+        "name": "Server",
+        "fields": [
+          {
+            "attr": "server",
+            "storage": [
+              "order"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": null,
+        "separator": " "
+      },
+      {
+        "name": "Class",
+        "fields": [
+          {
+            "attr": "character_class",
+            "storage": [
+              "order"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": null,
+        "separator": " "
+      }
+    ]
+  },
+  "separator": "\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n",
+  "separator_field": "\n"
+}

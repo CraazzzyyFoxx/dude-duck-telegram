@@ -1,0 +1,15 @@
+Authorization was successful. <br>
+Below is your data 👇 <br>
+<br>
+{% include "en/user.j2" %}
+{% if not user.is_verified %}
+<br>
+I remind you that the rest of the features are available, <br>
+only to verified users, <br>
+to request verification, use the command /request_verify
+{% else %}
+<br>
+Have a good day and more orders 🚀🚀 <br>
+<br>
+Open menu /menu <br>
+{% endif %}

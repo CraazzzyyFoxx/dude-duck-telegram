@@ -1,0 +1,16 @@
+{% include "ru/header.j2" %}
+<b>Заработано в общем:</b> <br>
+💵 $ - <b>{{ acc.total|round(2) }}</b> <br>
+💸 rub - <b>{{ acc.total_rub|round(2) }}</b> <br>
+
+<b>Не выплачено:</b> <br>
+💵 $ - <b>{{ acc.not_paid|round(2) }}</b> <br>
+💸 rub - <b>{{ acc.not_paid_rub|round(2) }}</b> <br>
+
+<b>Выплачено:</b> <br>
+💵 $ - <b>{{ acc.paid|round(2) }}</b> <br>
+💸 rub - <b>{{ acc.paid_rub|round(2) }}</b> <br>
+
+<b>Кол-во заказов:</b> <br>
+🎉 Выплаченных - <b>{{ acc.paid_orders|round(2) }}</b> <br>
+🛒 Невыплаченных - <b>{{ acc.not_paid_orders|round(2) }}</b> <br>

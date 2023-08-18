@@ -1,0 +1,162 @@
+{
+  "name": "DF-cd",
+  "fields": {
+    "items": [
+      {
+        "name": "Region & Faction",
+        "fields": [
+          {
+            "attr": "region_fraction",
+            "storage": [
+              "order"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": "<code>",
+        "separator": " "
+      },
+      {
+        "name": "Server",
+        "fields": [
+          {
+            "attr": "server",
+            "storage": [
+              "order"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": "<code>",
+        "separator": " "
+      },
+      {
+        "name": "Nickname",
+        "fields": [
+          {
+            "attr": "nickname",
+            "storage": [
+              "order"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": "<code>",
+        "separator": " "
+      },
+      {
+        "name": "Class",
+        "fields": [
+          {
+            "attr": "character_class",
+            "storage": [
+              "order"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": "<code>",
+        "separator": " "
+      },
+       {
+        "name": "Login",
+        "fields": [
+          {
+            "attr": "login",
+            "storage": [
+              "order", "info"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": "<code>",
+        "separator": " "
+      },
+       {
+        "name": "Password",
+        "fields": [
+          {
+            "attr": "password",
+            "storage": [
+              "order", "info"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": "<code>",
+        "separator": " "
+      },
+       {
+        "name": "VPN",
+        "fields": [
+          {
+            "attr": "vpn",
+            "storage": [
+              "order", "info"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": "<code>",
+        "separator": " "
+      },
+      {
+        "name": "Discord Conference",
+        "fields": [
+          {
+            "attr": "discord",
+            "storage": [
+              "order", "info"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": null,
+        "separator": " "
+      },
+      {
+        "name": "Invite",
+        "fields": [
+          {
+            "attr": "invite",
+            "storage": [
+              "order", "info"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": "<code>",
+        "separator": " "
+      }
+    ]
+  },
+  "separator": "\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n",
+  "separator_field": "\n"
+}

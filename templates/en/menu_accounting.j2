@@ -1,0 +1,16 @@
+{% include "en/header.j2" %}
+<b>Earned in total:</b> <br>
+💵 $ - <b>{{ acc.total|round(2) }}</b> <br>
+💸 rub - <b>{{ acc.total_rub|round(2) }}</b> <br>
+
+<b>Not paid:</b> <br>
+💵 $ - <b>{{ acc.not_paid|round(2) }}</b> <br>
+💸 rub - <b>{{ acc.not_paid_rub|round(2) }}</b> <br>
+
+<b>Paid:</b> <br>
+💵 $ - <b>{{ acc.paid|round(2) }}</b> <br>
+💸 rub - <b>{{ acc.paid_rub|round(2) }}</b> <br>
+
+<b>Number of orders:</b> <br>
+🎉 Выплаченных - <b>{{ acc.paid_orders|round(2) }}</b> <br>
+🛒 Невыплаченных - <b>{{ acc.not_paid_orders|round(2) }}</b> <br>

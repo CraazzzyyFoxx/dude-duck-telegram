@@ -1,0 +1,14 @@
+{% include "ru/header.j2" %}
+✉️ <b>Почта:</b> {{ user.email }} <br>
+✅ <b>Верифицирован:</b> {% if user.is_verified %} Да {% else %} Нет {% endif %} <br>
+🛒 <b>Макс. кол-во заказов:</b> {{ user.max_orders }} <br>
+{% if user.phone %}
+📞 <b>Телефон:</b> {{ user.phone }} <br>
+💰 <b>Банк:</b> {{ user.bank }} <br>
+{% endif %}
+{% if user.bankcard %}
+💳 <b>Номер карты:</b> {{ user.bankcard }} <br>
+{% endif %}
+{% if user.binance %}
+💸 <b>Binance:</b> {{ user.binance }} <br>
+{% endif %}

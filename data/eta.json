@@ -1,0 +1,63 @@
+{
+  "name": "eta-price",
+  "fields": {
+    "items": [
+      {
+        "name": "ETA",
+        "fields": [
+          {
+            "attr": "eta",
+            "storage": [
+              "order",
+              "info"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": null,
+        "separator": " "
+      },
+      {
+        "name": "Price",
+        "fields": [
+          {
+            "attr": "price_booster_rub",
+            "storage": [
+              "order"
+            ],
+            "format": ".0f",
+            "before_value": null,
+            "after_value": "р."
+          },
+          {
+            "attr": "price_booster_dollar_fee",
+            "storage": [
+              "order"
+            ],
+            "format": ".2f",
+            "before_value": null,
+            "after_value": "$"
+          },
+          {
+            "attr": "price_booster_gold",
+            "storage": [
+              "order"
+            ],
+            "format": ",.0f",
+            "before_value": null,
+            "after_value": "k"
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": null,
+        "separator": " | "
+      }
+    ]
+  },
+  "separator": "\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n",
+  "separator_field": "\n",
+  "id": 3
+}

@@ -1,0 +1,87 @@
+{
+  "name": "base",
+  "fields": {
+    "items": [
+      {
+        "name": "Order",
+        "fields": [
+          {
+            "attr": "order_id",
+            "storage": [
+              "order"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": null,
+        "separator": " "
+      },
+      {
+        "name": "Description",
+        "fields": [
+          {
+            "attr": "boost_type",
+            "storage": [
+              "order"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          },
+          {
+            "attr": "game",
+            "storage": [
+              "order"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          },
+          {
+            "attr": "category",
+            "storage": [
+              "order"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          },
+          {
+            "attr": "purchase",
+            "storage": [
+              "order"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": null,
+        "separator": " "
+      },
+      {
+        "name": "Additional Info",
+        "fields": [
+          {
+            "attr": "comment",
+            "storage": [
+              "order"
+            ],
+            "format": null,
+            "before_value": null,
+            "after_value": null
+          }
+        ],
+        "markdown_name": "<b>",
+        "markdown_value": null,
+        "separator": " "
+      }
+    ]
+  },
+  "separator": "\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n",
+  "separator_field": "\n"
+}
