@@ -1,27 +1,25 @@
-from aiogram import Router, types, Bot
+from aiogram import Router, types
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from app.core.cbdata import OrderRespondCallback, OrderRespondYesNoCallback
 from app.services.api import flows as api_flows
-from app.services.response import flows as response_flows
+from app.services.response import service as response_service
 from app.services.render import flows as render_flows
-from app.utils.helpers import try_message
-from app.utils.templates import render_template_user
+from app.services.message import service as message_service
+from app.services.message import models as message_models
 
-# from . import insta
+from . import insta
 from . import message
-
-# from . import dialogue
 
 
 router = Router()
 
 
 @router.callback_query(OrderRespondCallback.filter())
-async def entry_point(call: types.CallbackQuery, callback_data: OrderRespondCallback, bot: Bot, user):
-    if await response_flows.get_me_response(call.from_user.id, callback_data.order_id):
-        await call.answer(render_template_user("response_403", user), show_alert=True)
+async def entry_point(call: types.CallbackQuery, callback_data: OrderRespondCallback, user):
+    if await response_service.get_me_response(call.from_user.id, callback_data.order_id):
+        await call.answer(render_flows.user("response_403", user), show_alert=True)
         return
 
     order = await api_flows.get_order(call.from_user.id, callback_data.order_id)
@@ -32,17 +30,19 @@ async def entry_point(call: types.CallbackQuery, callback_data: OrderRespondCall
                                          callback_data=OrderRespondYesNoCallback(
                                              order_id=callback_data.order_id, state=row[1]).pack()))
 
-    configs = await render_flows.get_by_base_name(order)
-    data = {"rendered_order": render_flows.render_order(order=order, configs=configs)}
-    async with try_message(call=call):
-        await bot.send_message(
-            call.from_user.id,
-            render_template_user("order", user, data=data),
-            reply_markup=builder.as_markup()
-        )
+    configs = render_flows.get_base_by_name(order)
+    msg, status = await message_service.create(message_models.MessageCreate(
+        channel_id=call.from_user.id,
+        text=await render_flows.order(configs, data={"order": order}),
+        type=message_models.MessageType.MESSAGE,
+        reply_markup=builder.as_markup()
+
+    ))
+    if status == message_models.MessageStatus.FORBIDDEN:
+        me = await call.bot.get_me()
+        await call.answer(url=f"https://t.me/{me.username}?start=Hello")
     await call.answer()
 
 
-# router.include_router(router=respond.router)
-# router.include_router(router=insta.router)
+router.include_router(router=insta.router)
 router.include_router(router=message.router)

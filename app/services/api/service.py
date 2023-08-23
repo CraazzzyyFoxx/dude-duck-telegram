@@ -35,19 +35,19 @@ class ApiServiceMeta:
 ApiService = ApiServiceMeta()
 
 
-async def get(user_id: PydanticObjectId) -> models.TelegramUser:
+async def get(user_id: PydanticObjectId) -> models.TelegramUser | None:
     return await models.TelegramUser.find_one({"_id": user_id})
 
 
-async def get_by_user_id(user_id: PydanticObjectId) -> models.TelegramUser:
-    return await models.TelegramUser.find_one({"user_id": user_id})
+async def get_by_user_id(user_id: PydanticObjectId) -> list[models.TelegramUser] :
+    return await models.TelegramUser.find({"user_id": user_id}).to_list()
 
 
-async def get_by_telegram_user_id(user_id: int) -> models.TelegramUser:
+async def get_by_telegram_user_id(user_id: int) -> models.TelegramUser | None:
     return await models.TelegramUser.find_one({"telegram_user_id": user_id})
 
 
-async def create(user_order_in: models.TelegramUserCreate):
+async def create(user_order_in: models.TelegramUserCreate) -> models.TelegramUser:
     user_order = models.TelegramUser(**user_order_in.model_dump())
     return await user_order.create()
 
@@ -58,13 +58,16 @@ async def delete(user_order_id: PydanticObjectId):
         await user_order.delete()
 
 
-async def update(user: models.TelegramUser, user_in: models.TelegramUserUpdate):
+async def update(user: models.TelegramUser, user_in: models.TelegramUserUpdate) -> models.TelegramUser:
     user_data = user.model_dump()
-    update_data = user_in.model_dump(exclude_none=True)
+    update_data = user_in.model_dump()
 
     for field in user_data:
         if field in update_data:
-            setattr(user, field, update_data[field])
+            if field == "user":
+                user.last_update = datetime.utcnow()
+            if update_data[field] is not None:
+                setattr(user, field, update_data[field])
 
     await user.save_changes()
     return user
@@ -72,6 +75,8 @@ async def update(user: models.TelegramUser, user_in: models.TelegramUserUpdate):
 
 async def get_token(user_id: PydanticObjectId) -> str | None:
     user = await get(user_id)
+    if user is None:
+        return None
     if user.last_login > datetime.utcnow() - timedelta(days=1):
         return None
     return user.token
@@ -79,6 +84,8 @@ async def get_token(user_id: PydanticObjectId) -> str | None:
 
 async def get_token_user_id(user_id: int) -> str | None:
     user = await get_by_telegram_user_id(user_id)
+    if user is None:
+        return None
     if user.last_login < datetime.utcnow() - timedelta(days=1):
         return None
     return user.token
@@ -109,6 +116,8 @@ async def request(
     else:
         if response.status_code == 401:
             raise errors.AuthorizationExpired()
+        if response.status_code == 422:
+            raise errors.InternalServerError()
         if response.status_code == 500:
             raise errors.InternalServerError()
 

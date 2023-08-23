@@ -22,15 +22,14 @@ class TelegramUser(Document):
     user: User | None = None
 
     last_login: datetime | None = None
+    last_update: datetime | None = None
 
     class Settings:
         use_state_management = True
         state_management_save_previous = True
-        # use_cache = True
-        # cache_capacity = 100
         indexes = [
-            IndexModel("user_id", unique=True),
-            IndexModel("telegram_user_id", unique=True),
+            IndexModel(["user_id", "telegram_user_id"], unique=True),
+            # IndexModel("telegram_user_id", unique=True),
 
         ]
 

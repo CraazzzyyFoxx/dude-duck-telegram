@@ -2,14 +2,15 @@ from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
-from aiogram.exceptions import TelegramBadRequest
+from beanie import PydanticObjectId
 
 from app.core.bot import bot
 from app.core.cbdata import OrderRespondYesNoCallback
 from app.services.api import flows as api_flows
 from app.services.response import flows as response_flows
 from app.services.render import flows as render_flows
-from app.utils.templates import render_template_user
+from app.services.message import service as message_service
+from app.services.message import models as message_models
 
 router = Router()
 
@@ -26,13 +27,11 @@ async def respond_order_yes_button(
         user
 ):
     order = await api_flows.get_order(call.from_user.id, callback_data.order_id)
-    configs = await render_flows.get_by_base_name(order)
-    text = render_flows.render_order(order=order, configs=configs)
-    await bot.edit_message_text(render_template_user("order", user, data={"rendered_order": text}),
-                                call.from_user.id, call.message.message_id, reply_markup=None)
-    await bot.send_message(call.from_user.id, render_template_user("response_200", user))
+    msg = await message_service.get_by_channel_id_message_id(call.message.chat.id, call.message.message_id)
+    await message_service.update(msg, message_models.MessageUpdate())
+    await bot.send_message(call.from_user.id, render_flows.user("response_200", user))
     await state.set_state(OrderRespondState.approved)
-    await state.update_data(order=order, message=call.message)
+    await state.update_data(order=order, message=msg)
 
 
 @router.callback_query(OrderRespondYesNoCallback.filter(F.state == False))
@@ -45,31 +44,18 @@ async def respond_order_no_button_message(call: types.CallbackQuery):
 async def respond_done_order(message: Message, state: FSMContext, user):
     data = await state.get_data()
     order = data.get("order")
-    msg: Message = data.get("message")
+    msg: message_models.Message = data.get("message")
     extra = response_flows.models.OrderResponseExtra(text=message.text)
-    resp = await response_flows.create_response(message.from_user.id, order.id, extra)
+    status, resp = await response_flows.create_response(message.from_user.id, PydanticObjectId(order.id), extra)
 
-    if resp == 404:
-        await message.answer(render_template_user("response_404", user.user))
-        return
-    if resp == 400:
-        await message.answer(render_template_user("response_400", user.user))
-        return
-    if resp == 403:
-        await message.answer(render_template_user("response_403", user.user))
+    if status in (404, 400, 403, 409):
+        await message.answer(render_flows.user(f"response_{status}", user.user))
         return
 
-    configs = await render_flows.get_by_base_name(order)
-    text = render_flows.render_order(order=order, configs=configs)
-    text = render_template_user("order", user.user, data={"rendered_order": text})
-    try:
-        await bot.edit_message_text(
-            text,
-            message.from_user.id,
-            msg.message_id
-        )
-    except TelegramBadRequest:
-        pass
+    await message_service.update(msg, message_models.MessageUpdate(
+        text=await render_flows.order(['base', f"{order.info.game}", 'eta-price', 'response'],
+                                      data={"order": order, "response": resp})
+    ))
 
-    await message.answer(render_template_user("response_201", user.user))
+    await message.answer(render_flows.user("response_201", user.user))
     await state.clear()

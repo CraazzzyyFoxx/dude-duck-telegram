@@ -1,10 +1,9 @@
 from aiogram import types, Router
 from aiogram.filters import Command
-from loguru import logger
 
-from app.utils.helpers import process_language
-from app.utils.templates import render_template
+from app.helpers import process_language
 from app.services.auth import service as auth_service
+from app.services.render import flows as render_flows
 
 router = Router()
 
@@ -13,4 +12,4 @@ router = Router()
 async def request_verify(message: types.Message) -> None:
     await auth_service.request_verify(message.from_user.id)
     lang = process_language(message.user, None)
-    await message.answer(render_template("verify_request", lang))
+    await message.answer(render_flows.base("verify_request", lang))

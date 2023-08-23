@@ -3,7 +3,7 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const, Jinja as Jinja_dialog
 
-from app.utils.templates import render_template_user
+from app.services.render import flows as render_flows
 
 from . import states
 
@@ -23,4 +23,4 @@ class Jinja(Jinja_dialog):
     async def _render_text(
             self, data: dict, manager: DialogManager,
     ) -> str:
-        return render_template_user(self.template_text, data["user"].user, data=data)
+        return render_flows.user(self.template_text, data["user"].user, data=data)

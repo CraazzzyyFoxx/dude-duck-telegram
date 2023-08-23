@@ -5,7 +5,7 @@ from beanie import PydanticObjectId
 from . import service, models
 
 
-async def get(channel: PydanticObjectId) -> models.OrderMessage:
+async def get(channel: PydanticObjectId) -> models.Message:
     channel = await service.get(channel)
     if not channel:
         raise HTTPException(
@@ -15,7 +15,7 @@ async def get(channel: PydanticObjectId) -> models.OrderMessage:
     return channel
 
 
-async def get_by_order_id(order_id: PydanticObjectId) -> list[models.OrderMessage]:
+async def get_by_order_id(order_id: PydanticObjectId) -> list[models.Message]:
     messages = await service.get_by_order_id(order_id)
     if not messages:
         raise HTTPException(
@@ -25,8 +25,8 @@ async def get_by_order_id(order_id: PydanticObjectId) -> list[models.OrderMessag
     return messages
 
 
-async def create(message_in: models.OrderMessageCreate) -> models.OrderMessage:
-    message = await service.create(message_in)
+async def create(message_in: models.MessageCreate) -> models.Message:
+    message, st = await service.create(message_in)
     if not message:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

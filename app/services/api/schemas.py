@@ -17,9 +17,9 @@ class UserLanguage(str, enum.Enum):
 class User(BaseModel):
     id: PydanticObjectId
     email: EmailStr
-    is_active: bool = True
-    is_superuser: bool = False
-    is_verified: bool = False
+    is_active: bool
+    is_superuser: bool
+    is_verified: bool
 
     name: str
     telegram: str
@@ -29,7 +29,7 @@ class User(BaseModel):
     binance: EmailStr | None
     discord: str | None
 
-    language: UserLanguage = UserLanguage.EN
+    language: UserLanguage
     max_orders: int
     created_at: datetime.datetime
 
@@ -47,11 +47,11 @@ class OrderInfo(BaseModel):
 
 
 class OrderPrice(BaseModel):
-    price_dollar: float | None = None
-    price_booster_dollar: float | None = None
-    price_booster_dollar_fee: float | None = None
-    price_booster_rub: float | None = None
-    price_booster_gold: float | None = None
+    price_dollar: float | None
+    price_booster_dollar: float | None
+    price_booster_dollar_fee: float | None
+    price_booster_rub: float | None
+    price_booster_gold: float | None
 
 
 class OrderCredentials(BaseModel):

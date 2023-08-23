@@ -27,7 +27,9 @@ class AppConfig(BaseSettings):
     mongo_dsn: MongoDsn
 
     admin_order: int
+    admin_important_events: int
     admin_events: int
+    admin_noise_events: int
 
 
 app = AppConfig(_env_file='.env', _env_file_encoding='utf-8')

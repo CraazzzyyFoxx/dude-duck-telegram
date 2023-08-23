@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from beanie import PydanticObjectId
 
 from app.services.search import service as search_service
@@ -12,12 +14,23 @@ async def get_me(token: str) -> models.User | None:
 
 
 async def get_me_user_id(user_id: int) -> models.User | None:
+    user_db = await service.get_by_telegram_user_id(user_id)
+    if user_db is not None:
+        if user_db.last_update is not None and user_db.last_login > datetime.utcnow() - timedelta(minutes=1):
+            return user_db.user
     resp = await service.request('users/@me', 'GET', await service.get_token_user_id(user_id))
     if resp.status_code == 200:
         user = models.User.model_validate(resp.json())
         user_db = await service.get_by_telegram_user_id(user_id)
         await service.update(user_db, models.TelegramUserUpdate(user=user))
-        return models.User.model_validate(resp.json())
+        return user
+
+
+async def get_user(user_id: int, u_id: PydanticObjectId) -> models.User | None:
+    resp = await service.request(f'users/@{u_id}', 'GET', await service.get_token_user_id(user_id))
+    if resp.status_code == 200:
+        user = models.User.model_validate(resp.json())
+        return user
 
 
 async def me_get_orders(

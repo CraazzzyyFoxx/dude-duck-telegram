@@ -5,7 +5,6 @@ from beanie import Document, PydanticObjectId
 
 __all__ = (
     "OrderResponse",
-    "OrderResponseAPI",
     "OrderResponseExtra",
     "OrderResponseCreate"
 )
@@ -25,14 +24,7 @@ class OrderResponseCreate(BaseModel):
     message_id: int
 
 
-class OrderResponse(Document):
-    order_id: PydanticObjectId
-    user_id: PydanticObjectId
-    channel_id: int
-    message_id: int
-
-
-class OrderResponseAPI(BaseModel):
+class OrderResponse(BaseModel):
     order_id: PydanticObjectId
     user_id: PydanticObjectId
 

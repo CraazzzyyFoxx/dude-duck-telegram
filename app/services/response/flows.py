@@ -1,20 +1,16 @@
-from aiogram.exceptions import TelegramForbiddenError
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from beanie import PydanticObjectId
-from fastapi import HTTPException
-from starlette import status
 
 from app.core import config
-from app.core.bot import bot
 from app.core.cbdata import OrderRespondConfirmCallback
 from app.services.api import service as api_service
 from app.services.api import schemas as api_schemas
 from app.services.api import flows as api_flows
+from app.services.message import service as message_service
+from app.services.message import models as message_models
 from app.services.render import flows as render_flows
-from app.services.render import service as render_service
-from app.utils.templates import render_template_system, render_template_user
-from app.utils.helpers import try_message
+from app.services.pull import models as pull_models
 
 from . import models, service
 
@@ -31,93 +27,86 @@ async def create_response(
         user_id: int,
         order_id: PydanticObjectId,
         data: models.OrderResponseExtra
-) -> models.OrderResponseAPI | int:
+) -> tuple[int, models.OrderResponse | None]:
     resp = await api_service.request(f'response/{order_id}', 'POST',
                                      await api_service.get_token_user_id(user_id),
                                      json=data.model_dump())
     if resp.status_code == 201:
-        return models.OrderResponseAPI.model_validate(resp.json())
-    return resp.status_code
+        return resp.status_code, models.OrderResponse.model_validate(resp.json())
+    return resp.status_code, None
 
 
-async def approve_response(user_id: int, order_id: PydanticObjectId, booster_id: PydanticObjectId):
+async def approve_response(user_id: int, order_id: PydanticObjectId, booster_id: PydanticObjectId) -> int | None:
     order = await api_flows.get_order(user_id, order_id)
-    configs = await render_service.get_by_names(['base', f"{order.game}", 'eta-price', 'resp-admin'])
     resp = await api_service.request(f'response/{order_id}/{booster_id}/approve', 'GET',
                                      await api_service.get_token_user_id(user_id))
-    if resp.status_code == 404:
-        await bot.send_message(user_id, render_template_system("response_approve_404"))
-        return
-    responses = await service.get_by_order_id(order_id)
-    for resp in responses:
-        if resp.user_id == booster_id:
-            response = await get_user_response(user_id, order_id, booster_id)
-            text = render_flows.render_order(order, configs, response=response)
-            async with try_message():
-                await bot.edit_message_text(render_template_system("order", data={"rendered_order": text}),
-                                            chat_id=resp.channel_id,
-                                            message_id=resp.message_id)
+    if resp.status_code in (404, 400, 403, 409):
+        return resp.status_code
+    messages = await message_service.get_by_order_id_type(order_id, message_models.MessageType.RESPONSE)
+    for msg in messages:
+        if msg.user_id == booster_id:
+            response = await service.get_user_response(user_id, order_id, booster_id)
+            _, status = await message_service.update(
+                msg,
+                message_models.MessageUpdate(
+                    text=await render_flows.order(
+                        ['base', f"{order.info.game}", 'eta-price', 'response-check'],
+                        data={"order": order, "response": response,
+                              "user": await api_flows.get_user(user_id, booster_id)}
+                    )
+                )
+            )
+
         else:
-            await bot.delete_message(resp.channel_id, resp.message_id)
-        await service.delete(resp.id)
+            await message_service.delete(msg)
 
-
-async def get_me_response(user_id: int, order_id: PydanticObjectId):
-    resp = await api_service.request(f'response/{order_id}/@me', 'GET', await api_service.get_token_user_id(user_id))
-    if resp.status_code == 200:
-        return models.OrderResponseAPI.model_validate(resp.json())
-
-
-async def get_user_response(user_id: int, order_id: PydanticObjectId, booster_id: PydanticObjectId):
-    resp = await api_service.request(f'response/{order_id}/{booster_id}', 'GET',
-                                     await api_service.get_token_user_id(user_id))
-    if resp.status_code == 200:
-        return models.OrderResponseAPI.model_validate(resp.json())
-
-
-async def get_order_responses(user_id: int, order_id: PydanticObjectId):
-    resp = await api_service.request(f'response/{order_id}/@me', 'GET',
-                                     await api_service.get_token_user_id(user_id))
-    return [models.OrderResponseAPI.model_validate(r) for r in resp.json()]
+    return None
 
 
 async def response_approved(order: api_schemas.Order, user: api_schemas.User,
-                            response: models.OrderResponseAPI, **_kwargs):
-    configs = await render_service.get_by_names(['base', f"{order.game}-cd", 'eta-price'])
-    data = {"order": order, "resp": response, "rendered_order": render_flows.render_order(order=order, configs=configs)}
-    user_db = await api_service.get(user.id)
-    try:
-        await bot.send_message(user_db.telegram_user_id, render_template_user("response_approve", user, data=data))
-    except TelegramForbiddenError:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail=[{"msg": "The bot cannot contact the user"}])
+                            response: models.OrderResponse, **_kwargs):
+    users_db = await api_service.get_by_user_id(user.id)
+    data = {
+        "order": order,
+        "resp": response,
+        "rendered_order": await render_flows.order(['base', f"{order.info.game}-cd", 'eta-price'],
+                                                   data={"order": order})
+    }
+    resp = []
+    for user_db in users_db:
+        _, status = await message_service.create(
+            message_models.MessageCreate(channel_id=user_db.telegram_user_id,
+                                         text=render_flows.user("response_approve", user, data=data),
+                                         type=message_models.MessageType.MESSAGE))
+        resp.append(pull_models.MessageResponse(status=status, channel_id=user_db.telegram_user_id))
+    return pull_models.MessageResponses(statuses=resp)
 
 
 async def response_declined(order: api_schemas.Order, user: api_schemas.User, **_kwargs):
-    user_db = await api_service.get(user.id)
-    data = {"order": order}
-    try:
-        await bot.send_message(user_db.telegram_user_id, render_template_user("response_decline", user, data=data))
-    except TelegramForbiddenError:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail=[{"msg": "The bot cannot contact the user"}])
+    users_db = await api_service.get_by_user_id(user.id)
+    resp = []
+    for user_db in users_db:
+        _, status = await message_service.create(
+            message_models.MessageCreate(channel_id=user_db.telegram_user_id,
+                                         text=render_flows.user("response_decline", user, data={"order": order}),
+                                         type=message_models.MessageType.MESSAGE))
+        resp.append(pull_models.MessageResponse(status=status, channel_id=user_db.telegram_user_id))
+    return pull_models.MessageResponses(statuses=resp)
 
 
-async def response_to_admins(order: api_schemas.Order, user: api_schemas.User, response: models.OrderResponseAPI):
-    configs = await render_flows.get_base_respond_names(order)
-    text = render_flows.render_order(order, configs, response=response)
-    try:
-        msg = await bot.send_message(config.app.admin_order,
-                                     render_template_system("response_admins", data={"rendered_order": text}),
-                                     reply_markup=get_reply_markup_admin(order.id, user.id))
-        resp = await service.create(
-            models.OrderResponseCreate(
-                order_id=order.id,
-                user_id=user.id,
-                channel_id=msg.chat.id,
-                message_id=msg.message_id
-            )
-        )
-        return  # TODO:
-    except TelegramForbiddenError:
-        raise RuntimeError("Unable to send a message to the chat room for administrator")
+async def response_to_admins(order: api_schemas.Order, user: api_schemas.User, response: models.OrderResponse):
+    _, status = await message_service.create(
+        message_models.MessageCreate(
+            order_id=order.id,
+            user_id=user.id,
+            channel_id=config.app.admin_order,
+            text=await render_flows.order(
+                ['base', f"{order.info.game}", "eta-price", "response"],
+                data={"order": order, "response": response, "user": user}
+            ),
+            reply_markup=get_reply_markup_admin(order.id, user.id),
+            type=message_models.MessageType.RESPONSE)
+    )
+
+    # if status.FORBIDDEN:
+    #     raise RuntimeError("Unable to send a message to the chat room for administrator")

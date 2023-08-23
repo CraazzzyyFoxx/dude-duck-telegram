@@ -1,0 +1,18 @@
+{% if user %}
+<b>User:</b> {{ user.name }} - @{{ user.telegram }} <br>
+{% endif %}
+{% if response.extra.text %}
+<b>Message:</b> {{ response.extra.text }}<br>
+{% endif %}
+{% if response.extra.price %}
+<b>Price:</b> {{ response.extra.price }}<br>
+{% endif %}
+{% if response.extra.start_date %}
+<b>Start Date:</b> {{ response.extra.start_date }}<br>
+{% endif %}
+{% if response.extra.eta %}
+<b>ETA:</b> {{ response.extra.eta }}<br>
+{% endif %}
+<b>Approved:</b> {{ response.approved }}<br>
+
+

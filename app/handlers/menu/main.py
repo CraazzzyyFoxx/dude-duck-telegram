@@ -12,7 +12,7 @@ from app.services.api import models as api_models
 from .states import Main
 from .utils import Jinja
 from .accounting import acc_window
-from .orders import orders_window
+from .orders import orders_window, ID_STUB_SCROLL
 
 router = Router()
 
@@ -41,19 +41,18 @@ async def to_acc(callback: CallbackQuery, _: Button, dialog_manager: DialogManag
     await dialog_manager.switch_to(Main.ACC)
 
 
-async def to_aco(callback: CallbackQuery, _: Button, dialog_manager: DialogManager):
+async def to_orders(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     if dialog_manager.start_data is None:
         await dialog_manager.done()
         return
-    dialog_manager.dialog_data["orders"] = api_models.OrderSelection.InProgress
-    await dialog_manager.switch_to(Main.ORDERS)
-
-
-async def to_cdo(callback: CallbackQuery, _: Button, dialog_manager: DialogManager):
-    if dialog_manager.start_data is None:
-        await dialog_manager.done()
-        return
-    dialog_manager.dialog_data["orders"] = api_models.OrderSelection.Completed
+    if button.widget_id == "active_orders":
+        status = api_models.OrderSelection.InProgress
+    else:
+        status = api_models.OrderSelection.Completed
+    await dialog_manager.find(ID_STUB_SCROLL).set_page(0)
+    dialog_manager.dialog_data["orders"] = status
+    if dialog_manager.dialog_data.get("orders_data"):
+        dialog_manager.dialog_data.pop("orders_data")
     await dialog_manager.switch_to(Main.ORDERS)
 
 
@@ -68,12 +67,12 @@ main_dialog = Dialog(
         Button(
             text=Format("📋 Active orders"),
             id="active_orders",
-            on_click=to_aco,
+            on_click=to_orders,
         ),
         Button(
             text=Format("📂 Completed orders"),
             id="completed_orders",
-            on_click=to_cdo,
+            on_click=to_orders,
         ),
         WebApp(
             text=Const("🧷 Close order"),

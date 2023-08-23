@@ -1,6 +1,6 @@
 {% include "en/header.j2" %}
 ✉️ <b>Email:</b> {{ user.email }} <br>
-✅ <b>Verified:</b> {% if user.is_verified %} Да {% else %} Нет {% endif %} <br>
+✅ <b>Verified:</b> {% if user.is_verified %} Yes {% else %} No {% endif %} <br>
 🛒 <b>Max. number of orders:</b> {{ user.max_orders }} <br>
 {% if user.phone %}
 📞 <b>Phone:</b> {{ user.phone }} <br>

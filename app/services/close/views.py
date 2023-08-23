@@ -11,8 +11,8 @@ from app.core import errors
 from app.core.bot import bot
 from app.core.enums import RouteTag
 from app.services.api import flows as api_flows
-from app.utils.templates import render_template_user, render_template
-from app.utils.helpers import process_language
+from app.services.render import flows as render_flows
+from app.helpers import process_language
 
 from . import models, flows
 
@@ -50,22 +50,22 @@ async def order_close(data: dict):
         user = await api_flows.get_me_user_id(init_data.user.id)
     except errors.AuthorizationExpired:
         lang = process_language(init_data.user)
-        await response_web_query(init_data, "Order Close", render_template("expired", lang))
+        await response_web_query(init_data, "Order Close", render_flows.base("expired", lang))
         return ORJSONResponse({"ok": False, "err": "Unauthorized"}, status_code=401)
 
     try:
         valid = models.CloseOrderForm.model_validate(data)
     except ValidationError:
-        await response_web_query(init_data, "Order Close", render_template_user("order_close_422", user))
+        await response_web_query(init_data, "Order Close", render_flows.user("order_close_422", user))
         return
     try:
         status = await flows.me_close_order(init_data.user.id, valid)
     except errors.AuthorizationExpired:
         lang = process_language(init_data.user)
-        await response_web_query(init_data, "Order Close", render_template("expired", lang))
+        await response_web_query(init_data, "Order Close", render_flows.base("expired", lang))
         return ORJSONResponse({"ok": False, "err": "Unauthorized"}, status_code=401)
     if status == 201:
-        await response_web_query(init_data, "Order Close", render_template_user("order_close_201", user))
+        await response_web_query(init_data, "Order Close", render_flows.user("order_close_201", user))
     if status == 403:
-        await response_web_query(init_data, "Order Close", render_template_user("order_close_403", user))
+        await response_web_query(init_data, "Order Close", render_flows.user("order_close_403", user))
     return ORJSONResponse({"ok": True})

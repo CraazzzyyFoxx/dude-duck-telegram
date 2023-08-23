@@ -63,7 +63,7 @@
                 message: message
             })
             .then((response) => tg.close())
-            .catch((error) => console.log(error));
+            .catch((error) => tg.close());
         }
     </script>
 

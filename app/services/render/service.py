@@ -1,10 +1,15 @@
 from beanie import PydanticObjectId
 
+from app.services.api.schemas import Order
+
 from . import models
 
 
-async def get(config: PydanticObjectId) -> models.RenderConfig:
-    return await models.RenderConfig.find_one({"_id": config})
+def get_all_config_names(order: Order):
+    return ["base", "eta-price", "response", "response-check", order.info.game, f"{order.info.game}-cd"]
+
+async def get(config_id: PydanticObjectId) -> models.RenderConfig | None:
+    return await models.RenderConfig.find_one({"_id": config_id})
 
 
 async def create(config_in: models.RenderConfigCreate) -> models.RenderConfig:
@@ -13,29 +18,25 @@ async def create(config_in: models.RenderConfigCreate) -> models.RenderConfig:
 
 
 async def delete(config_id: PydanticObjectId):
-    config = await models.RenderConfig.get(config_id)
-    await config.delete()
+    user_order = await models.RenderConfig.get(config_id)
+    await user_order.delete()
 
 
-async def get_by_name(name: str) -> models.RenderConfig:
+async def get_by_name(name: str) -> models.RenderConfig | None:
     return await models.RenderConfig.find_one({"name": name})
 
 
-async def get_by_names(names: list[str]) -> list[models.RenderConfig]:
-    return await models.RenderConfig.find({"name": {"$in": names}}).to_list()
+async def update(parser: models.RenderConfig, parser_in: models.RenderConfigUpdate) -> models.RenderConfig:
+    parser_data = parser.model_dump()
+    update_data = parser_in.model_dump(exclude_none=True)
 
-
-async def get_all() -> list[models.RenderConfig]:
-    return await models.RenderConfig.find({}).to_list()
-
-
-async def update(config: models.RenderConfig, config_in: models.RenderConfigUpdate):
-    config_data = config.model_dump()
-    update_data = config_in.model_dump(exclude_none=True)
-
-    for field in config_data:
+    for field in parser_data:
         if field in update_data:
-            setattr(config, field, update_data[field])
+            setattr(parser, field, update_data[field])
 
-    await config.save_changes()
-    return config
+    await parser.save_changes()
+    return parser
+
+
+async def get_all_configs_for_order(order: Order) -> list[models.RenderConfig]:
+    return await models.RenderConfig.find({"name": {"$in": get_all_config_names(order)}}).to_list()

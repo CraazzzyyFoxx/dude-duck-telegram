@@ -7,6 +7,7 @@ import uvicorn
 
 from aiogram_dialog import setup_dialogs
 from aiogram_dialog.widgets.text import setup_jinja
+from aiogram.types import BotCommandScopeAllPrivateChats
 from beanie import init_beanie
 
 from fastapi import FastAPI
@@ -16,15 +17,12 @@ from starlette import status
 from motor.motor_asyncio import AsyncIOMotorClient
 from starlette.staticfiles import StaticFiles
 
-from app.core import bot, errors, config
+from app.core import bot, errors, config, enums
 from app.core.logging import logger
 from app.core.webhook import setup_application, SimpleRequestHandler
 from app.middlewares.exception import ExceptionMiddleware
 from app.middlewares.time import TimeMiddleware
-
 from app.services.api import service as api_service
-from app.services.render import service as render_service
-
 from app.handler import router as tg_router
 from app.api import router
 from app.db import get_beanie_models
@@ -35,23 +33,15 @@ async def lifespan(application: FastAPI):  # noqa
     client = AsyncIOMotorClient(config.app.mongo_dsn.unicode_string())
     await init_beanie(database=getattr(client, config.app.mongo_name), document_models=get_beanie_models())
 
-    configs = await render_service.get_all()
-    if not configs:
-        from app.utils.constants import OrderRenderBase, OrderRenderEtaPrice, OrderRenderResp, OrderRenderAdminResp
-        await render_service.create(render_service.models.RenderConfigCreate.model_validate(OrderRenderBase))
-        await render_service.create(render_service.models.RenderConfigCreate.model_validate(OrderRenderEtaPrice))
-        await render_service.create(render_service.models.RenderConfigCreate.model_validate(OrderRenderResp))
-        await render_service.create(render_service.models.RenderConfigCreate.model_validate(OrderRenderAdminResp))
-
     setup_dialogs(bot.dp)
     setup_jinja(bot.bot, loader=jinja2.FileSystemLoader(searchpath=config.TEMPLATES_DIR))
     bot.dp.include_router(tg_router)
     await api_service.ApiService.init()
-
+    await bot.bot.set_my_commands(commands=enums.my_commands_ru, scope=BotCommandScopeAllPrivateChats(), language_code="ru")
+    await bot.bot.set_my_commands(commands=enums.my_commands_en, scope=BotCommandScopeAllPrivateChats(), language_code="en")
     await bot.bot.set_webhook(url=f"{config.app.webhook_url}/api/telegram/webhook",
                               secret_token=config.app.api_token,
                               drop_pending_updates=True)
-
     logger.info("Bot... Online!")
     yield
     await api_service.ApiService.shutdown()
