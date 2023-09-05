@@ -14,7 +14,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from starlette import status
-from motor.motor_asyncio import AsyncIOMotorClient
 from starlette.staticfiles import StaticFiles
 
 from app.core import bot, errors, config, enums
@@ -28,17 +27,24 @@ from app.api import router
 from app.db import get_beanie_models
 
 
+if os.name != "nt":
+    import uvloop  # noqa
+
+    uvloop.install()
+
+
 @asynccontextmanager
 async def lifespan(application: FastAPI):  # noqa
-    client = AsyncIOMotorClient(config.app.mongo_dsn.unicode_string())
-    await init_beanie(database=getattr(client, config.app.mongo_name), document_models=get_beanie_models())
+    await init_beanie(connection_string=config.app.mongo_dsn, document_models=get_beanie_models())
 
     setup_dialogs(bot.dp)
     setup_jinja(bot.bot, loader=jinja2.FileSystemLoader(searchpath=config.TEMPLATES_DIR))
     bot.dp.include_router(tg_router)
     await api_service.ApiService.init()
-    await bot.bot.set_my_commands(commands=enums.my_commands_ru, scope=BotCommandScopeAllPrivateChats(), language_code="ru")
-    await bot.bot.set_my_commands(commands=enums.my_commands_en, scope=BotCommandScopeAllPrivateChats(), language_code="en")
+    await bot.bot.set_my_commands(
+        commands=enums.my_commands_ru, scope=BotCommandScopeAllPrivateChats(), language_code="ru")
+    await bot.bot.set_my_commands(
+        commands=enums.my_commands_en, scope=BotCommandScopeAllPrivateChats(), language_code="en")
     await bot.bot.set_webhook(url=f"{config.app.webhook_url}/api/telegram/webhook",
                               secret_token=config.app.api_token,
                               drop_pending_updates=True)
@@ -83,11 +89,6 @@ if not config.app.debug:
 
 
 if __name__ == '__main__':
-    if os.name != "nt":
-        import uvloop  # noqa
-
-        uvloop.install()
-
     uvicorn.run(
         "main:app",
         host=config.app.host,

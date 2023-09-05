@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import MongoDsn, HttpUrl
+from pydantic import HttpUrl
 from pydantic_settings import SettingsConfigDict, BaseSettings
 
 
@@ -24,7 +24,7 @@ class AppConfig(BaseSettings):
     logs_root_path: str = f"{Path.cwd()}/logs"
 
     mongo_name: str
-    mongo_dsn: MongoDsn
+    mongo_dsn: str
 
     admin_order: int
     admin_important_events: int

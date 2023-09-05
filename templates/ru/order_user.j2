@@ -1,3 +1,4 @@
+{% if order is not none %}
 {% if order.order_id %}
 <b>Order:</b> {{ order.order_id}}<br>
 {% endif %}
@@ -27,4 +28,5 @@
 {% endif %}
 {% if order.price.price_booster_dollar_fee or order.price.price_booster_rub %}
 <b>Price:</b> {{ order.price.price_booster_rub|round(0) }}rub. ({{ order.price.price_booster_dollar_fee|round(2) }}$)<br>
+{% endif %}
 {% endif %}

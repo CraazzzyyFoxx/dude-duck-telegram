@@ -16,7 +16,7 @@ async def get(channel_id: PydanticObjectId) -> models.Channel:
 
 
 async def get_channel_by_game_category(game: str, category: str = None) -> models.Channel:
-    channel = await service.get_channel_by_game_category(game, category)
+    channel = await service.get_by_game_category(game, category)
     if not channel:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -26,7 +26,7 @@ async def get_channel_by_game_category(game: str, category: str = None) -> model
 
 
 async def create(channel_in: models.ChannelCreate) -> models.Channel:
-    channel = await service.get_channel_by_game_category(channel_in.game, channel_in.category)
+    channel = await service.get_by_game_category(channel_in.game, channel_in.category)
     if channel:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

@@ -9,6 +9,7 @@ from pymongo import IndexModel
 
 class MessageType(str, Enum):
     ORDER = "order"
+    PRE_ORDER = "pre_order"
     RESPONSE = "response"
     MESSAGE = "message"
 
@@ -38,7 +39,6 @@ class Message(Document, BaseModel):
     class Settings:
         indexes = [
             IndexModel(["channel_id", "message_id"], unique=True),
-            # IndexModel(["order_id", "channel_id", "type"], unique=True),
         ]
         use_state_management = True
         state_management_save_previous = True

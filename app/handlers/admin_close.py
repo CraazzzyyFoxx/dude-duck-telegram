@@ -9,7 +9,14 @@ router = Router()
 
 @router.callback_query(OrderRespondConfirmCallback.filter(), flags={'chat_action': {"is_superuser"}})
 async def close_order(call: types.CallbackQuery, callback_data: OrderRespondConfirmCallback):
-    status = await response_flows.approve_response(call.from_user.id, callback_data.order_id, callback_data.user_id)
+    if callback_data.preorder:
+        status = await response_flows.approve_response(
+            call.from_user.id, callback_data.order_id, callback_data.user_id, preorder=True
+        )
+    else:
+        status = await response_flows.approve_response(
+            call.from_user.id, callback_data.order_id, callback_data.user_id, preorder=False
+        )
     if status is None:
         await call.answer()
     elif status in (404, 400, 403, 409):

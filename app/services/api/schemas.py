@@ -40,18 +40,16 @@ class OrderInfo(BaseModel):
     server: str | None
     character_class: str | None
     nickname: str | None
-    game: str
+    game: str | None
     purchase: str
     comment: str | None
     eta: str | None
 
 
 class OrderPrice(BaseModel):
-    price_dollar: float | None
-    price_booster_dollar: float | None
-    price_booster_dollar_fee: float | None
-    price_booster_rub: float | None
-    price_booster_gold: float | None
+    price_booster_dollar_fee: float
+    price_booster_rub: float
+    price_booster_gold: float | None = None
 
 
 class OrderCredentials(BaseModel):
@@ -67,7 +65,6 @@ class OrderRead(BaseModel):
 
     date: datetime.datetime
     screenshot: str | None = None
-    status: str | None = None  # TODO: оно здесь не надо
 
     info: OrderInfo
     credentials: OrderCredentials
@@ -76,12 +73,8 @@ class OrderRead(BaseModel):
     auth_date: datetime.datetime | None = None
     end_date: datetime.datetime | None = None
 
-    exchange: float
     shop: str | None = None
     shop_order_id: str | int | None = None
-    contact: str | None = None
-    booster: str | None = None  # TODO: оно здесь не надо
-    status_paid: str | None = None  # TODO: оно здесь не надо
 
 
 class Order(BaseModel):
@@ -89,18 +82,20 @@ class Order(BaseModel):
     order_id: str
 
     date: datetime.datetime
-    exchange: float
-    shop: str
-    shop_order_id: str | int | None
-    contact: str | None
-    screenshot: str | None
+    screenshot: str | None = None
     status: str
-    booster: str | None
-    status_paid: str
 
     info: OrderInfo
     price: OrderPrice
     credentials: OrderCredentials
 
-    auth_date: datetime.datetime | None
-    end_date: datetime.datetime | None
+    auth_date: datetime.datetime | None = None
+    end_date: datetime.datetime | None = None
+
+
+class PreOrder(BaseModel):
+    id: PydanticObjectId
+    date: datetime.datetime
+
+    info: OrderInfo
+    price: OrderPrice

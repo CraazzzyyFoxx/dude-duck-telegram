@@ -1,6 +1,7 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator, FieldValidationInfo
-from beanie import PydanticObjectId
+import re
 
+from pydantic import BaseModel, EmailStr, Field, field_validator, FieldValidationInfo, constr
+from beanie import PydanticObjectId
 
 __all__ = ("LoginForm", "SignInForm", "RegisterResponse")
 
@@ -14,7 +15,7 @@ class LoginForm(BaseModel):
 class SignInForm(BaseModel):
     email: EmailStr
     password: str = Field(min_length=6)
-    username: str = Field(min_length=3, max_length=25)
+    username: constr(strip_whitespace=True, to_lower=True, min_length=3, max_length=20)
     discord: str = Field(min_items=3)
     message_id: int
 
@@ -22,11 +23,19 @@ class SignInForm(BaseModel):
     def discord_validate(cls, v: str, info: FieldValidationInfo) -> str:
         if v.startswith("@"):
             v = v.replace("@", "")
-
+            if len(v.replace(" ", "")) != len(v):
+                raise ValueError("The discord username should be @craaazzzyyfoxx or CraazzzyyFoxx#0001 format")
         if "#" in v:
             name, dis = v.strip("#")
             if len(dis) != 4:
                 raise ValueError("The discord username should be @craaazzzyyfoxx or CraazzzyyFoxx#0001 format")
+        return v
+
+    @field_validator('username')
+    def username_validate(cls, v: str):
+        regex = re.fullmatch(r"([\w{L}]+)", v)
+        if not regex:
+            raise ValueError("Only Latin, Cyrillic and numbers can be used in the username")
         return v
 
 

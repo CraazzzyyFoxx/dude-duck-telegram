@@ -29,7 +29,6 @@ class TelegramUser(Document):
         state_management_save_previous = True
         indexes = [
             IndexModel(["user_id", "telegram_user_id"], unique=True),
-            # IndexModel("telegram_user_id", unique=True),
 
         ]
 

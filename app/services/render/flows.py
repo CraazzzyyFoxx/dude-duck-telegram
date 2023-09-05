@@ -13,7 +13,7 @@ from . import service, models
 
 
 def get_base_by_name(order: api_schemas.Order):
-    return ["base", order.info.game, "eta-price"]
+    return ["order", order.info.game, "eta-price"]
 
 
 async def get(parser_id: PydanticObjectId):
@@ -56,7 +56,29 @@ async def delete(name: str):
     return await service.delete(parser.id)
 
 
-async def check_availability_all_render_config_order(order: api_schemas.Order):
+def get_order_configs(order: api_schemas.Order, *, creds: bool = False):
+    game = order.info.game if not creds else f"{order.info.game}-cd"
+    return ["order", game, "eta-price"]
+
+
+def get_order_response_configs(order: api_schemas.Order, *, creds: bool = False, checked: bool = False):
+    game = order.info.game if not creds else f"{order.info.game}-cd"
+    resp = "response" if not checked else "response-check"
+    return ["order", game, "eta-price", resp]
+
+
+def get_preorder_configs(order: api_schemas.Order, *, creds: bool = False):
+    game = order.info.game if not creds else f"{order.info.game}-cd"
+    return ["pre-order", game, "pre-eta-price"]
+
+
+def get_preorder_response_configs(order: api_schemas.Order, *, creds: bool = False, checked: bool = False):
+    game = order.info.game if not creds else f"{order.info.game}-cd"
+    resp = "response" if not checked else "response-check"
+    return ["pre-order", game, "pre-eta-price", resp]
+
+
+async def check_availability_all_render_config_order(order: api_schemas.Order) -> tuple[bool, list[str]]:
     configs = await service.get_all_configs_for_order(order)
     names = service.get_all_config_names(order)
     exist_names = [config.name for config in configs]
@@ -65,11 +87,8 @@ async def check_availability_all_render_config_order(order: api_schemas.Order):
         for name in names:
             if name not in exist_names:
                 missing.append(name)
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=[{"msg": f"Some Render Configs for order missing configs=[{', '.join(missing)}]"}],
-        )
-    return True
+        return False, missing
+    return True, []
 
 
 def _render(pre_render: str):
@@ -120,7 +139,7 @@ def _get_template_env():
     return _get_template_env.template_env
 
 
-async def pre_order(templates: list[str], *, data: dict) -> str:
+async def _order(templates: list[str], *, data: dict) -> str:
     resp = []
     for index, temp in enumerate(templates, 1):
         render_config = await get_by_name(temp)
@@ -136,4 +155,4 @@ async def pre_order(templates: list[str], *, data: dict) -> str:
 
 
 async def order(templates: list[str], *, data: dict) -> str:
-    return _render(await pre_order(templates, data=data))
+    return _render(await _order(templates, data=data))

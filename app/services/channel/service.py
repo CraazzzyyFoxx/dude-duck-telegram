@@ -33,9 +33,9 @@ async def get_all() -> list[models.Channel]:
     return await models.Channel.find({}).to_list()
 
 
-async def get_channel_by_game_category(game: str, category: str = None) -> models.Channel | None:
+async def get_by_game_category(game: str, category: str = None) -> models.Channel | None:
     return await models.Channel.find_one({"game": game, "category": category})
 
 
-async def get_channels_by_game_categories(game: str, categories: list[str]) -> list[models.Channel]:
+async def get_by_game_categories(game: str, categories: list[str]) -> list[models.Channel]:
     return await models.Channel.find({"game": game, "category": {"$in": categories}}).to_list()

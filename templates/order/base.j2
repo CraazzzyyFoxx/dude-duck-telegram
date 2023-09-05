@@ -1,0 +1,8 @@
+{% if order.order_id %}
+<b>Order:</b> {{ order.order_id}}<br>
+{% endif %}
+{% if order.info.boost_type %}<b>Description:</b>{% endif %}
+{% if order.info.boost_type %}{{order.info.boost_type}}{% endif %} {% if order.info.game %}{{order.info.game}}{% endif %} {% if order.info.purchase %}{{order.info.purchase}}{% endif %}<br>
+{% if order.info.comment %}
+<b>Additional Info:</b> {{ order.info.comment }}<br>
+{% endif %}

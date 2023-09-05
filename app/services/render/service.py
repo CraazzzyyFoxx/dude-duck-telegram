@@ -6,7 +6,8 @@ from . import models
 
 
 def get_all_config_names(order: Order):
-    return ["base", "eta-price", "response", "response-check", order.info.game, f"{order.info.game}-cd"]
+    return ["order", "eta-price", "response", "response-check",
+            order.info.game, f"{order.info.game}-cd", "pre-order", "pre-eta-price"]
 
 async def get(config_id: PydanticObjectId) -> models.RenderConfig | None:
     return await models.RenderConfig.find_one({"_id": config_id})

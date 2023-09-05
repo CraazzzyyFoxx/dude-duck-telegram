@@ -17,6 +17,7 @@ class PermissionMessageMiddleware(BaseMiddleware):
             event: Message,
             data: Dict[str, Any]
     ) -> Any:
+        data["user"] = await api_service.get_by_telegram_user_id(event.from_user.id)
         chat_action = get_flag(data, 'chat_action')
         if chat_action is not None:
             is_superuser = "is_superuser" in chat_action
@@ -35,11 +36,10 @@ class PermissionMessageMiddleware(BaseMiddleware):
         if is_auth:
             return await handler(event, data)
 
-        data["user"] = await api_service.get_by_telegram_user_id(event.from_user.id)
         user = await api_flows.get_me_user_id(event.from_user.id)
 
         if not user.is_verified:
-            await event.answer(render_flows.user("no_verify", user))
+            await event.answer(render_flows.user("verify_no", user))
             return
 
         if is_private and event.chat.type != "private":

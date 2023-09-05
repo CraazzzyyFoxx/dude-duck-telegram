@@ -1,0 +1,6 @@
+Order #{{ order.order_id }} was placed in {{ payload.created|length }} channels! <br>
+
+{% if payload.error %}
+<b>Error: </b> <br>
+{{ payload.error_msg }} <br>
+{% endif %}

@@ -26,12 +26,15 @@ async def respond_order_yes_button(
         callback_data: OrderRespondYesNoCallback,
         user
 ):
-    order = await api_flows.get_order(call.from_user.id, callback_data.order_id)
+    if callback_data.preorder:
+        order = await api_flows.get_preorder(call.from_user.id, callback_data.order_id)
+    else:
+        order = await api_flows.get_order(call.from_user.id, callback_data.order_id)
     msg = await message_service.get_by_channel_id_message_id(call.message.chat.id, call.message.message_id)
     await message_service.update(msg, message_models.MessageUpdate())
     await bot.send_message(call.from_user.id, render_flows.user("response_200", user))
     await state.set_state(OrderRespondState.approved)
-    await state.update_data(order=order, message=msg)
+    await state.update_data(order=order, message=msg, preorder=callback_data.preorder)
 
 
 @router.callback_query(OrderRespondYesNoCallback.filter(F.state == False))
@@ -45,16 +48,21 @@ async def respond_done_order(message: Message, state: FSMContext, user):
     data = await state.get_data()
     order = data.get("order")
     msg: message_models.Message = data.get("message")
+    preorder: bool = data.get("preorder")
     extra = response_flows.models.OrderResponseExtra(text=message.text)
-    status, resp = await response_flows.create_response(message.from_user.id, PydanticObjectId(order.id), extra)
+    order_id = PydanticObjectId(order.id)
+    if preorder:
+        status, resp = await response_flows.create_preorder_response(message.from_user.id, order_id, extra)
+    else:
+        status, resp = await response_flows.create_response(message.from_user.id, order_id, extra)
 
     if status in (404, 400, 403, 409):
         await message.answer(render_flows.user(f"response_{status}", user.user))
+        await state.clear()
         return
-
+    data = {"order": order, "response": resp, "user": await api_flows.get_me_user_id(message.from_user.id)}
     await message_service.update(msg, message_models.MessageUpdate(
-        text=await render_flows.order(['base', f"{order.info.game}", 'eta-price', 'response'],
-                                      data={"order": order, "response": resp})
+        text=await render_flows.order(['order', f"{order.info.game}", 'eta-price', 'response'], data=data)
     ))
 
     await message.answer(render_flows.user("response_201", user.user))

@@ -1,0 +1,6 @@
+Order #{{ order.order_id }} was removed from {{ payload.deleted|length }} channels! <br>
+
+{% if payload.error %}
+<b>Error: </b> <br>
+{{ payload.error_msg }} <br>
+{% endif %}

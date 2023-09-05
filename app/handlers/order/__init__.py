@@ -21,14 +21,19 @@ async def entry_point(call: types.CallbackQuery, callback_data: OrderRespondCall
     if await response_service.get_me_response(call.from_user.id, callback_data.order_id):
         await call.answer(render_flows.user("response_403", user), show_alert=True)
         return
-
-    order = await api_flows.get_order(call.from_user.id, callback_data.order_id)
+    if not callback_data.preorder:
+        order = await api_flows.get_order(call.from_user.id, callback_data.order_id)
+    else:
+        order = await api_flows.get_preorder(call.from_user.id, callback_data.order_id)
     builder = InlineKeyboardBuilder()
     data = [("Accept", True), ("Decline", False)]
     for row in data:
-        builder.add(InlineKeyboardButton(text=row[0],
-                                         callback_data=OrderRespondYesNoCallback(
-                                             order_id=callback_data.order_id, state=row[1]).pack()))
+        call_data = OrderRespondYesNoCallback(
+            order_id=callback_data.order_id,
+            state=row[1],
+            preorder=callback_data.preorder
+        )
+        builder.add(InlineKeyboardButton(text=row[0], callback_data=call_data.pack()))
 
     configs = render_flows.get_base_by_name(order)
     msg, status = await message_service.create(message_models.MessageCreate(

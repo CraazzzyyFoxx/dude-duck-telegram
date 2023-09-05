@@ -20,7 +20,7 @@ async def paging_getter_aco(dialog_manager: DialogManager, **_kwargs):
     if not orders:
         orders = await api_flows.me_get_orders(d.from_user.id, status, page=1 + int(current_page / 10))
         dialog_manager.dialog_data["orders_data"] = orders
-    if int(current_page / 10) > orders.page:
+    if int(current_page / 10) + 1 != orders.page:
         orders = await api_flows.me_get_orders(d.from_user.id, status, page=1 + int(current_page / 10))
         dialog_manager.dialog_data["orders_data"] = orders
 
@@ -28,7 +28,7 @@ async def paging_getter_aco(dialog_manager: DialogManager, **_kwargs):
         "user": user,
         "pages": orders.total if orders.total > 0 else 1,
         "current_page": current_page + 1,
-        "order": orders.results[current_page % orders.per_page] if orders.total > 0 else [],
+        "order": orders.results[current_page % orders.per_page] if orders.total > 0 else None,
     }
 
 

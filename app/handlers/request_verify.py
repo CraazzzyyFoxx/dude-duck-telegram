@@ -9,7 +9,6 @@ router = Router()
 
 
 @router.message(Command('request_verify'), flags={'chat_action': {"is_private", "is_auth"}})
-async def request_verify(message: types.Message) -> None:
+async def request_verify(message: types.Message, user) -> None:
     await auth_service.request_verify(message.from_user.id)
-    lang = process_language(message.user, None)
-    await message.answer(render_flows.base("verify_request", lang))
+    await message.answer(render_flows.user("verify_request", user.user))

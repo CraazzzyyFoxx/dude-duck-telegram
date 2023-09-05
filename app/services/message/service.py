@@ -14,8 +14,9 @@ async def get_by_type(message_id: PydanticObjectId, message_type: models.Message
     return await models.Message.find({"_id": message_id, "type": message_type, "is_deleted": False}).to_list()
 
 
-async def get_by_order_id(order_id: PydanticObjectId) -> list[models.Message]:
-    return await models.Message.find({"order_id": order_id, "is_deleted": False}).to_list()
+async def get_by_order_id(order_id: PydanticObjectId, preorder: bool) -> list[models.Message]:
+    message_type = models.MessageType.PRE_ORDER if preorder else models.MessageType.ORDER
+    return await models.Message.find({"order_id": order_id, "is_deleted": False, "type": message_type}).to_list()
 
 
 async def get_by_user_id(user_id: PydanticObjectId) -> list[models.Message]:

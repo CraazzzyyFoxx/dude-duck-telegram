@@ -35,7 +35,7 @@ async def login(user_id: int, email: str, password: str) -> tuple[int, api_model
 
 async def request_verify(user_id: int):
     user = await api_service.get_by_telegram_user_id(user_id)
-    await api_service.request_auth('auth/request-verify-token', 'POST', json={"email": user.email})
+    await api_service.request_auth('auth/request-verify-token', 'POST', json={"email": user.user.email})
 
 
 async def verify(token: str):

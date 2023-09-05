@@ -12,13 +12,14 @@ from . import models
 
 
 class ApiServiceMeta:
-    __slots__ = ("client", "_client_kwargs")
+    __slots__ = ("client", )
 
     def __init__(self):
         self.client = AsyncClient(timeout=8)
 
-    def _build_client(self) -> AsyncClient:
-        return AsyncClient(**self._client_kwargs)
+    @staticmethod
+    def _build_client() -> AsyncClient:
+        return AsyncClient()
 
     async def init(self) -> None:
         if self.client.is_closed:
@@ -86,14 +87,14 @@ async def get_token_user_id(user_id: int) -> str | None:
     user = await get_by_telegram_user_id(user_id)
     if user is None:
         return None
-    if user.last_login < datetime.utcnow() - timedelta(days=1):
+    if user.last_login is None or user.last_login < datetime.utcnow() - timedelta(days=1):
         return None
     return user.token
 
 
 async def request(
         url: str,
-        method: typing.Literal["GET", "POST", "PUT", "DELETE"],
+        method: typing.Literal["GET", "POST", "PATCH", "DELETE"],
         token: str | None,
         *,
         json: typing.Any = None,
