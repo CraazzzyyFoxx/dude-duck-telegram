@@ -82,3 +82,22 @@ async def change_language(user_id: int):
         user = models.User.model_validate(resp.json())
         await service.update(user_db, models.TelegramUserUpdate(user=user))
         return user
+
+
+async def update_user(user_id: int, u_id: PydanticObjectId, data: schemas.UserUpdate):
+    resp = await service.request(
+        f'users/{u_id}',
+        'PATCH',
+        await service.get_token_user_id(user_id),
+        json=data.model_dump()
+    )
+    return models.User.model_validate(resp.json())
+
+
+async def get_users(user_id: int):
+    resp = await service.request(
+        f'users?page=1&per_page=100&sort=created_at&order=asc',
+        'GET',
+        await service.get_token_user_id(user_id)
+    )
+    return search_service.models.Paginated[schemas.User].model_validate(resp.json())

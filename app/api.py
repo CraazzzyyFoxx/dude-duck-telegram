@@ -2,14 +2,16 @@ from fastapi import APIRouter
 
 from app.services.render import views as render_views
 from app.services.pull import views as pull_views
+from app.services.channel import views as channel_views
 
 from app.services.auth import views as auth_views
 from app.services.close import views as close_views
-from app.services.channel import views as channel_views
+from app.services.users import views as users_views
 
 router = APIRouter()
 router.include_router(auth_views.router)
 router.include_router(close_views.router)
+router.include_router(users_views.router)
 
 api_router = APIRouter(prefix="/api")
 api_router.include_router(render_views.router)

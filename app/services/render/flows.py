@@ -12,10 +12,6 @@ from app.services.api import schemas as api_schemas
 from . import service, models
 
 
-def get_base_by_name(order: api_schemas.Order):
-    return ["order", order.info.game, "eta-price"]
-
-
 async def get(parser_id: PydanticObjectId):
     parser = await service.get(parser_id)
     if not parser:
@@ -67,13 +63,13 @@ def get_order_response_configs(order: api_schemas.Order, *, creds: bool = False,
     return ["order", game, "eta-price", resp]
 
 
-def get_preorder_configs(order: api_schemas.Order, *, creds: bool = False):
-    game = order.info.game if not creds else f"{order.info.game}-cd"
+def get_preorder_configs(preorder: api_schemas.PreOrder, *, creds: bool = False):
+    game = preorder.info.game if not creds else f"{preorder.info.game}-cd"
     return ["pre-order", game, "pre-eta-price"]
 
 
-def get_preorder_response_configs(order: api_schemas.Order, *, creds: bool = False, checked: bool = False):
-    game = order.info.game if not creds else f"{order.info.game}-cd"
+def get_preorder_response_configs(preorder: api_schemas.PreOrder, *, creds: bool = False, checked: bool = False):
+    game = preorder.info.game if not creds else f"{preorder.info.game}-cd"
     resp = "response" if not checked else "response-check"
     return ["pre-order", game, "pre-eta-price", resp]
 
@@ -141,15 +137,19 @@ def _get_template_env():
 
 async def _order(templates: list[str], *, data: dict) -> str:
     resp = []
-    for index, temp in enumerate(templates, 1):
-        render_config = await get_by_name(temp)
+    last_len = 0
+    for index, render_config in enumerate(templates, 1):
+        render_config = await service.get_by_name(render_config)
         template = jinja2.Template(render_config.binary, trim_blocks=True, lstrip_blocks=True, autoescape=True)
-        rendered = template.render(**data).replace("\n", " ")
+        rendered = template.render(**data).replace("\n", "")
+        rendered = re.sub(" +", " ", rendered)
         if not render_config.allow_separator_top and len(resp) > 0:
             resp.pop(-1)
-        resp.append(rendered)
-        if index < len(templates):
+        if len(rendered) > 1:
+            resp.append(rendered)
+        if index < len(templates) and len(resp) > last_len:
             resp.append(f"{render_config.separator}<br>")
+        last_len = len(resp)
     rendered = ''.join(resp)
     return rendered
 

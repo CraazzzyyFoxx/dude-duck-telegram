@@ -8,6 +8,8 @@ from aiogram_dialog.widgets.text import Const, Format
 
 from app.core import config
 from app.services.api import models as api_models
+from app.services.api import flows as api_flows
+from app.services.api import schemas as api_schemas
 
 from .states import Main
 from .utils import Jinja
@@ -31,10 +33,14 @@ async def get_data(dialog_manager: DialogManager, **_kwargs):
     if dialog_manager.start_data is None:
         await dialog_manager.done()
         return
-    user = dialog_manager.start_data.get("user", None)
+    user: api_models.User = dialog_manager.start_data.get("user", None)
     dialog_manager.dialog_data["user"] = user
     dialog_manager.dialog_data["message"] = dialog_manager.start_data.get("message")
-    return {"user": user, "message": dialog_manager.start_data.get("message"), "auth_url": config.app.auth_url}
+    lang = "🇺🇸" if user.user.language == api_schemas.UserLanguage.EN else "🇷🇺"
+    return {"user": user,
+            "message": dialog_manager.start_data.get("message"),
+            "auth_url": config.app.auth_url,
+            "lang": lang}
 
 
 async def to_acc(callback: CallbackQuery, _: Button, dialog_manager: DialogManager):
@@ -54,6 +60,12 @@ async def to_orders(callback: CallbackQuery, button: Button, dialog_manager: Dia
     if dialog_manager.dialog_data.get("orders_data"):
         dialog_manager.dialog_data.pop("orders_data")
     await dialog_manager.switch_to(Main.ORDERS)
+
+
+async def change_language(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+    user = await api_flows.change_language(callback.from_user.id)
+    dialog_manager.dialog_data["user"].user = user
+    await dialog_manager.switch_to(Main.MAIN)
 
 
 main_dialog = Dialog(
@@ -78,6 +90,11 @@ main_dialog = Dialog(
             text=Const("🧷 Close order"),
             url=Format("{auth_url}order/close?user_id={message.from_user.id}"),
             id="close_order",
+        ),
+        Button(
+            text=Format("{lang} Language"),
+            id="change_language",
+            on_click=change_language,
         ),
         Button(
             text=Const("👋 See you"),

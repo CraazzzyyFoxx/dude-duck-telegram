@@ -25,7 +25,7 @@ class PermissionMessageMiddleware(BaseMiddleware):
             is_auth = "is_auth" in chat_action
         else:
             is_superuser = False
-            is_private = True
+            is_private = False
             is_auth = False
 
         if is_auth and event.chat.type != "private":
@@ -61,14 +61,16 @@ class PermissionCallbackMiddleware(BaseMiddleware):
             event: CallbackQuery,
             data: Dict[str, Any]
     ) -> Any:
-        is_superuser = get_flag(data, "is_superuser")
-        is_private = get_flag(data, "is_private")
-        is_auth = get_flag(data, "is_auth")
-
-        if is_auth and event.chat.type != "private":
-            lang = process_language(event.from_user)
-            await event.answer(render_flows.base("only_private", lang), show_alert=True)
-            return
+        data["user"] = await api_service.get_by_telegram_user_id(event.from_user.id)
+        chat_action = get_flag(data, 'chat_action')
+        if chat_action is not None:
+            is_superuser = "is_superuser" in chat_action
+            is_private = "is_private" in chat_action
+            is_auth = "is_auth" in chat_action
+        else:
+            is_superuser = False
+            is_private = False
+            is_auth = False
 
         if is_auth:
             return await handler(event, data)
@@ -76,10 +78,10 @@ class PermissionCallbackMiddleware(BaseMiddleware):
         user = await api_flows.get_me_user_id(event.from_user.id)
 
         if not user.is_verified:
-            await event.answer(render_flows.user("no_verify", user), show_alert=True)
+            await event.answer(render_flows.user("verify_no", user), show_alert=True)
             return
 
-        if is_private and event.chat.type != "private":
+        if is_private and event.message.chat.type != "private":
             await event.answer(render_flows.user("only_private", user), show_alert=True)
             return
 

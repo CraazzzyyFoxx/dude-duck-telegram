@@ -83,12 +83,11 @@ async def auth_register(data: dict):
     try:
         valid = models.SignInForm.model_validate(data)
     except ValidationError:
-        user = await api_service.get_by_telegram_user_id(init_data.user.id)
-        lang = process_language(init_data.user, user.user)
+        lang = process_language(init_data.user, None)
         await response_web_query(init_data, "Login", render_flows.base("register_422", lang))
         return
 
-    status = await service.register(init_data.user.id, init_data.user.username, valid)
+    status, resp = await service.register(init_data.user.id, init_data.user.username, valid)
     lang = process_language(init_data.user, None)
     if status == 400:
         await response_web_query(init_data, "Sign Up", render_flows.base("register_400", lang))
@@ -96,4 +95,6 @@ async def auth_register(data: dict):
         await response_web_query(init_data, "Sign Up", render_flows.base("register_201", lang))
     if status == 500:
         await response_web_query(init_data, "Sign Up", render_flows.base("auth_not_available", lang))
+    if status == 422:
+        await response_web_query(init_data, "Sign Up", render_flows.base("register_422", lang))
     return ORJSONResponse({"ok": True})

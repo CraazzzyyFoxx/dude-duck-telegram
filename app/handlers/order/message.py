@@ -61,9 +61,10 @@ async def respond_done_order(message: Message, state: FSMContext, user):
         await state.clear()
         return
     data = {"order": order, "response": resp, "user": await api_flows.get_me_user_id(message.from_user.id)}
-    await message_service.update(msg, message_models.MessageUpdate(
-        text=await render_flows.order(['order', f"{order.info.game}", 'eta-price', 'response'], data=data)
-    ))
-
+    if preorder:
+        configs = render_flows.get_preorder_configs(order)
+    else:
+        configs = render_flows.get_order_configs(order)
+    await message_service.update(msg, message_models.MessageUpdate(text=await render_flows.order(configs, data=data)))
     await message.answer(render_flows.user("response_201", user.user))
     await state.clear()

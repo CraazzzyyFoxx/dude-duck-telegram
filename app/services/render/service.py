@@ -9,6 +9,7 @@ def get_all_config_names(order: Order):
     return ["order", "eta-price", "response", "response-check",
             order.info.game, f"{order.info.game}-cd", "pre-order", "pre-eta-price"]
 
+
 async def get(config_id: PydanticObjectId) -> models.RenderConfig | None:
     return await models.RenderConfig.find_one({"_id": config_id})
 
@@ -25,6 +26,10 @@ async def delete(config_id: PydanticObjectId):
 
 async def get_by_name(name: str) -> models.RenderConfig | None:
     return await models.RenderConfig.find_one({"name": name})
+
+
+async def get_by_names(names: list[str]) -> list[models.RenderConfig]:
+    return await models.RenderConfig.find({"name": {"$in": names}}).to_list()
 
 
 async def update(parser: models.RenderConfig, parser_in: models.RenderConfigUpdate) -> models.RenderConfig:

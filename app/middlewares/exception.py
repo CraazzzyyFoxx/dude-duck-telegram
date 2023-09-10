@@ -21,7 +21,8 @@ class ExceptionMiddleware(BaseHTTPMiddleware):
         except ValidationError as e:
             logger.exception(e)
             response = ORJSONResponse(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content={"detail": e.errors()}
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                content={"detail": e.json()}
             )
         except HTTPException as e:
             response = ORJSONResponse({"detail": e.detail}, status_code=e.status_code)

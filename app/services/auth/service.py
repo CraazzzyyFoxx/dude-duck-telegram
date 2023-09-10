@@ -5,14 +5,14 @@ from app.services.api import flows as api_flows
 from . import models
 
 
-async def register(user_id: int, username: str, data: models.SignInForm) -> int:
+async def register(user_id: int, username: str, data: models.SignInForm) -> tuple[int, dict]:
     data = {"name": data.username, "email": data.email, "password": data.password,
             "telegram": username, "discord": data.discord}
     response = await api_service.request_auth('auth/register', 'POST', json=data)
     if response.status_code == 201:
         model = api_models.TelegramUserCreate(user_id=response.json()["id"], telegram_user_id=user_id)
         await api_service.create(model)
-    return response.status_code
+    return response.status_code, response.json()
 
 
 async def login(user_id: int, email: str, password: str) -> tuple[int, api_models.TelegramUser | None]:

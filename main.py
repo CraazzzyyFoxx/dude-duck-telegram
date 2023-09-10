@@ -13,10 +13,9 @@ from beanie import init_beanie
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
-from starlette import status
 from starlette.staticfiles import StaticFiles
 
-from app.core import bot, errors, config, enums
+from app.core import bot, config, enums
 from app.core.logging import logger
 from app.core.webhook import setup_application, SimpleRequestHandler
 from app.middlewares.exception import ExceptionMiddleware
@@ -58,12 +57,6 @@ app = FastAPI(
     lifespan=lifespan,
     debug=False,
     default_response_class=ORJSONResponse,
-    responses={
-        status.HTTP_422_UNPROCESSABLE_ENTITY: {
-            "description": "Validation Error",
-            "model": errors.APIValidationError,
-        }
-    },
 )
 app.add_middleware(TimeMiddleware)
 app.add_middleware(ExceptionMiddleware)

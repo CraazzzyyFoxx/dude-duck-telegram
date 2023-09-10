@@ -34,8 +34,10 @@ async def entry_point(call: types.CallbackQuery, callback_data: OrderRespondCall
             preorder=callback_data.preorder
         )
         builder.add(InlineKeyboardButton(text=row[0], callback_data=call_data.pack()))
-
-    configs = render_flows.get_base_by_name(order)
+    if not callback_data.preorder:
+        configs = render_flows.get_order_configs(order)
+    else:
+        configs = render_flows.get_preorder_configs(order)
     msg, status = await message_service.create(message_models.MessageCreate(
         channel_id=call.from_user.id,
         text=await render_flows.order(configs, data={"order": order}),

@@ -1,6 +1,6 @@
 import re
 
-from pydantic import BaseModel, EmailStr, Field, field_validator, FieldValidationInfo, constr
+from pydantic import BaseModel, EmailStr, Field, field_validator, constr
 from beanie import PydanticObjectId
 
 __all__ = ("LoginForm", "SignInForm", "RegisterResponse")
@@ -16,19 +16,20 @@ class SignInForm(BaseModel):
     email: EmailStr
     password: str = Field(min_length=6)
     username: constr(strip_whitespace=True, to_lower=True, min_length=3, max_length=20)
-    discord: str = Field(min_items=3)
+    discord: str = Field(min_length=3)
     message_id: int
 
     @field_validator('discord')
-    def discord_validate(cls, v: str, info: FieldValidationInfo) -> str:
+    def discord_validate(cls, v: str) -> str:
         if v.startswith("@"):
-            v = v.replace("@", "")
             if len(v.replace(" ", "")) != len(v):
                 raise ValueError("The discord username should be @craaazzzyyfoxx or CraazzzyyFoxx#0001 format")
-        if "#" in v:
+        elif "#" in v:
             name, dis = v.strip("#")
             if len(dis) != 4:
                 raise ValueError("The discord username should be @craaazzzyyfoxx or CraazzzyyFoxx#0001 format")
+        else:
+            raise ValueError("The discord username should be @craaazzzyyfoxx or CraazzzyyFoxx#0001 format")
         return v
 
     @field_validator('username')

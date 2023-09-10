@@ -49,11 +49,11 @@ async def pull_create(
         **_kwargs
 ) -> models.OrderResponse:
     chs_id = [ch.channel_id for ch in await channel_service.get_by_game_categories(order.info.game, categories)]
+    # if not chs_id:
+    #     if channel := await channel_service.get_by_game_category(order.info.game, None):
+    #         chs_id.append(channel.channel_id)
     if not chs_id:
-        if channel := await channel_service.get_by_game_category(order.info.game, None):
-            chs_id.append(channel.channel_id)
-        else:
-            return models.OrderResponse(error=True, error_msg="A channels with this game do not exist")
+        return models.OrderResponse(error=True, error_msg="A channels with this game do not exist")
     created, skipped = [], []
     status, text = await generate_body(order, configs, preorder)
     if not status:
@@ -87,11 +87,11 @@ async def pull_update(
             text=text, inline_keyboard=get_reply_markup_response(order.id, preorder=preorder)
         )
         message, status = await message_service.update(msg, msg_in)
-        if not msg:
+        if not message:
             skipped.append(models.SkippedPull(status=status, channel_id=msg.channel_id))
         else:
             updated.append(models.SuccessPull(channel_id=msg.channel_id, message_id=msg.message_id, status=status))
-    return models.OrderResponse(created=updated, skipped=skipped)
+    return models.OrderResponse(updated=updated, skipped=skipped)
 
 
 async def pull_delete(
@@ -103,11 +103,11 @@ async def pull_delete(
     deleted, skipped = [], []
     for msg in msgs:
         message, status = await message_service.delete(msg)
-        if not msg:
+        if not message:
             skipped.append(models.SkippedPull(status=status, channel_id=msg.channel_id))
         else:
             deleted.append(models.SuccessPull(channel_id=msg.channel_id, message_id=msg.message_id, status=status))
-    return models.OrderResponse(created=deleted, skipped=skipped)
+    return models.OrderResponse(deleted=deleted, skipped=skipped)
 
 
 async def pull_order_create(
@@ -160,12 +160,13 @@ async def pull_preorder_delete(
 
 async def pull_order_admins(
         order,
+        preorder,
         user,
         response,
         is_preorder,
         **_kwargs
 ):
-    return await response_flows.response_to_admins(order, user, response, is_preorder)
+    return await response_flows.response_to_admins(order, preorder, user, response, is_preorder)
 
 
 async def pull_booster_resp_yes(

@@ -2,7 +2,7 @@ import datetime
 import enum
 
 from beanie import PydanticObjectId
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, model_validator
 from pydantic_extra_types.payment import PaymentCardNumber
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
@@ -38,10 +38,11 @@ class OrderInfo(BaseModel):
     boost_type: str | None
     region_fraction: str | None
     server: str | None
+    category: str | None
     character_class: str | None
-    nickname: str | None
+    platform: str | None
     game: str | None
-    purchase: str
+    purchase: str | None
     comment: str | None
     eta: str | None
 
@@ -52,11 +53,19 @@ class OrderPrice(BaseModel):
     price_booster_gold: float | None = None
 
 
+class PreOrderPrice(BaseModel):
+    price_booster_rub: float | None = None
+    price_booster_dollar_fee: float | None = None
+    price_booster_gold: float | None = None
+
+
 class OrderCredentials(BaseModel):
     battle_tag: str | None
+    nickname: str | None
     login: str | None
     password: str | None
     vpn: str | None
+    discord: str | None
 
 
 class OrderRead(BaseModel):
@@ -98,4 +107,19 @@ class PreOrder(BaseModel):
     date: datetime.datetime
 
     info: OrderInfo
-    price: OrderPrice
+    price: PreOrderPrice
+
+
+class UserUpdate(BaseModel):
+    phone: PhoneNumber | None = None
+    bank: str | None = None
+    bankcard: PaymentCardNumber | None = None
+    binance: EmailStr | None = None
+    max_orders: int
+
+    @model_validator(mode='after')
+    def check_passwords_match(self) -> 'UserUpdate':
+        if self.phone and not self.bank:
+            raise ValueError("When filling in the phone number, you must also fill in the name of the bank")
+
+        return self
