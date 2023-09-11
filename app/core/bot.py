@@ -14,6 +14,7 @@ from app.middlewares.permissions import PermissionMessageMiddleware, PermissionC
 from app.services.render import flows as render_flows
 from app.helpers import process_language
 
+
 storage = RedisStorage.from_url(config.app.redis_dsn)
 bot = Bot(token=config.app.token, parse_mode="HTML")
 dp = Dispatcher(storage=storage)
