@@ -88,7 +88,7 @@ main_dialog = Dialog(
         ),
         WebApp(
             text=Const("🧷 Close order"),
-            url=Format("{auth_url}/bot/order/close?user_id={message.from_user.id}"),
+            url=Format("{auth_url}bot/order/close?user_id={message.from_user.id}"),
             id="close_order",
         ),
         Button(
