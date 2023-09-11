@@ -14,7 +14,6 @@ class AppConfig(BaseSettings):
     backend_url: HttpUrl
     auth_url: HttpUrl
 
-    host: str
     port: int
 
     sentry_dsn: str
