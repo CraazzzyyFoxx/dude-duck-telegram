@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 
 import jinja2
 import sentry_sdk
-import uvicorn
 
 from aiogram_dialog import setup_dialogs
 from aiogram_dialog.widgets.text import setup_jinja
@@ -78,14 +77,4 @@ if not config.app.debug:
         dsn=config.app.sentry_dsn,
         traces_sample_rate=1.0,
         profiles_sample_rate=1.0
-    )
-
-
-if __name__ == '__main__':
-    uvicorn.run(
-        "main:app",
-        host=config.app.host,
-        port=config.app.port,
-        ssl_keyfile='key.pem',
-        ssl_certfile='cert.pem'
     )

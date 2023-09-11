@@ -26,6 +26,8 @@ class AppConfig(BaseSettings):
     mongo_name: str
     mongo_dsn: str
 
+    redis_dsn: str
+
     admin_order: int
     admin_important_events: int
     admin_events: int

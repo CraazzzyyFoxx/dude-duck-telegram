@@ -25,6 +25,7 @@ babel = "^2.12.1"
 pydantic-extra-types = "^2.0.0"
 phonenumbers = "^8.13.18"
 dateparser = "^1.1.8"
+redis = "^5.0.0"
 
 
 [build-system]
