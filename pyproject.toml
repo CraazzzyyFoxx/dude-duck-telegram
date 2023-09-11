@@ -28,6 +28,10 @@ redis = "^5.0.0"
 gunicorn = "^21.2.0"
 aioredis = "^2.0.1"
 
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.5.1"
+ruff = "^0.0.287"
+
 
 [build-system]
 requires = ["poetry-core"]

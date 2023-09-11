@@ -32,8 +32,6 @@ class Message(Document, BaseModel):
     message_id: int
 
     type: MessageType
-
-    is_deleted: bool = Field(default=False)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Settings:

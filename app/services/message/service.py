@@ -11,32 +11,32 @@ async def get(message_id: PydanticObjectId) -> models.Message | None:
 
 
 async def get_by_type(message_id: PydanticObjectId, message_type: models.MessageType) -> list[models.Message]:
-    return await models.Message.find({"_id": message_id, "type": message_type, "is_deleted": False}).to_list()
+    return await models.Message.find({"_id": message_id, "type": message_type}).to_list()
 
 
 async def get_by_order_id(order_id: PydanticObjectId, preorder: bool) -> list[models.Message]:
     message_type = models.MessageType.PRE_ORDER if preorder else models.MessageType.ORDER
-    return await models.Message.find({"order_id": order_id, "is_deleted": False, "type": message_type}).to_list()
+    return await models.Message.find({"order_id": order_id, "type": message_type}).to_list()
 
 
 async def get_by_user_id(user_id: PydanticObjectId) -> list[models.Message]:
-    return await models.Message.find({"user_id": user_id, "is_deleted": False}).to_list()
+    return await models.Message.find({"user_id": user_id}).to_list()
 
 
 async def get_by_order_id_user_id(order_id: PydanticObjectId, user_id: PydanticObjectId) -> models.Message | None:
-    return await models.Message.find_one({"order_id": order_id, "user_id": user_id, "is_deleted": False})
+    return await models.Message.find_one({"order_id": order_id, "user_id": user_id})
 
 
 async def get_by_order_id_type(order_id: PydanticObjectId, message_type: models.MessageType) -> list[models.Message]:
-    return await models.Message.find({"order_id": order_id, "type": message_type, "is_deleted": False}).to_list()
+    return await models.Message.find({"order_id": order_id, "type": message_type}).to_list()
 
 
 async def get_by_order_id_channel_id(order_id: PydanticObjectId, channel_id: int) -> list[models.Message]:
-    return await models.Message.find({"order_id": order_id, "channel_id": channel_id, "is_deleted": False}).to_list()
+    return await models.Message.find({"order_id": order_id, "channel_id": channel_id}).to_list()
 
 
 async def get_by_channel_id_message_id(channel_id: int, message_id: int) -> models.Message:
-    return await models.Message.find_one({"channel_id": channel_id, "message_id": message_id, "is_deleted": False})
+    return await models.Message.find_one({"channel_id": channel_id, "message_id": message_id})
 
 
 async def _create(message_in: models.MessageCreate):
@@ -90,6 +90,7 @@ async def update(
     except TelegramBadRequest:
         return None, models.MessageStatus.SAME_TEXT
     except TelegramNotFound:
+        await message.delete()
         return None, models.MessageStatus.NOT_FOUND
     except TelegramForbiddenError:
         return None, models.MessageStatus.FORBIDDEN
@@ -98,6 +99,8 @@ async def update(
 
 
 async def delete(message: models.Message) -> tuple[models.Message | None,  models.MessageStatus]:
+    await message.delete()
+
     try:
         await bot.delete_message(message.channel_id, message.message_id)
     except TelegramNotFound:
@@ -105,6 +108,4 @@ async def delete(message: models.Message) -> tuple[models.Message | None,  model
     except TelegramForbiddenError:
         return None, models.MessageStatus.FORBIDDEN
     else:
-        message.is_deleted = True
-        await message.save()
         return message, models.MessageStatus.DELETED
