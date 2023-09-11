@@ -43,7 +43,7 @@ async def lifespan(application: FastAPI):  # noqa
         commands=enums.my_commands_ru, scope=BotCommandScopeAllPrivateChats(), language_code="ru")
     await bot.bot.set_my_commands(
         commands=enums.my_commands_en, scope=BotCommandScopeAllPrivateChats(), language_code="en")
-    await bot.bot.set_webhook(url=f"{config.app.webhook_url}/api/telegram/webhook",
+    await bot.bot.set_webhook(url=f"{config.app.webhook_url}/bot/telegram/api/webhook",
                               secret_token=config.app.api_token,
                               drop_pending_updates=True)
     logger.info("Bot... Online!")
@@ -55,6 +55,7 @@ async def lifespan(application: FastAPI):  # noqa
 app = FastAPI(
     lifespan=lifespan,
     debug=False,
+    root_path="/bot",
     default_response_class=ORJSONResponse,
 )
 app.add_middleware(TimeMiddleware)
@@ -69,7 +70,7 @@ app.add_middleware(CORSMiddleware,
                    )
 
 srh = SimpleRequestHandler(bot.dp, bot.bot, handle_in_background=False, _bot=bot.bot)
-srh.register(app, "bot/api/telegram/webhook")
+srh.register(app, "/telegram/api/webhook")
 setup_application(app, bot.dp, _bot=bot.bot, bot=bot.bot)
 
 if not config.app.debug:
