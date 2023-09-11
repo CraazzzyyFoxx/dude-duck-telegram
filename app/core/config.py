@@ -22,7 +22,6 @@ class AppConfig(BaseSettings):
     log_level: str = "info"
     logs_root_path: str = f"{Path.cwd()}/logs"
 
-    mongo_name: str
     mongo_dsn: str
 
     redis_dsn: str
