@@ -70,3 +70,6 @@ app.add_middleware(CORSMiddleware,
 srh = SimpleRequestHandler(bot.dp, bot.bot, handle_in_background=False, _bot=bot.bot)
 srh.register(api_app, "/api/telegram/webhook")
 setup_application(api_app, bot.dp, _bot=bot.bot, bot=bot.bot)
+
+
+app.mount("/bot", app=api_app)
