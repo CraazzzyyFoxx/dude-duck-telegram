@@ -8,7 +8,7 @@ from app.services.auth import views as auth_views
 from app.services.close import views as close_views
 from app.services.users import views as users_views
 
-router = APIRouter(prefix="bot")
+router = APIRouter(prefix="/bot")
 router.include_router(auth_views.router)
 router.include_router(close_views.router)
 router.include_router(users_views.router)
