@@ -1,7 +1,7 @@
 import aiogram_dialog
 
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.redis import RedisStorage
+from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import ExceptionTypeFilter
 from aiogram.types import ErrorEvent
@@ -15,7 +15,7 @@ from app.services.render import flows as render_flows
 from app.helpers import process_language
 
 
-storage = RedisStorage.from_url(config.app.redis_dsn)
+storage = MemoryStorage()
 bot = Bot(token=config.app.token, parse_mode="HTML")
 dp = Dispatcher(storage=storage)
 
