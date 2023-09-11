@@ -2,7 +2,6 @@ import os
 from contextlib import asynccontextmanager
 
 import jinja2
-import sentry_sdk
 
 from aiogram_dialog import setup_dialogs
 from aiogram_dialog.widgets.text import setup_jinja
@@ -15,6 +14,7 @@ from fastapi.responses import ORJSONResponse
 from starlette.staticfiles import StaticFiles
 
 from app.core import bot, config, enums
+from app.core.extensions import configure_extensions
 from app.core.logging import logger
 from app.core.webhook import setup_application, SimpleRequestHandler
 from app.middlewares.exception import ExceptionMiddleware
@@ -24,6 +24,7 @@ from app.handler import router as tg_router
 from app.api import router
 from app.db import get_beanie_models
 
+configure_extensions()
 
 if os.name != "nt":
     import uvloop  # noqa
@@ -43,7 +44,7 @@ async def lifespan(application: FastAPI):  # noqa
         commands=enums.my_commands_ru, scope=BotCommandScopeAllPrivateChats(), language_code="ru")
     await bot.bot.set_my_commands(
         commands=enums.my_commands_en, scope=BotCommandScopeAllPrivateChats(), language_code="en")
-    await bot.bot.set_webhook(url=f"{config.app.webhook_url}/api/telegram/webhook",
+    await bot.bot.set_webhook(url=f"{config.app.webhook_url}/bot/api/telegram/webhook",
                               secret_token=config.app.api_token,
                               drop_pending_updates=True)
     logger.info("Bot... Online!")
@@ -52,15 +53,13 @@ async def lifespan(application: FastAPI):  # noqa
     await bot.bot.session.close()
 
 
-app = FastAPI(
-    lifespan=lifespan,
-    debug=False,
-    default_response_class=ORJSONResponse,
-)
-app.add_middleware(TimeMiddleware)
+app = FastAPI(openapi_url="", lifespan=lifespan, default_response_class=ORJSONResponse, debug=config.app.debug)
 app.add_middleware(ExceptionMiddleware)
+app.add_middleware(TimeMiddleware)
 app.mount("/static", StaticFiles(directory="static"), name="static")
-app.include_router(router)
+
+api_app = FastAPI(title="DudeDuck CRM Telegram", root_path="/bot", debug=config.app.debug)
+api_app.include_router(router)
 
 app.add_middleware(CORSMiddleware,
                    allow_origins=["*"],
@@ -69,12 +68,5 @@ app.add_middleware(CORSMiddleware,
                    )
 
 srh = SimpleRequestHandler(bot.dp, bot.bot, handle_in_background=False, _bot=bot.bot)
-srh.register(app, "bot/api/telegram/webhook")
-setup_application(app, bot.dp, _bot=bot.bot, bot=bot.bot)
-
-if not config.app.debug:
-    sentry_sdk.init(
-        dsn=config.app.sentry_dsn,
-        traces_sample_rate=1.0,
-        profiles_sample_rate=1.0
-    )
+srh.register(api_app, "/api/telegram/webhook")
+setup_application(api_app, bot.dp, _bot=bot.bot, bot=bot.bot)
