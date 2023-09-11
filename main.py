@@ -56,9 +56,9 @@ async def lifespan(application: FastAPI):  # noqa
 app = FastAPI(openapi_url="", lifespan=lifespan, default_response_class=ORJSONResponse, debug=config.app.debug)
 app.add_middleware(ExceptionMiddleware)
 app.add_middleware(TimeMiddleware)
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 api_app = FastAPI(title="DudeDuck CRM Telegram", root_path="/bot", debug=config.app.debug)
+api_app.mount("/static", StaticFiles(directory="static"), name="static")
 api_app.include_router(router)
 
 app.add_middleware(CORSMiddleware,
