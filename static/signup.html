@@ -28,11 +28,11 @@
                             <div data-bs-theme="light">
                                 <div class="mb-3"><input id="email" class="form-control" type="email" name="email" placeholder="Email"></div>
                                 <div class="mb-3"><input id="password" class="form-control" type="password" name="password" placeholder="Password"></div>
+                                <div class="mb-3"><input id="repeat_password" class="form-control" type="password" name="repeat password" placeholder="Repeat Password"></div>
                                 <div class="mb-3"><input id="username" class="form-control" type="text" name="username" placeholder="Username"></div>
                                 <div class="mb-3"><input id="discord" class="form-control" type="text" name="discord" placeholder="Discord"></div>
                                 <button class="btn btn-primary shadow d-block w-100" onclick="signup()">Sign up</button>
                                 <input type="hidden" id="message_id" value="{{ message_id }}">
-
                             </div>
                         </div>
                     </div>
@@ -51,22 +51,18 @@
 
 
         signup = () => {
-            let login = document.getElementById("email").value;
-            let password = document.getElementById("password").value;
-            let username = document.getElementById("username").value;
-            let discord = document.getElementById("discord").value;
-            let message_id = document.getElementById("message_id").value;
-            console.log(JSON.stringify({
-                _auth: initData,
-                message_id: message_id,
-                email: login,
-                password: password
-            }))
+            let login = $("email").val();
+            let password = $("password").val();
+            let repeat_password = $("repeat_password").val();
+            let username = $("username").val();
+            let discord = $("discord").val();
+            let message_id = $("message_id").val();
             axios.post("signup", {
                 _auth: initData,
                 message_id: message_id,
                 email: login,
                 password: password,
+                repeat_password: repeat_password,
                 username: username,
                 discord: discord
             })

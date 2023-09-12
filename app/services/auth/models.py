@@ -15,6 +15,7 @@ class LoginForm(BaseModel):
 class SignInForm(BaseModel):
     email: EmailStr
     password: str = Field(min_length=6)
+    repeat_password: str = Field(min_length=6)
     username: constr(strip_whitespace=True, to_lower=True, min_length=3, max_length=20)
     discord: str = Field(min_length=3)
     message_id: int
