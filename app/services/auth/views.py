@@ -84,12 +84,12 @@ async def auth_register(data: dict):
         valid = models.SignInForm.model_validate(data)
     except ValidationError:
         lang = process_language(init_data.user, None)
-        await response_web_query(init_data, "Login", render_flows.base("register_422", lang))
+        await response_web_query(init_data, "Sign Up", render_flows.base("register_422", lang))
         return
 
     if valid.password != valid.repeat_password:
         lang = process_language(init_data.user, None)
-        await response_web_query(init_data, "Login", render_flows.base("register_403", lang))
+        await response_web_query(init_data, "Sign Up", render_flows.base("register_403", lang))
         return
 
     status, resp = await service.register(init_data.user.id, init_data.user.username, valid)

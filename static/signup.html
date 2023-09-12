@@ -51,12 +51,12 @@
 
 
         signup = () => {
-            let login = $("email").val();
-            let password = $("password").val();
-            let repeat_password = $("repeat_password").val();
-            let username = $("username").val();
-            let discord = $("discord").val();
-            let message_id = $("message_id").val();
+            let login = $("#email").val();
+            let password = $("#password").val();
+            let repeat_password = $("#repeat_password").val();
+            let username = $("#username").val();
+            let discord = $("#discord").val();
+            let message_id = $("#message_id").val();
             axios.post("signup", {
                 _auth: initData,
                 message_id: message_id,
