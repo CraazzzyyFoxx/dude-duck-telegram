@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends
-from loguru import logger
 
 from app.core import enums
 from app.services.auth.bearers import requires_authorization

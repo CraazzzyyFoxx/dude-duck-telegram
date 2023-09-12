@@ -72,18 +72,25 @@ class MessageResponses(BaseModel):
 
 
 class MessageEventPayload(BaseModel):
+    order_id: str | None = Field(default=None)
+
     order: api_schemas.Order | None = Field(default=None)
     preorder: api_schemas.PreOrder | None = Field(default=None)
+    pull_payload: OrderResponse | None = Field(default=None)
+
     categories: list[str] | None = Field(default=None)
     configs: list[str] | None = Field(default=None)
+
     is_preorder: bool | None = Field(default=None)
+
     user: api_schemas.User | None = Field(default=None)
-    response: response_models.OrderResponse | None = Field(default=None)
     token: str | None = Field(default=None)
+
+    response: response_models.OrderResponse | None = Field(default=None)
+    responses: int | None = Field(default=None)
+
     url: HttpUrl | None = Field(default=None)
     message: str | None = Field(default=None)
-    payload: OrderResponse | None = Field(default=None)
-    total: int | None = Field(default=None)
 
 
 class MessageEvent(BaseModel):

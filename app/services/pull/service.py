@@ -159,28 +159,28 @@ async def pull_preorder_delete(
 
 
 async def pull_order_admins(
-        order,
-        preorder,
-        user,
-        response,
-        is_preorder,
+        order: api_schemas.Order,
+        preorder: api_schemas.PreOrder,
+        user: api_schemas.User,
+        response: response_flows.models.OrderResponse,
+        is_preorder: bool,
         **_kwargs
 ):
     return await response_flows.response_to_admins(order, preorder, user, response, is_preorder)
 
 
 async def pull_booster_resp_yes(
-        order,
-        user,
-        response,
+        order: api_schemas.Order,
+        user: api_schemas.User,
+        response: response_flows.models.OrderResponse,
         **_kwargs
 ):
     return await response_flows.response_approved(order, user, response)
 
 
 async def pull_booster_resp_no(
-        order,
-        user,
+        order: api_schemas.Order,
+        user: api_schemas.User,
         **_kwargs
 ):
     return await response_flows.response_declined(order, user)
@@ -188,7 +188,8 @@ async def pull_booster_resp_no(
 
 async def send_request_verify(
         user: api_schemas.User,
-        token: str, **_kwargs
+        token: str,
+        **_kwargs
 ):
     data = {"user": user, "token": token}
     _, status = await message_service.create(message_models.MessageCreate(
@@ -217,10 +218,10 @@ async def send_verified(
 
 
 async def send_order_close_request(
-        user,
-        order,
-        url,
-        message,
+        user: api_schemas.User,
+        order: api_schemas.Order,
+        url: str,
+        message: str,
         **_kwargs
 ):
     data = {"user": user, "order": order, "url": url, "message": message}
@@ -233,7 +234,7 @@ async def send_order_close_request(
 
 
 async def send_logged_notify(
-        user,
+        user: api_schemas.User,
         **_kwargs
 ):
     data = {"user": user}
@@ -246,7 +247,7 @@ async def send_logged_notify(
 
 
 async def send_registered_notify(
-        user,
+        user: api_schemas.User,
         **_kwargs
 ):
     data = {"user": user}
@@ -259,11 +260,11 @@ async def send_registered_notify(
 
 
 async def send_order_sent_notify(
-        order,
-        payload,
+        order_id: str,
+        pull_payload,
         **_kwargs
 ):
-    data = {"order": order, "payload": payload}
+    data = {"order": order_id, "payload": pull_payload}
     _, status = await message_service.create(message_models.MessageCreate(
         text=render_flows.system("notify_order_sent", data=data),
         channel_id=config.app.admin_noise_events,
@@ -273,11 +274,11 @@ async def send_order_sent_notify(
 
 
 async def send_order_edited_notify(
-        order,
-        payload,
+        order_id: str,
+        pull_payload,
         **_kwargs
 ):
-    data = {"order": order, "payload": payload}
+    data = {"order_id": order_id, "payload": pull_payload}
     _, status = await message_service.create(message_models.MessageCreate(
         text=render_flows.system("notify_order_edited", data=data),
         channel_id=config.app.admin_noise_events,
@@ -287,11 +288,11 @@ async def send_order_edited_notify(
 
 
 async def send_order_deleted_notify(
-        order,
-        payload,
+        order_id: str,
+        pull_payload,
         **_kwargs
 ):
-    data = {"order": order, "payload": payload}
+    data = {"order_id": order_id, "payload": pull_payload}
     _, status = await message_service.create(message_models.MessageCreate(
         text=render_flows.system("notify_order_deleted", data=data),
         channel_id=config.app.admin_noise_events,
@@ -301,12 +302,12 @@ async def send_order_deleted_notify(
 
 
 async def send_response_chose_notify(
-        order,
-        total,
-        user,
+        order: api_schemas.Order,
+        responses: int,
+        user: api_schemas.User,
         **_kwargs
 ):
-    data = {"order": order, "total": total, "user": user}
+    data = {"order": order, "total": responses, "user": user}
     _, status = await message_service.create(message_models.MessageCreate(
         text=render_flows.system("notify_response_chose", data=data),
         channel_id=config.app.admin_events,
