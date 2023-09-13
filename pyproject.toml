@@ -17,7 +17,6 @@ uvloop = {version = "^0.17.0", platform="linux"}
 pydantic-settings = "^2.0.2"
 aiogram = "^3.0.0"
 aiogram-dialog = "^2.0.0"
-beanie = "^1.21.0"
 httpx = "^0.24.1"
 orjson = "^3.9.4"
 babel = "^2.12.1"
@@ -27,11 +26,15 @@ dateparser = "^1.1.8"
 redis = "^5.0.0"
 gunicorn = "^21.2.0"
 aioredis = "^2.0.1"
+tortoise-orm = "^0.20.0"
+aerich = "^0.7.2"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.5.1"
 ruff = "^0.0.287"
 
+[tool.ruff]
+line-length = 120
 
 [build-system]
 requires = ["poetry-core"]

@@ -22,8 +22,6 @@ class AppConfig(BaseSettings):
     log_level: str = "info"
     logs_root_path: str = f"{Path.cwd()}/logs"
 
-    mongo_dsn: str
-
     redis_dsn: str
 
     admin_order: int
@@ -34,6 +32,25 @@ class AppConfig(BaseSettings):
 
 app = AppConfig(_env_file='.env', _env_file_encoding='utf-8')
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 TEMPLATES_DIR = BASE_DIR / "templates"
+SQLITE_DB_FILE = BASE_DIR / "db"
+SQLITE_DB_FILE.mkdir(exist_ok=True)
+SQLITE_DB_FILE = BASE_DIR / "db" / "db.sqlite3"
+
+tortoise = {
+    "connections": {
+        "default": f"sqlite://{SQLITE_DB_FILE}", },
+
+    "apps": {
+        "main": {
+            "models": [
+                "app.services.api.models",
+                "app.services.channel.models",
+                "app.services.message.models",
+                "app.services.render.models",
+                "aerich.models"
+            ],
+        }
+    },
+}

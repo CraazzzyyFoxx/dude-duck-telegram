@@ -1,6 +1,5 @@
 from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
 from aiogram.utils.web_app import safe_parse_webapp_init_data, WebAppInitData
-from beanie import PydanticObjectId
 from fastapi import APIRouter
 from fastapi.responses import ORJSONResponse
 from starlette.requests import Request
@@ -39,17 +38,17 @@ async def read_users(request: Request, user_id: int):
 
 
 @router.post('/get/{user_id}')
-async def read_user(user_id: PydanticObjectId, data: dict):
-    # try:
-    #     init_data = safe_parse_webapp_init_data(token=bot.token, init_data=data["_auth"])
-    # except ValueError:
-    #     return ORJSONResponse({"ok": False, "err": "Unauthorized"}, status_code=401)
+async def read_user(user_id: str, data: dict):
+    try:
+        init_data = safe_parse_webapp_init_data(token=bot.token, init_data=data["_auth"])
+    except ValueError:
+        return ORJSONResponse({"ok": False, "err": "Unauthorized"}, status_code=401)
 
-    return await api_flows.get_user(1130451895, user_id)
+    return await api_flows.get_user(init_data.user.id, user_id)
 
 
 @router.post('/update/{user_id}')
-async def update_user(user_id: PydanticObjectId, data: dict):
+async def update_user(user_id: str, data: dict):
     try:
         init_data = safe_parse_webapp_init_data(token=bot.token, init_data=data["_auth"])
     except ValueError:

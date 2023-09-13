@@ -3,15 +3,14 @@ from contextlib import asynccontextmanager
 
 import jinja2
 
-from aiogram_dialog import setup_dialogs
-from aiogram_dialog.widgets.text import setup_jinja
-from aiogram.types import BotCommandScopeAllPrivateChats
-from beanie import init_beanie
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from starlette.staticfiles import StaticFiles
+from tortoise import Tortoise, connections
+from aiogram_dialog import setup_dialogs
+from aiogram_dialog.widgets.text import setup_jinja
+from aiogram.types import BotCommandScopeAllPrivateChats
 
 from app.core import bot, config, enums
 from app.core.extensions import configure_extensions
@@ -22,7 +21,6 @@ from app.middlewares.time import TimeMiddleware
 from app.services.api import service as api_service
 from app.handler import router as tg_router
 from app.api import router
-from app.db import get_beanie_models
 
 configure_extensions()
 
@@ -34,8 +32,8 @@ if os.name != "nt":
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):  # noqa
-    await init_beanie(connection_string=config.app.mongo_dsn, document_models=get_beanie_models())
-
+    await Tortoise.init(config=config.tortoise)
+    await Tortoise.generate_schemas()
     setup_dialogs(bot.dp)
     setup_jinja(bot.bot, loader=jinja2.FileSystemLoader(searchpath=config.TEMPLATES_DIR))
     bot.dp.include_router(tg_router)
@@ -51,11 +49,13 @@ async def lifespan(application: FastAPI):  # noqa
     yield
     await api_service.ApiService.shutdown()
     await bot.bot.session.close()
+    await connections.close_all()
 
 
 app = FastAPI(openapi_url="", lifespan=lifespan, default_response_class=ORJSONResponse, debug=config.app.debug)
 app.add_middleware(ExceptionMiddleware)
 app.add_middleware(TimeMiddleware)
+
 
 api_app = FastAPI(title="DudeDuck CRM Telegram", root_path="/bot", debug=config.app.debug)
 api_app.mount("/static", StaticFiles(directory="static"), name="static")

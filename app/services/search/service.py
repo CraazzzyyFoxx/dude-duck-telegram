@@ -1,24 +1,17 @@
-from typing import Type, TypeVar, Union, Any
-
-from beanie import Document
-from beanie.odm.queries.find import FindMany
+from tortoise.queryset import QuerySet
 
 from . import models
 
-DocumentType = TypeVar("DocumentType", bound=Document)
-
 
 async def paginate(
-        query: FindMany,
+        query: QuerySet,
         paging_params: models.PaginationParams,
-        sorting_params: models.SortingParams,
 ) -> models.PaginationDict:
     results = (
         await query
-        .skip(paging_params.skip)
+        .offset(paging_params.skip)
         .limit(paging_params.limit)
-        .sort((sorting_params.sort, sorting_params.order.direction))
-        .to_list()
+        .all()
     )
     return {
         "page": paging_params.page,

@@ -1,7 +1,8 @@
 import aiogram_dialog
 
+from redis.asyncio.client import Redis
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import ExceptionTypeFilter
 from aiogram.types import ErrorEvent
@@ -15,9 +16,9 @@ from app.services.render import flows as render_flows
 from app.helpers import process_language
 
 
-storage = MemoryStorage()
 bot = Bot(token=config.app.token, parse_mode="HTML")
-dp = Dispatcher(storage=storage)
+redis = Redis.from_url(config.app.redis_dsn)
+dp = Dispatcher(storage=RedisStorage(redis, key_builder=DefaultKeyBuilder(with_destiny=True)))
 
 dp.message.middleware(PermissionMessageMiddleware())
 dp.callback_query.middleware(PermissionCallbackMiddleware())

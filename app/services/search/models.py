@@ -2,9 +2,8 @@ from typing import Generic, List, TypeVar, TypedDict, Any
 from enum import Enum
 
 from pydantic import BaseModel, Field
-from beanie.odm.enums import SortDirection
 
-__all__ = ("Paginated", "PaginationParams", "SortingParams", "OrderSortingParams")
+__all__ = ("Paginated", "PaginationParams", "OrderSortingParams")
 
 
 SchemaType = TypeVar("SchemaType", bound=BaseModel)
@@ -37,29 +36,11 @@ class PaginationParams(BaseModel):
         return self.per_page
 
 
-class SortOrder(Enum):
-    ASC = "asc"
-    DESC = "desc"
-
-    def __int__(self) -> int:
-        """Converts the enum to an integer to be used by MongoDB."""
-        return 1 if self.value == "asc" else -1
-
-    @property
-    def direction(self) -> SortDirection:
-        return SortDirection(int(self))
-
-
 class OrderSelection(Enum):
     InProgress = "In Progress"
     Completed = "Completed"
     ALL = "ALL"
 
 
-class SortingParams(BaseModel):
-    sort: str = "created_at"
-    order: SortOrder = SortOrder.ASC
-
-
-class OrderSortingParams(SortingParams):
+class OrderSortingParams(BaseModel):
     completed: OrderSelection = OrderSelection.ALL

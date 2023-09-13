@@ -1,7 +1,6 @@
 import re
 
 from pydantic import BaseModel, EmailStr, Field, field_validator, constr
-from beanie import PydanticObjectId
 
 __all__ = ("LoginForm", "SignInForm", "RegisterResponse")
 
@@ -42,7 +41,7 @@ class SignInForm(BaseModel):
 
 
 class RegisterResponse(BaseModel):
-    id: PydanticObjectId
+    id: str
     email: EmailStr
     is_activa: bool
     is_superuser: bool

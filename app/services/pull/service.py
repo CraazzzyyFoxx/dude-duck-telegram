@@ -1,6 +1,5 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from beanie import PydanticObjectId
 
 from app.core import config
 from app.core.cbdata import OrderRespondTimedCallback, OrderRespondCallback
@@ -15,7 +14,7 @@ from app.services.render import flows as render_flows
 from . import models
 
 
-def get_reply_markup_instantly(order_id: PydanticObjectId) -> InlineKeyboardMarkup:
+def get_reply_markup_instantly(order_id: str) -> InlineKeyboardMarkup:
     blr = InlineKeyboardBuilder()
     for i in range(1, 5):
         b = OrderRespondTimedCallback(order_id=order_id, time=i * 900).pack()
@@ -24,10 +23,10 @@ def get_reply_markup_instantly(order_id: PydanticObjectId) -> InlineKeyboardMark
     return blr.as_markup()
 
 
-def get_reply_markup_response(order_id: PydanticObjectId, *, preorder=False) -> InlineKeyboardMarkup:
+def get_reply_markup_response(order_id: str, *, preorder=False) -> InlineKeyboardMarkup:
     blr = InlineKeyboardBuilder()
     b = OrderRespondCallback(order_id=order_id, preorder=preorder).pack()
-    blr.add(InlineKeyboardButton(text=f"I want this order", callback_data=b))
+    blr.add(InlineKeyboardButton(text="I want this order", callback_data=b))
     return blr.as_markup()
 
 

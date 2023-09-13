@@ -1,8 +1,8 @@
 from datetime import datetime
 from enum import Enum
 
-from beanie import Document, PydanticObjectId
-from pymongo import IndexModel
+from tortoise import fields
+from tortoise.models import Model
 from pydantic import BaseModel, Field
 
 
@@ -15,26 +15,21 @@ class OrderSelection(Enum):
     ALL = "ALL"
 
 
-class TelegramUser(Document):
-    user_id: PydanticObjectId
-    telegram_user_id: int
-    token: str | None = None
-    user: User | None = None
+class TelegramUser(Model):
+    user_id: str = fields.CharField(max_length=24)
+    telegram_user_id: int = fields.BigIntField()
+    token: str | None = fields.TextField(null=True)
+    user: User | None = fields.JSONField(null=True)
 
-    last_login: datetime | None = None
-    last_update: datetime | None = None
+    last_login: datetime | None = fields.DatetimeField()
+    last_update: datetime | None = fields.DatetimeField()
 
-    class Settings:
-        use_state_management = True
-        state_management_save_previous = True
-        indexes = [
-            IndexModel(["user_id", "telegram_user_id"], unique=True),
-
-        ]
+    class Meta:
+        unique_together = ("user_id", "telegram_user_id")
 
 
 class TelegramUserCreate(BaseModel):
-    user_id: PydanticObjectId
+    user_id: str
     telegram_user_id: int
 
 

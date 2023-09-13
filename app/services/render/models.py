@@ -1,21 +1,17 @@
 from pydantic import BaseModel, Field
-from beanie import Document, PydanticObjectId
-from pymongo import IndexModel
+from tortoise import fields
+from tortoise.models import Model
 
 
-class RenderConfig(Document):
-    name: str
-    lang: str
-    binary: str
-    allow_separator_top: bool
-    separator: str
+class RenderConfig(Model):
+    name: str = fields.TextField()
+    lang: str = fields.TextField()
+    binary: str = fields.TextField()
+    allow_separator_top: bool = fields.BooleanField()
+    separator: str = fields.TextField()
 
-    class Settings:
-        indexes = [
-            IndexModel(["name", "lang"], unique=True),
-        ]
-        use_state_management = True
-        state_management_save_previous = True
+    class Meta:
+        unique_together = ("name", "lang")
 
 
 class RenderConfigCreate(BaseModel):
@@ -33,7 +29,7 @@ class RenderConfigUpdate(BaseModel):
 
 
 class RenderConfigRead(BaseModel):
-    id: PydanticObjectId
+    id: int
     name: str
     lang: str
     binary: str

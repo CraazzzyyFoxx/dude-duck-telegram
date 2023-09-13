@@ -1,7 +1,6 @@
 import datetime
 import enum
 
-from beanie import PydanticObjectId
 from pydantic import BaseModel, EmailStr, model_validator
 from pydantic_extra_types.payment import PaymentCardNumber
 from pydantic_extra_types.phone_numbers import PhoneNumber
@@ -15,7 +14,7 @@ class UserLanguage(str, enum.Enum):
 
 
 class User(BaseModel):
-    id: PydanticObjectId
+    id: str
     email: EmailStr
     is_active: bool
     is_superuser: bool
@@ -69,7 +68,7 @@ class OrderCredentials(BaseModel):
 
 
 class OrderRead(BaseModel):
-    id: PydanticObjectId
+    id: str
     order_id: str
 
     date: datetime.datetime
@@ -87,7 +86,7 @@ class OrderRead(BaseModel):
 
 
 class Order(BaseModel):
-    id: PydanticObjectId
+    id: str
     order_id: str
 
     date: datetime.datetime
@@ -103,7 +102,7 @@ class Order(BaseModel):
 
 
 class PreOrder(BaseModel):
-    id: PydanticObjectId
+    id: str
     date: datetime.datetime
 
     info: OrderInfo

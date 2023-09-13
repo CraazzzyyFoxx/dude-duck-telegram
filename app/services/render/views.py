@@ -13,9 +13,8 @@ router = APIRouter(prefix='/render', tags=[enums.RouteTag.ORDER_RENDERS],
 @router.get('', response_model=search_service.models.Paginated[models.RenderConfigRead])
 async def reads_render_config(
         paging: search_service.models.PaginationParams = Depends(),
-        sorting: search_service.models.SortingParams = Depends(),
 ):
-    return await search_service.paginate(models.RenderConfig.find({}), paging, sorting)
+    return await search_service.paginate(models.RenderConfig.filter(), paging)
 
 
 @router.get('/{name}', response_model=models.RenderConfigRead)

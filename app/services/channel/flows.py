@@ -1,11 +1,10 @@
 from fastapi import HTTPException
 from starlette import status
-from beanie import PydanticObjectId
 
 from . import service, models
 
 
-async def get(channel_id: PydanticObjectId) -> models.Channel:
+async def get(channel_id: int) -> models.Channel:
     channel_id = await service.get(channel_id)
     if not channel_id:
         raise HTTPException(
@@ -36,7 +35,7 @@ async def create(channel_in: models.ChannelCreate) -> models.Channel:
     return channel
 
 
-async def delete(channel_id: PydanticObjectId):
+async def delete(channel_id: int):
     channel = await get(channel_id)
     await service.delete(channel_id)
     return channel

@@ -22,4 +22,4 @@ async def close_order(call: types.CallbackQuery, callback_data: OrderRespondConf
     elif status in (404, 400, 403, 409):
         await call.answer(render_flows.system(f"response_approve_{status}"), show_alert=True)
     else:
-        await call.answer(render_flows.system(f"internal_error"), show_alert=True)
+        await call.answer(render_flows.system("internal_error"), show_alert=True)

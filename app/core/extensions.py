@@ -8,7 +8,6 @@ from sentry_sdk.integrations.atexit import AtexitIntegration
 from sentry_sdk.integrations.modules import ModulesIntegration
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.httpx import HttpxIntegration
-from sentry_sdk.integrations.pymongo import PyMongoIntegration
 from loguru import logger
 
 from app.core import config
@@ -29,7 +28,6 @@ def configure_extensions():
                 StdlibIntegration(),
                 FastApiIntegration(),
                 HttpxIntegration(),
-                PyMongoIntegration(),
                 sentry_logging,
             ],
             environment="development" if config.app.debug else "production",

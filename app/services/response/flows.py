@@ -1,6 +1,5 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from beanie import PydanticObjectId
 
 from app.core import config
 from app.core.cbdata import OrderRespondConfirmCallback
@@ -16,20 +15,20 @@ from . import models, service
 
 
 def get_reply_markup_admin(
-        order_id: PydanticObjectId,
-        user_id: PydanticObjectId,
+        order_id: str,
+        user_id: str,
         preorder: bool
 ) -> InlineKeyboardMarkup:
     blr = InlineKeyboardBuilder()
     cb_data = OrderRespondConfirmCallback(order_id=order_id, user_id=user_id, preorder=preorder)
-    b = InlineKeyboardButton(text=f"Approve", callback_data=cb_data.pack())
+    b = InlineKeyboardButton(text="Approve", callback_data=cb_data.pack())
     blr.add(b)
     return blr.as_markup()
 
 
 async def create_response(
         user_id: int,
-        order_id: PydanticObjectId,
+        order_id: str,
         data: models.OrderResponseExtra
 ) -> tuple[int, models.OrderResponse | None]:
     resp = await api_service.request(f'response/{order_id}', 'POST',
@@ -42,7 +41,7 @@ async def create_response(
 
 async def create_preorder_response(
         user_id: int,
-        order_id: PydanticObjectId,
+        order_id: str,
         data: models.OrderResponseExtra
 ) -> tuple[int, models.OrderResponse | None]:
     resp = await api_service.request(f'response/preorder/{order_id}', 'POST',
@@ -55,8 +54,8 @@ async def create_preorder_response(
 
 async def approve_response(
         user_id: int,
-        order_id: PydanticObjectId,
-        booster_id: PydanticObjectId,
+        order_id: str,
+        booster_id: str,
         preorder: bool
 ) -> int | None:
     if preorder:

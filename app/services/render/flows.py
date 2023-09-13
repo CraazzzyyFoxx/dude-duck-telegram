@@ -2,7 +2,6 @@ import re
 
 import jinja2
 
-from beanie import PydanticObjectId
 from fastapi import HTTPException
 from starlette import status
 
@@ -12,7 +11,7 @@ from app.services.api import schemas as api_schemas
 from . import service, models
 
 
-async def get(parser_id: PydanticObjectId):
+async def get(parser_id: int):
     parser = await service.get(parser_id)
     if not parser:
         raise HTTPException(
@@ -141,14 +140,14 @@ async def _order(templates: list[str], *, data: dict) -> str:
     for index, render_config in enumerate(templates, 1):
         render_config = await service.get_by_name(render_config)
         template = jinja2.Template(render_config.binary, trim_blocks=True, lstrip_blocks=True, autoescape=True)
-        rendered = template.render(**data).replace("\n", "")
+        rendered = template.render(**data).replace("\n", " ")
         rendered = re.sub(" +", " ", rendered)
         if not render_config.allow_separator_top and len(resp) > 0:
             resp.pop(-1)
         if len(rendered) > 1:
             resp.append(rendered)
         if index < len(templates) and len(resp) > last_len:
-            resp.append(f"{render_config.separator}<br>")
+            resp.append(f"{render_config.separator} <br>")
         last_len = len(resp)
     rendered = ''.join(resp)
     return rendered

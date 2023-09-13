@@ -2,7 +2,6 @@ from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
-from beanie import PydanticObjectId
 
 from app.core.bot import bot
 from app.core.cbdata import OrderRespondYesNoCallback
@@ -50,11 +49,10 @@ async def respond_done_order(message: Message, state: FSMContext, user):
     msg: message_models.Message = data.get("message")
     preorder: bool = data.get("preorder")
     extra = response_flows.models.OrderResponseExtra(text=message.text)
-    order_id = PydanticObjectId(order.id)
     if preorder:
-        status, resp = await response_flows.create_preorder_response(message.from_user.id, order_id, extra)
+        status, resp = await response_flows.create_preorder_response(message.from_user.id, order.id, extra)
     else:
-        status, resp = await response_flows.create_response(message.from_user.id, order_id, extra)
+        status, resp = await response_flows.create_response(message.from_user.id, order.id, extra)
 
     if status in (404, 400, 403, 409):
         await message.answer(render_flows.user(f"response_{status}", user.user))

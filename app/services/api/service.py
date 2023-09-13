@@ -1,7 +1,6 @@
 import typing
 from datetime import datetime, timedelta
 
-from beanie import PydanticObjectId
 from httpx import AsyncClient, TimeoutException, HTTPError, Response
 from fastapi.encoders import jsonable_encoder
 from loguru import logger
@@ -36,45 +35,40 @@ class ApiServiceMeta:
 ApiService = ApiServiceMeta()
 
 
-async def get(user_id: PydanticObjectId) -> models.TelegramUser | None:
-    return await models.TelegramUser.find_one({"_id": user_id})
+async def get(user_id: int) -> models.TelegramUser | None:
+    return await models.TelegramUser.filter(id=user_id).first()
 
 
-async def get_by_user_id(user_id: PydanticObjectId) -> list[models.TelegramUser] :
-    return await models.TelegramUser.find({"user_id": user_id}).to_list()
+async def get_by_user_id(user_id: str) -> list[models.TelegramUser]:
+    return await models.TelegramUser.filter(user_id=user_id).all()
 
 
 async def get_by_telegram_user_id(user_id: int) -> models.TelegramUser | None:
-    return await models.TelegramUser.find_one({"telegram_user_id": user_id})
+    return await models.TelegramUser.filter(telegram_user_id=user_id).first()
 
 
 async def create(user_order_in: models.TelegramUserCreate) -> models.TelegramUser:
-    user_order = models.TelegramUser(**user_order_in.model_dump())
-    return await user_order.create()
+    return await models.TelegramUser.create(**user_order_in.model_dump())
 
 
-async def delete(user_order_id: PydanticObjectId):
-    user_order = await models.TelegramUser.get(user_order_id)
+async def delete(user_id: id):
+    user_order = await models.TelegramUser.get(user_id)
     if user_order:
         await user_order.delete()
 
 
 async def update(user: models.TelegramUser, user_in: models.TelegramUserUpdate) -> models.TelegramUser:
-    user_data = user.model_dump()
     update_data = user_in.model_dump()
+    user = user.update_from_dict(update_data)
 
-    for field in user_data:
-        if field in update_data:
-            if field == "user":
-                user.last_update = datetime.utcnow()
-            if update_data[field] is not None:
-                setattr(user, field, update_data[field])
+    if "user" in update_data:
+        user.last_update = datetime.utcnow()
 
-    await user.save_changes()
+    await user.save()
     return user
 
 
-async def get_token(user_id: PydanticObjectId) -> str | None:
+async def get_token(user_id: int) -> str | None:
     user = await get(user_id)
     if user is None:
         return None
