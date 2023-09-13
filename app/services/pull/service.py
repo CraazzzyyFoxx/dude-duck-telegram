@@ -263,7 +263,7 @@ async def send_order_sent_notify(
         pull_payload,
         **_kwargs
 ):
-    data = {"order": order_id, "payload": pull_payload}
+    data = {"order_id": order_id, "payload": pull_payload}
     _, status = await message_service.create(message_models.MessageCreate(
         text=render_flows.system("notify_order_sent", data=data),
         channel_id=config.app.admin_noise_events,
