@@ -64,6 +64,7 @@ async def update(user: models.TelegramUser, user_in: models.TelegramUserUpdate) 
     if user_in.user:
         user.user = user_in.user.model_dump()
         user.last_update = datetime.utcnow()
+        user.last_login = user_in.last_login
 
     await user.save()
     return user
