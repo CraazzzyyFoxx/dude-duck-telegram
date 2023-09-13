@@ -136,11 +136,11 @@ async def response_to_admins(
     if is_preorder:
         configs = render_flows.get_preorder_response_configs(preorder, checked=False)
         text = await render_flows.order(configs, data={"order": preorder, "response": response, "user": user})
-        message = await message_service.get_by_order_id_user_id(order.id, user.id)
+        message = await message_service.get_by_order_id_user_id(preorder.id, user.id)
     else:
         configs = render_flows.get_order_response_configs(order, checked=False)
         text = await render_flows.order(configs, data={"order": order, "response": response, "user": user})
-        message = await message_service.get_by_order_id_user_id(preorder.id, user.id)
+        message = await message_service.get_by_order_id_user_id(order.id, user.id)
 
     if message:
         await message_service.delete(message)
