@@ -139,9 +139,8 @@ async def _order(templates: list[str], *, data: dict) -> str:
     last_len = 0
     for index, render_config in enumerate(templates, 1):
         render_config = await service.get_by_name(render_config)
-        template = jinja2.Template(render_config.binary, trim_blocks=True, lstrip_blocks=True, autoescape=True)
-        rendered = template.render(**data).replace("\n", " ")
-        rendered = re.sub(" +", " ", rendered)
+        template = jinja2.Template(render_config.binary, trim_blocks=True, lstrip_blocks=True)
+        rendered = template.render(**data)
         if not render_config.allow_separator_top and len(resp) > 0:
             resp.pop(-1)
         if len(rendered) > 1:
@@ -154,4 +153,4 @@ async def _order(templates: list[str], *, data: dict) -> str:
 
 
 async def order(templates: list[str], *, data: dict) -> str:
-    return _render(await _order(templates, data=data))
+    return system("order", data={"rendered_order": await _order(templates, data=data)})
