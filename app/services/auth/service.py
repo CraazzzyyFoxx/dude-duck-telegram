@@ -21,11 +21,9 @@ async def login(user_id: int, email: str, password: str) -> tuple[int, api_model
     if response.status_code == 200:
         token = response.json()["access_token"]
         user_db = await api_service.get_by_telegram_user_id(user_id)
+        user = await api_flows.get_me(token)
         if not user_db:
-            user = await api_flows.get_me(token)
             await api_service.create(api_models.TelegramUserCreate(user_id=user.id, telegram_user_id=user_id))
-        else:
-            user = await api_flows.get_me(token)
 
         user_db = await api_service.get_by_telegram_user_id(user_id)
         await api_service.update(user_db, api_models.TelegramUserUpdate.model_validate({"user": user, "token": token}))

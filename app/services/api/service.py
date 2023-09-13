@@ -48,7 +48,9 @@ async def get_by_telegram_user_id(user_id: int) -> models.TelegramUser | None:
 
 
 async def create(user_order_in: models.TelegramUserCreate) -> models.TelegramUser:
-    return await models.TelegramUser.create(**user_order_in.model_dump())
+    return await models.TelegramUser.create(
+        **user_order_in.model_dump()
+    )
 
 
 async def delete(user_id: id):
