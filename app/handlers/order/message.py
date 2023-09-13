@@ -55,7 +55,7 @@ async def respond_done_order(message: Message, state: FSMContext, user):
         status, resp = await response_flows.create_response(message.from_user.id, order.id, extra)
 
     if status in (404, 400, 403, 409):
-        await message.answer(render_flows.user(f"response_{status}", user.user))
+        await message.answer(render_flows.user(f"response_{status}", user))
         await state.clear()
         return
     data = {"order": order, "response": resp, "user": await api_flows.get_me_user_id(message.from_user.id)}
@@ -64,5 +64,5 @@ async def respond_done_order(message: Message, state: FSMContext, user):
     else:
         configs = render_flows.get_order_configs(order)
     await message_service.update(msg, message_models.MessageUpdate(text=await render_flows.order(configs, data=data)))
-    await message.answer(render_flows.user("response_201", user.user))
+    await message.answer(render_flows.user("response_201", user))
     await state.clear()
