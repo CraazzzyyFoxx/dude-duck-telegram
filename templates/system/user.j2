@@ -9,6 +9,9 @@
 {% if user.bankcard %}
 💳 <b>Card number:</b> {{ user.bankcard }} <br>
 {% endif %}
-{% if user.binance %}
-💸 <b>Binance:</b> {{ user.binance }} <br>
+{% if user.binance_email %}
+💸 <b>Binance Email:</b> {{ user.binance_email }} <br>
+{% endif %}
+{% if user.binance_id %}
+💸 <b>Binance ID:</b> {{ user.binance_id }} <br>
 {% endif %}
