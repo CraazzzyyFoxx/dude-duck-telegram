@@ -49,8 +49,10 @@ async def auth_login(data: dict):
         init_data = safe_parse_webapp_init_data(token=bot.token, init_data=data["_auth"])
     except ValueError:
         return ORJSONResponse({"ok": False, "err": "Unauthorized"}, status_code=401)
-
-    await bot.delete_message(init_data.user.id, data["message_id"])
+    try:
+        await bot.delete_message(init_data.user.id, data["message_id"])
+    except:
+        pass
     try:
         valid = models.LoginForm.model_validate(data)
     except ValidationError:
