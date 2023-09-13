@@ -60,10 +60,9 @@ async def delete(user_id: id):
 
 
 async def update(user: models.TelegramUser, user_in: models.TelegramUserUpdate) -> models.TelegramUser:
-    update_data = user_in.model_dump()
-    user = user.update_from_dict(update_data)
-
-    if "user" in update_data:
+    user.token = user_in.token
+    if user_in.user:
+        user.user = user_in.user.model_dump()
         user.last_update = datetime.utcnow()
 
     await user.save()
