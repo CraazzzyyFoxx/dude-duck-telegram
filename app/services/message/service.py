@@ -43,11 +43,10 @@ async def _create(message_in: models.MessageCreate):
         msg = await bot.send_message(message_in.channel_id, message_in.text, reply_markup=message_in.reply_markup)
     except TelegramForbiddenError:
         return None, models.MessageStatus.FORBIDDEN
-    if not message_in.type == models.MessageType.MESSAGE:
-        message_db = await models.Message.create(message_id=msg.message_id,
-                                                 **message_in.model_dump(exclude_unset=True, exclude_none=True))
-        return message_db, models.MessageStatus.CREATED
-    return None, models.MessageStatus.CREATED
+
+    message_db = await models.Message.create(message_id=msg.message_id,
+                                             **message_in.model_dump(exclude_unset=True, exclude_none=True))
+    return message_db, models.MessageStatus.CREATED
 
 
 async def create_order(message_in: models.MessageCreate) -> tuple[models.Message | None, models.MessageStatus]:
