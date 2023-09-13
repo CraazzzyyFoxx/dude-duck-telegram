@@ -24,7 +24,6 @@ async def get_me_user_id(user_id: int) -> models.User | None:
             user_db = await service.get_by_telegram_user_id(user_id)
             await service.update(user_db, models.TelegramUserUpdate(user=user, token=user_db.token))
             return user
-
     return None
 
 

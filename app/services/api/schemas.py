@@ -25,7 +25,8 @@ class User(BaseModel):
     phone: PhoneNumber | None
     bank: str | None
     bankcard: PaymentCardNumber | None
-    binance: EmailStr | None
+    binance_email: EmailStr | None
+    binance_id: int | None
     discord: str | None
 
     language: UserLanguage
@@ -113,7 +114,8 @@ class UserUpdate(BaseModel):
     phone: PhoneNumber | None = None
     bank: str | None = None
     bankcard: PaymentCardNumber | None = None
-    binance: EmailStr | None = None
+    binance_email: EmailStr | None = None
+    binance_id: int | None = None
     max_orders: int
 
     @model_validator(mode='after')

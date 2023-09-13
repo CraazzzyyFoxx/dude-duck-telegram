@@ -32,10 +32,14 @@
                                     </optgroup>
                                 </select></div>
                             <div class="mb-3">
-                                <input id="binance" class="form-control" type="email" name="binance" placeholder="Binance" />
+                                <input id="binance_email" class="form-control" type="email" name="binance" placeholder="Binance Email" />
                             </div>
                             <div class="mb-3">
-                                <input id="phone" class="form-control" type="text" name="phone" placeholder="Phone"></div>
+                                <input id="binance_id" class="form-control" type="text" name="binance" placeholder="Binance ID" />
+                            </div>
+                            <div class="mb-3">
+                                <input id="phone" class="form-control" type="tel" name="phone" placeholder="Phone">
+                            </div>
                             <div class="mb-3">
                                 <input id="bank" class="form-control" type="text" name="bank" placeholder="Bank">
                             </div>
@@ -67,7 +71,8 @@
                 _auth: initData,
                 user_id: user_id
             })
-            $('#binance').val(data["binance"]);
+            $('#binance_email').val(data["binance_email"]);
+            $('#binance_id').val(data["binance_id"]);
             $('#phone').val(data["phone"]);
             $('#bank').val(data["bank"]);
             $('#bankcard').val(data["bankcard"]);
@@ -77,14 +82,16 @@
 
         const update_user = () => {
             let user_id = $('#user_id').val();
-            let binance = $('#binance').val();
+            let binance_email = $('#binance_email').val();
+            let binance_id = $('#binance_id').val();
             let phone = $('#phone').val();
             let bank = $('#bank').val();
             let bankcard = $('#bankcard').val();
             let max_orders = $('#max_orders').val();
             axios.post(`update/${user_id}`, {
                 _auth: initData,
-                binance: (binance === "") ? null : binance,
+                binance_email: (binance_email === "") ? null : binance_email,
+                binance_id: (binance_id === "") ? null : binance_id,
                 phone: (phone === "") ? null : phone,
                 bank: (bank === "") ? null : bank,
                 bankcard: (bankcard === "") ? null : bankcard,
