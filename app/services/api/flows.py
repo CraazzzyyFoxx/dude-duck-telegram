@@ -16,14 +16,16 @@ async def get_me(token: str) -> models.User | None:
 async def get_me_user_id(user_id: int) -> models.User | None:
     user_db = await service.get_by_telegram_user_id(user_id)
     if user_db is not None:
-        if user_db.last_update is not None and user_db.last_update > (datetime.utcnow() - timedelta(minutes=1)).astimezone(pytz.UTC):
+        if user_db.last_update is not None and user_db.last_update > (datetime.utcnow() - timedelta(minutes=5)).astimezone(pytz.UTC):
             return user_db.user
-    resp = await service.request('users/@me', 'GET', await service.get_token_user_id(user_id))
-    if resp.status_code == 200:
-        user = models.User.model_validate(resp.json())
-        user_db = await service.get_by_telegram_user_id(user_id)
-        await service.update(user_db, models.TelegramUserUpdate(user=user, token=user_db.token))
-        return user
+        resp = await service.request('users/@me', 'GET', await service.get_token_user_id(user_id))
+        if resp.status_code == 200:
+            user = models.User.model_validate(resp.json())
+            user_db = await service.get_by_telegram_user_id(user_id)
+            await service.update(user_db, models.TelegramUserUpdate(user=user, token=user_db.token))
+            return user
+
+    return None
 
 
 async def get_user(user_id: int, u_id: str) -> models.User | None:
