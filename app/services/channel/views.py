@@ -4,8 +4,7 @@ from app.core import enums
 from app.services.auth.bearers import requires_authorization
 from app.services.search import service as search_service
 
-from . import models, flows, service
-
+from . import flows, models, service
 
 router = APIRouter(prefix='/channel', tags=[enums.RouteTag.ORDER_MESSAGES],
                    dependencies=[Depends(requires_authorization)])

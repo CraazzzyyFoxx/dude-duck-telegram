@@ -1,6 +1,6 @@
-from app.services.api import service as api_service
-from app.services.api import models as api_models
 from app.services.api import flows as api_flows
+from app.services.api import models as api_models
+from app.services.api import service as api_service
 
 from . import models
 

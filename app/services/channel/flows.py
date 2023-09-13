@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from starlette import status
 
-from . import service, models
+from . import models, service
 
 
 async def get(channel_id: int) -> models.Channel:

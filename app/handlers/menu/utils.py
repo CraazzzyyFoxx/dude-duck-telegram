@@ -1,7 +1,8 @@
 from aiogram.types import CallbackQuery
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Button
-from aiogram_dialog.widgets.text import Const, Jinja as Jinja_dialog
+from aiogram_dialog.widgets.text import Const
+from aiogram_dialog.widgets.text import Jinja as Jinja_dialog
 
 from app.services.render import flows as render_flows
 

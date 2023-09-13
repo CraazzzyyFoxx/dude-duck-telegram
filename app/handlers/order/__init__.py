@@ -4,14 +4,12 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from app.core.cbdata import OrderRespondCallback, OrderRespondYesNoCallback
 from app.services.api import flows as api_flows
-from app.services.response import service as response_service
-from app.services.render import flows as render_flows
-from app.services.message import service as message_service
 from app.services.message import models as message_models
+from app.services.message import service as message_service
+from app.services.render import flows as render_flows
+from app.services.response import service as response_service
 
-from . import insta
-from . import message
-
+from . import insta, message
 
 router = Router()
 

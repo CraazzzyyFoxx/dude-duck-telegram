@@ -1,8 +1,8 @@
 from aiogram import Router, types
 
 from app.core.cbdata import OrderRespondConfirmCallback
-from app.services.response import flows as response_flows
 from app.services.render import flows as render_flows
+from app.services.response import flows as response_flows
 
 router = Router()
 

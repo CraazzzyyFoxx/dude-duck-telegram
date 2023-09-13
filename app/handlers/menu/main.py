@@ -1,20 +1,19 @@
-from aiogram import types, Router
+from aiogram import Router, types
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery
-from aiogram_dialog import StartMode, DialogManager, Dialog, Window, LaunchMode
-
+from aiogram_dialog import Dialog, DialogManager, LaunchMode, StartMode, Window
 from aiogram_dialog.widgets.kbd import Button, WebApp
 from aiogram_dialog.widgets.text import Const, Format
 
 from app.core import config
-from app.services.api import models as api_models
 from app.services.api import flows as api_flows
+from app.services.api import models as api_models
 from app.services.api import schemas as api_schemas
 
+from .accounting import acc_window
+from .orders import ID_STUB_SCROLL, orders_window
 from .states import Main
 from .utils import Jinja
-from .accounting import acc_window
-from .orders import orders_window, ID_STUB_SCROLL
 
 router = Router()
 

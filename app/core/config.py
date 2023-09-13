@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from pydantic import HttpUrl
-from pydantic_settings import SettingsConfigDict, BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class AppConfig(BaseSettings):

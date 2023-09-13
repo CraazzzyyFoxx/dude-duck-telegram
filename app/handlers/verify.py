@@ -1,6 +1,6 @@
 import asyncio
 
-from aiogram import types, Router
+from aiogram import Router, types
 from aiogram.filters import Command, CommandObject
 
 from app.services.auth import service as auth_service

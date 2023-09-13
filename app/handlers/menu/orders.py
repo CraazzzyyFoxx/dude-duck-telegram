@@ -1,6 +1,6 @@
 from aiogram_dialog import DialogManager, Window
-
-from aiogram_dialog.widgets.kbd import Row, FirstPage, PrevPage, NextPage, LastPage, StubScroll, Button
+from aiogram_dialog.widgets.kbd import (Button, FirstPage, LastPage, NextPage,
+                                        PrevPage, Row, StubScroll)
 from aiogram_dialog.widgets.text import Const, Format
 
 from app.services.api import flows as api_flows

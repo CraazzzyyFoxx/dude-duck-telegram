@@ -1,8 +1,8 @@
-from typing import Callable, Dict, Any, Awaitable
+from typing import Any, Awaitable, Callable, Dict
 
 from aiogram import BaseMiddleware
-from aiogram.types import Message, CallbackQuery
 from aiogram.dispatcher.flags import get_flag
+from aiogram.types import CallbackQuery, Message
 
 from app.helpers import process_language
 from app.services.api import flows as api_flows

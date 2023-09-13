@@ -1,14 +1,13 @@
 import re
 
 import jinja2
-
 from fastapi import HTTPException
 from starlette import status
 
 from app.core import config
 from app.services.api import schemas as api_schemas
 
-from . import service, models
+from . import models, service
 
 
 async def get(parser_id: int):

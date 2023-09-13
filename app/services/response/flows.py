@@ -3,13 +3,13 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from app.core import config
 from app.core.cbdata import OrderRespondConfirmCallback
-from app.services.api import service as api_service
-from app.services.api import schemas as api_schemas
 from app.services.api import flows as api_flows
-from app.services.message import service as message_service
+from app.services.api import schemas as api_schemas
+from app.services.api import service as api_service
 from app.services.message import models as message_models
-from app.services.render import flows as render_flows
+from app.services.message import service as message_service
 from app.services.pull import models as pull_models
+from app.services.render import flows as render_flows
 
 from . import models, service
 
@@ -136,9 +136,15 @@ async def response_to_admins(
     if is_preorder:
         configs = render_flows.get_preorder_response_configs(preorder, checked=False)
         text = await render_flows.order(configs, data={"order": preorder, "response": response, "user": user})
+        message = await message_service.get_by_order_id_user_id(order.id, user.id)
     else:
         configs = render_flows.get_order_response_configs(order, checked=False)
         text = await render_flows.order(configs, data={"order": order, "response": response, "user": user})
+        message = await message_service.get_by_order_id_user_id(preorder.id, user.id)
+
+    if message:
+        await message_service.delete(message)
+
     _, status = await message_service.create(
         message_models.MessageCreate(
             order_id=order.id if not is_preorder else preorder.id,

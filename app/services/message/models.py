@@ -1,10 +1,11 @@
 from datetime import datetime
 from enum import Enum
 
-from aiogram.types import InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+from aiogram.types import (ForceReply, InlineKeyboardMarkup,
+                           ReplyKeyboardMarkup, ReplyKeyboardRemove)
+from pydantic import BaseModel, Field
 from tortoise import fields
 from tortoise.models import Model
-from pydantic import BaseModel, Field
 
 
 class MessageType(str, Enum):

@@ -4,7 +4,7 @@ import pytz
 
 from app.services.search import service as search_service
 
-from . import models, service, schemas
+from . import models, schemas, service
 
 
 async def get_me(token: str) -> models.User | None:

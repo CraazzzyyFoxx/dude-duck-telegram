@@ -2,7 +2,6 @@ import typing
 
 from . import models, service
 
-
 event_map: dict[models.MessageEnum, typing.Callable] = {
     models.MessageEnum.SEND_ORDER: service.pull_order_create,
     models.MessageEnum.EDIT_ORDER: service.pull_order_update,

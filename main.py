@@ -2,25 +2,24 @@ import os
 from contextlib import asynccontextmanager
 
 import jinja2
-
+from aiogram.types import BotCommandScopeAllPrivateChats
+from aiogram_dialog import setup_dialogs
+from aiogram_dialog.widgets.text import setup_jinja
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from starlette.staticfiles import StaticFiles
 from tortoise import Tortoise, connections
-from aiogram_dialog import setup_dialogs
-from aiogram_dialog.widgets.text import setup_jinja
-from aiogram.types import BotCommandScopeAllPrivateChats
 
+from app.routers import router
 from app.core import bot, config, enums
 from app.core.extensions import configure_extensions
 from app.core.logging import logger
-from app.core.webhook import setup_application, SimpleRequestHandler
+from app.core.webhook import SimpleRequestHandler, setup_application
+from app.handler import router as tg_router
 from app.middlewares.exception import ExceptionMiddleware
 from app.middlewares.time import TimeMiddleware
 from app.services.api import service as api_service
-from app.handler import router as tg_router
-from app.api import router
 
 configure_extensions()
 

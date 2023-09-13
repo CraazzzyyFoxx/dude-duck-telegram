@@ -1,6 +1,7 @@
-from aiogram import types, Router
+from aiogram import Router, types
 from aiogram.filters import Command
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup, Message,
+                           WebAppInfo)
 
 from app.core import config
 from app.helpers import process_language

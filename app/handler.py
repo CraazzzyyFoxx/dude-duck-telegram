@@ -1,15 +1,7 @@
 from aiogram import Router
 
-from app.handlers import auth
-from app.handlers import start
-from app.handlers import menu
-from app.handlers import admin_close
-from app.handlers import order
-from app.handlers import request_verify
-from app.handlers import verify
-from app.handlers import get_id
-from app.handlers import manage_users
-
+from app.handlers import (admin_close, auth, get_id, manage_users, menu, order,
+                          request_verify, start, verify)
 
 dialog_router = Router()
 

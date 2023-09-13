@@ -1,5 +1,4 @@
 import aiogram_dialog
-
 from aiogram import Bot, Dispatcher
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import ExceptionTypeFilter
@@ -9,10 +8,10 @@ from aiogram_dialog.api.exceptions import UnknownIntent
 from loguru import logger
 
 from app.core import config, errors
-from app.middlewares.permissions import PermissionMessageMiddleware, PermissionCallbackMiddleware
-from app.services.render import flows as render_flows
 from app.helpers import process_language
-
+from app.middlewares.permissions import (PermissionCallbackMiddleware,
+                                         PermissionMessageMiddleware)
+from app.services.render import flows as render_flows
 
 bot = Bot(token=config.app.token, parse_mode="HTML")
 dp = Dispatcher()

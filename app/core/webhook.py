@@ -1,11 +1,10 @@
 import asyncio
-
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
-from fastapi import FastAPI, Request, Response, Depends
 from aiogram import Bot, Dispatcher
 from aiogram.methods import TelegramMethod
+from fastapi import Depends, FastAPI, Request, Response
 
 from app.services.auth.bearers import requires_authorization_telegram
 

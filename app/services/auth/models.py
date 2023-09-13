@@ -1,6 +1,6 @@
 import re
 
-from pydantic import BaseModel, EmailStr, Field, field_validator, constr
+from pydantic import BaseModel, EmailStr, Field, constr, field_validator
 
 __all__ = ("LoginForm", "SignInForm", "RegisterResponse")
 

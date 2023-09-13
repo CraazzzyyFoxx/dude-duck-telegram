@@ -2,8 +2,8 @@ import typing
 from datetime import datetime, timedelta
 
 import pytz
-from httpx import AsyncClient, TimeoutException, HTTPError, Response
 from fastapi.encoders import jsonable_encoder
+from httpx import AsyncClient, HTTPError, Response, TimeoutException
 from loguru import logger
 
 from app.core import config, errors

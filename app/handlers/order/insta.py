@@ -5,9 +5,8 @@ from aiogram import Router, types
 from app.core.bot import bot
 from app.core.cbdata import OrderRespondCallback
 from app.services.api import flows as api_flows
-from app.services.response import flows as response_flows
 from app.services.render import flows as render_flows
-
+from app.services.response import flows as response_flows
 
 router = Router()
 

@@ -4,7 +4,7 @@ from app.core import enums
 from app.services.auth.bearers import requires_authorization
 from app.services.search import service as search_service
 
-from . import models, flows
+from . import flows, models
 
 router = APIRouter(prefix='/render', tags=[enums.RouteTag.ORDER_RENDERS],
                    dependencies=[Depends(requires_authorization)])

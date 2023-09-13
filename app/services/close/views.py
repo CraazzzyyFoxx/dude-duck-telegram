@@ -1,20 +1,20 @@
 from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
-from aiogram.utils.web_app import safe_parse_webapp_init_data, WebAppInitData
+from aiogram.utils.web_app import WebAppInitData, safe_parse_webapp_init_data
 from fastapi import APIRouter
 from fastapi.responses import ORJSONResponse
+from pydantic import ValidationError
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
-from pydantic import ValidationError
 
 from app.core import errors
 from app.core.bot import bot
 from app.core.enums import RouteTag
+from app.helpers import process_language
 from app.services.api import flows as api_flows
 from app.services.render import flows as render_flows
-from app.helpers import process_language
 
-from . import models, flows
+from . import flows, models
 
 router = APIRouter(prefix='/order', tags=[RouteTag.CLOSE], include_in_schema=False)
 templates = Jinja2Templates(directory="static")

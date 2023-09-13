@@ -3,8 +3,8 @@ import enum
 from pydantic import BaseModel, Field, HttpUrl
 
 from app.services.api import schemas as api_schemas
-from app.services.response import models as response_models
 from app.services.message import models as message_models
+from app.services.response import models as response_models
 
 
 class MessageEnum(int, enum.Enum):

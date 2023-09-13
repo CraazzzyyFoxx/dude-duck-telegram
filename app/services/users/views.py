@@ -1,11 +1,11 @@
 from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
-from aiogram.utils.web_app import safe_parse_webapp_init_data, WebAppInitData
+from aiogram.utils.web_app import WebAppInitData, safe_parse_webapp_init_data
 from fastapi import APIRouter
 from fastapi.responses import ORJSONResponse
+from pydantic import ValidationError
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
-from pydantic import ValidationError
 
 from app.core import enums
 from app.core.bot import bot
