@@ -22,7 +22,7 @@ async def get_me_user_id(user_id: int) -> models.User | None:
     if resp.status_code == 200:
         user = models.User.model_validate(resp.json())
         user_db = await service.get_by_telegram_user_id(user_id)
-        await service.update(user_db, models.TelegramUserUpdate(user=user))
+        await service.update(user_db, models.TelegramUserUpdate(user=user, token=user_db.token))
         return user
 
 
