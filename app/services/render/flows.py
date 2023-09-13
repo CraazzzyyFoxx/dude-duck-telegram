@@ -127,7 +127,7 @@ def _get_template_env():
             loader=template_loader,
             trim_blocks=True,
             lstrip_blocks=True,
-            autoescape=True,
+            # autoescape=True,
         )
 
         _get_template_env.template_env = env
@@ -139,7 +139,7 @@ async def _order(templates: list[str], *, data: dict) -> str:
     last_len = 0
     for index, render_config in enumerate(templates, 1):
         render_config = await service.get_by_name(render_config)
-        template = jinja2.Template(render_config.binary, trim_blocks=True, lstrip_blocks=True)
+        template = jinja2.Template(render_config.binary)
         rendered = template.render(**data)
         if not render_config.allow_separator_top and len(resp) > 0:
             resp.pop(-1)
