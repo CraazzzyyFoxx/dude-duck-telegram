@@ -6,7 +6,7 @@ from . import models
 
 
 async def get(message_id: int) -> models.Message | None:
-    return await models.Message.get(id=message_id)
+    return await models.Message.filter(id=message_id).first()
 
 
 async def get_by_type(message_id: int, message_type: models.MessageType) -> list[models.Message]:
@@ -23,7 +23,7 @@ async def get_by_user_id(user_id: str) -> list[models.Message]:
 
 
 async def get_by_order_id_user_id(order_id: str, user_id: str) -> models.Message | None:
-    return await models.Message.get(user_id=user_id, order_id=order_id)
+    return await models.Message.filter(user_id=user_id, order_id=order_id).first()
 
 
 async def get_by_order_id_type(order_id: str, message_type: models.MessageType) -> list[models.Message]:
@@ -35,7 +35,7 @@ async def get_by_order_id_channel_id(order_id: str, channel_id: int) -> list[mod
 
 
 async def get_by_channel_id_message_id(channel_id: int, message_id: int) -> models.Message:
-    return await models.Message.get(channel_id=channel_id, message_id=message_id)
+    return await models.Message.filter(channel_id=channel_id, message_id=message_id).first()
 
 
 async def _create(message_in: models.MessageCreate):
