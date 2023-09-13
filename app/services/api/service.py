@@ -1,6 +1,7 @@
 import typing
 from datetime import datetime, timedelta
 
+import pytz
 from httpx import AsyncClient, TimeoutException, HTTPError, Response
 from fastapi.encoders import jsonable_encoder
 from loguru import logger
@@ -74,7 +75,7 @@ async def get_token(user_id: int) -> str | None:
     user = await get(user_id)
     if user is None:
         return None
-    if user.last_login > datetime.utcnow() - timedelta(days=1):
+    if user.last_login > (datetime.now() - timedelta(days=1)).astimezone(pytz.UTC):
         return None
     return user.token
 
@@ -83,7 +84,7 @@ async def get_token_user_id(user_id: int) -> str | None:
     user = await get_by_telegram_user_id(user_id)
     if user is None:
         return None
-    if user.last_login is None or user.last_login < datetime.utcnow() - timedelta(days=1):
+    if user.last_login is None or user.last_login < (datetime.now() - timedelta(days=1)).astimezone(pytz.UTC):
         return None
     return user.token
 

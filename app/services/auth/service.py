@@ -27,7 +27,7 @@ async def login(user_id: int, email: str, password: str) -> tuple[int, api_model
 
         user_db = await api_service.get_by_telegram_user_id(user_id)
         await api_service.update(user_db, api_models.TelegramUserUpdate.model_validate({"user": user, "token": token}))
-        return response.status_code, user_db
+        return response.status_code, await api_service.get_by_telegram_user_id(user_id)
     return response.status_code, None
 
 

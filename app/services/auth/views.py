@@ -47,7 +47,7 @@ async def read_items(request: Request, message_id: int):
 async def auth_login(data: dict):
     try:
         init_data = safe_parse_webapp_init_data(token=bot.token, init_data=data["_auth"])
-    except ValueError:
+    except (ValueError, KeyError):
         return ORJSONResponse({"ok": False, "err": "Unauthorized"}, status_code=401)
     try:
         await bot.delete_message(init_data.user.id, data["message_id"])
@@ -65,10 +65,10 @@ async def auth_login(data: dict):
 
     if status == 200:
         await response_web_query(init_data, "Login", render_flows.user("login_200", user.user))
-    if status == 400:
+    elif status == 400:
         lang = process_language(init_data.user)
         await response_web_query(init_data, "Login", render_flows.base("login_400", lang))
-    if status == 500:
+    else:
         lang = process_language(init_data.user)
         await response_web_query(init_data, "Login", render_flows.base("auth_not_available", lang))
     return ORJSONResponse({"ok": True})

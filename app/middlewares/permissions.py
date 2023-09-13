@@ -6,7 +6,6 @@ from aiogram.dispatcher.flags import get_flag
 
 from app.helpers import process_language
 from app.services.api import flows as api_flows
-from app.services.api import service as api_service
 from app.services.render import flows as render_flows
 
 
@@ -17,7 +16,8 @@ class PermissionMessageMiddleware(BaseMiddleware):
             event: Message,
             data: Dict[str, Any]
     ) -> Any:
-        data["user"] = await api_service.get_by_telegram_user_id(event.from_user.id)
+        user = await api_flows.get_me_user_id(event.from_user.id)
+        data["user"] = user
         chat_action = get_flag(data, 'chat_action')
         if chat_action is not None:
             is_superuser = "is_superuser" in chat_action
@@ -50,7 +50,7 @@ class PermissionMessageMiddleware(BaseMiddleware):
             await event.answer(render_flows.user("missing_perms", user))
             return
 
-        data['user'] = await api_service.get_by_telegram_user_id(event.from_user.id)
+        data['user'] = user
         return await handler(event, data)
 
 
@@ -61,7 +61,8 @@ class PermissionCallbackMiddleware(BaseMiddleware):
             event: CallbackQuery,
             data: Dict[str, Any]
     ) -> Any:
-        data["user"] = await api_service.get_by_telegram_user_id(event.from_user.id)
+        user = await api_flows.get_me_user_id(event.from_user.id)
+        data["user"] = user
         chat_action = get_flag(data, 'chat_action')
         if chat_action is not None:
             is_superuser = "is_superuser" in chat_action

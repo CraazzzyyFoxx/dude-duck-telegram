@@ -23,4 +23,4 @@ class Jinja(Jinja_dialog):
     async def _render_text(
             self, data: dict, manager: DialogManager,
     ) -> str:
-        return render_flows.user(self.template_text, data["user"].user, data=data)
+        return render_flows.user(self.template_text, data["user"], data=data)

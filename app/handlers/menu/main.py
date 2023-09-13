@@ -33,10 +33,13 @@ async def get_data(dialog_manager: DialogManager, **_kwargs):
     if dialog_manager.start_data is None:
         await dialog_manager.done()
         return
-    user: api_models.User = dialog_manager.start_data.get("user", None)
-    dialog_manager.dialog_data["user"] = user
+
+    if dialog_manager.dialog_data.get("user") is None:
+        dialog_manager.dialog_data["user"] = dialog_manager.start_data.get("user")
+
     dialog_manager.dialog_data["message"] = dialog_manager.start_data.get("message")
-    lang = "🇺🇸" if user.user.language == api_schemas.UserLanguage.EN else "🇷🇺"
+    user = dialog_manager.dialog_data["user"]
+    lang = "🇺🇸" if user.language == api_schemas.UserLanguage.EN else "🇷🇺"
     return {"user": user,
             "message": dialog_manager.start_data.get("message"),
             "auth_url": config.app.auth_url,
@@ -63,8 +66,7 @@ async def to_orders(callback: CallbackQuery, button: Button, dialog_manager: Dia
 
 
 async def change_language(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
-    user = await api_flows.change_language(callback.from_user.id)
-    dialog_manager.dialog_data["user"].user = user
+    dialog_manager.dialog_data["user"] = await api_flows.change_language(callback.from_user.id)
     await dialog_manager.switch_to(Main.MAIN)
 
 
