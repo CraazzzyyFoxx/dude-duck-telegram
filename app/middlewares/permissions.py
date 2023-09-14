@@ -82,6 +82,9 @@ class PermissionCallbackMiddleware(BaseMiddleware):
 
         user = await api_flows.get_me_user_id(event.from_user.id)
 
+        if user is None:
+            raise errors.AuthorizationExpired()
+
         if not user.is_verified:
             await event.answer(render_flows.user("verify_no", user), show_alert=True)
             return
