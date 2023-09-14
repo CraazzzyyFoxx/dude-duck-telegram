@@ -4,6 +4,7 @@ from aiogram import BaseMiddleware
 from aiogram.dispatcher.flags import get_flag
 from aiogram.types import CallbackQuery, Message
 
+from app.core import errors
 from app.helpers import process_language
 from app.services.api import flows as api_flows
 from app.services.render import flows as render_flows
@@ -37,6 +38,9 @@ class PermissionMessageMiddleware(BaseMiddleware):
             return await handler(event, data)
 
         user = await api_flows.get_me_user_id(event.from_user.id)
+
+        if user is None:
+            raise errors.AuthorizationExpired()
 
         if not user.is_verified:
             await event.answer(render_flows.user("verify_no", user))
