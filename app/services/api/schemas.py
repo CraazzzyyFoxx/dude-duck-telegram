@@ -48,14 +48,14 @@ class OrderInfo(BaseModel):
 
 
 class OrderPrice(BaseModel):
-    price_booster_dollar_fee: float
+    price_booster_dollar: float
     price_booster_rub: float
     price_booster_gold: float | None = None
 
 
 class PreOrderPrice(BaseModel):
     price_booster_rub: float | None = None
-    price_booster_dollar_fee: float | None = None
+    price_booster_dollar: float | None = None
     price_booster_gold: float | None = None
 
 
