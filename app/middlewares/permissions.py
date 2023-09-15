@@ -17,7 +17,13 @@ class PermissionMessageMiddleware(BaseMiddleware):
             event: Message,
             data: Dict[str, Any]
     ) -> Any:
-        user = await api_flows.get_me_user_id(event.from_user.id)
+        try:
+            user = await api_flows.get_me_user_id(event.from_user.id)
+        except errors.AuthorizationExpired():
+            lang = process_language(event.from_user)
+            await event.answer(render_flows.base("expired", lang))
+            return
+
         data["user"] = user
         chat_action = get_flag(data, 'chat_action')
         if chat_action is not None:
@@ -65,7 +71,12 @@ class PermissionCallbackMiddleware(BaseMiddleware):
             event: CallbackQuery,
             data: Dict[str, Any]
     ) -> Any:
-        user = await api_flows.get_me_user_id(event.from_user.id)
+        try:
+            user = await api_flows.get_me_user_id(event.from_user.id)
+        except errors.AuthorizationExpired():
+            lang = process_language(event.from_user)
+            await event.answer(render_flows.base("expired", lang), show_alert=True)
+            return
         data["user"] = user
         chat_action = get_flag(data, 'chat_action')
         if chat_action is not None:
