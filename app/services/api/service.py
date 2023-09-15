@@ -14,7 +14,7 @@ from . import models
 class ApiServiceMeta:
     __slots__ = ("client", )
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.client = AsyncClient(timeout=8)
 
     @staticmethod
@@ -75,7 +75,7 @@ async def get_token(user_id: int) -> str | None:
     user = await get(user_id)
     if user is None:
         return None
-    if user.last_login > (datetime.now() - timedelta(days=1)).astimezone(pytz.UTC):
+    if user.last_login is not None and user.last_login > (datetime.now() - timedelta(days=1)).astimezone(pytz.UTC):
         return None
     return user.token
 

@@ -11,7 +11,7 @@ async def create(channel_in: models.ChannelCreate) -> models.Channel:
     return await models.Channel.create(**channel_in.model_dump())
 
 
-async def update(channel: models.Channel, channel_in: models.ChannelUpdate):
+async def update(channel: models.Channel, channel_in: models.ChannelUpdate) -> models.Channel:
     update_data = channel_in.model_dump(exclude_none=True)
     channel = channel.update_from_dict(update_data)
 
@@ -19,7 +19,7 @@ async def update(channel: models.Channel, channel_in: models.ChannelUpdate):
     return channel
 
 
-async def delete(channel_id: int):
+async def delete(channel_id: int) -> None:
     channel = await get(channel_id)
     await channel.delete()
 

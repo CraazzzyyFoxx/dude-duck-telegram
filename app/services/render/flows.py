@@ -10,7 +10,7 @@ from app.services.api import schemas as api_schemas
 from . import models, service
 
 
-async def get(parser_id: int):
+async def get(parser_id: int) -> models.RenderConfig:
     parser = await service.get(parser_id)
     if not parser:
         raise HTTPException(
@@ -20,7 +20,7 @@ async def get(parser_id: int):
     return parser
 
 
-async def get_by_name(name: str):
+async def get_by_name(name: str) -> models.RenderConfig:
     parser = await service.get_by_name(name)
     if not parser:
         raise HTTPException(
@@ -30,7 +30,7 @@ async def get_by_name(name: str):
     return parser
 
 
-async def create(parser_in: models.RenderConfigCreate):
+async def create(parser_in: models.RenderConfigCreate) -> models.RenderConfig:
     data = await service.get_by_name(parser_in.name)
     if data:
         raise HTTPException(
@@ -40,33 +40,38 @@ async def create(parser_in: models.RenderConfigCreate):
     return await service.create(parser_in)
 
 
-async def update(name: str, parser_in: models.RenderConfigUpdate):
+async def update(name: str, parser_in: models.RenderConfigUpdate) -> models.RenderConfig:
     data = await get_by_name(name)
     return await service.update(data, parser_in)
 
 
-async def delete(name: str):
+async def delete(name: str) -> models.RenderConfig:
     parser = await get_by_name(name)
     return await service.delete(parser.id)
 
 
-def get_order_configs(order: api_schemas.Order, *, creds: bool = False):
+def get_order_configs(order: api_schemas.Order, *, creds: bool = False) -> list[str]:
     game = order.info.game if not creds else f"{order.info.game}-cd"
     return ["order", game, "eta-price"]
 
 
-def get_order_response_configs(order: api_schemas.Order, *, creds: bool = False, checked: bool = False):
+def get_order_response_configs(order: api_schemas.Order, *, creds: bool = False, checked: bool = False) -> list[str]:
     game = order.info.game if not creds else f"{order.info.game}-cd"
     resp = "response" if not checked else "response-check"
     return ["order", game, "eta-price", resp]
 
 
-def get_preorder_configs(preorder: api_schemas.PreOrder, *, creds: bool = False):
+def get_preorder_configs(preorder: api_schemas.PreOrder, *, creds: bool = False) -> list[str]:
     game = preorder.info.game if not creds else f"{preorder.info.game}-cd"
     return ["pre-order", game, "pre-eta-price"]
 
 
-def get_preorder_response_configs(preorder: api_schemas.PreOrder, *, creds: bool = False, checked: bool = False):
+def get_preorder_response_configs(
+        preorder: api_schemas.PreOrder,
+        *,
+        creds: bool = False,
+        checked: bool = False
+) -> list[str]:
     game = preorder.info.game if not creds else f"{preorder.info.game}-cd"
     resp = "response" if not checked else "response-check"
     return ["pre-order", game, "pre-eta-price", resp]
@@ -85,7 +90,7 @@ async def check_availability_all_render_config_order(order: api_schemas.Order) -
     return True, []
 
 
-def _render(pre_render: str):
+def _render(pre_render: str) -> str:
     rendered = pre_render.replace("<br>", "\n")
     rendered = re.sub(" +", " ", rendered).replace(" .", ".").replace(" ,", ",")
     rendered = "\n".join(line.strip() for line in rendered.split("\n"))
@@ -119,7 +124,7 @@ def user(template_name: str, user_in: api_schemas.User, *, data: dict | None = N
     return _render_template(template_name, data)
 
 
-def _get_template_env():
+def _get_template_env() -> jinja2.Environment:
     if not getattr(_get_template_env, "template_env", None):
         template_loader = jinja2.FileSystemLoader(searchpath=config.TEMPLATES_DIR)
         env = jinja2.Environment(
@@ -134,10 +139,10 @@ def _get_template_env():
 
 
 async def _order(templates: list[str], *, data: dict) -> str:
-    resp = []
+    resp: list[str] = []
     last_len = 0
-    for index, render_config in enumerate(templates, 1):
-        render_config = await service.get_by_name(render_config)
+    for index, render_config_name in enumerate(templates, 1):
+        render_config = await service.get_by_name(render_config_name)
         template = jinja2.Template(render_config.binary)
         rendered = template.render(**data)
         if not render_config.allow_separator_top and len(resp) > 0:

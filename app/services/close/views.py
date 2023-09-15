@@ -36,7 +36,7 @@ async def response_web_query(init_data: WebAppInitData, title: str, message: str
 
 @router.get("/close", response_class=HTMLResponse)
 async def read_items(request: Request, user_id: int):
-    orders = await api_flows.me_get_orders(user_id, status=api_flows.models.OrderSelection.InProgress)
+    orders = await api_flows.get_me_orders(user_id, status=api_flows.models.OrderSelection.InProgress)
     return templates.TemplateResponse("close.html", {"request": request, "orders": orders.results})
 
 

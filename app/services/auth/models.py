@@ -25,7 +25,7 @@ class SignInForm(BaseModel):
             if len(v.replace(" ", "")) != len(v):
                 raise ValueError("The discord username should be @craaazzzyyfoxx or CraazzzyyFoxx#0001 format")
         elif "#" in v:
-            name, dis = v.strip("#")
+            name, dis = v.split("#")
             if len(dis) != 4:
                 raise ValueError("The discord username should be @craaazzzyyfoxx or CraazzzyyFoxx#0001 format")
         else:

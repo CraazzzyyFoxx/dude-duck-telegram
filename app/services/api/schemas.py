@@ -68,36 +68,25 @@ class OrderCredentials(BaseModel):
     discord: str | None
 
 
-class OrderRead(BaseModel):
-    id: str
-    order_id: str
-
-    date: datetime.datetime
-    screenshot: str | None = None
-
-    info: OrderInfo
-    credentials: OrderCredentials
-    price: OrderPrice
-
-    auth_date: datetime.datetime | None = None
-    end_date: datetime.datetime | None = None
-
-    shop: str | None = None
-    shop_order_id: str | int | None = None
-
-
 class Order(BaseModel):
     id: str
     order_id: str
 
-    date: datetime.datetime
-    screenshot: str | None = None
+    info: OrderInfo
+    price: OrderPrice
+
+
+class OrderRead(Order):
+    id: str
+    order_id: str
+    screenshot: str | None
     status: str
 
     info: OrderInfo
     price: OrderPrice
     credentials: OrderCredentials
 
+    paid_time: datetime.datetime | None
     auth_date: datetime.datetime | None = None
     end_date: datetime.datetime | None = None
 

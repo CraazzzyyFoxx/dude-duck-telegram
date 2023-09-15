@@ -97,7 +97,7 @@ async def send_response(
 
 
 async def response_approved(
-        order: api_schemas.Order,
+        order: api_schemas.OrderRead,
         user: api_schemas.User,
         response: models.OrderResponse,
         **_kwargs
@@ -114,12 +114,12 @@ async def response_approved(
 
 
 async def response_declined(
-        order: api_schemas.Order,
+        order_id: str,
         user: api_schemas.User,
         **_kwargs
 ):
     users_db = await api_service.get_by_user_id(user.id)
-    text = render_flows.user("response_declined", user, data={"order": order})
+    text = render_flows.user("response_declined", user, data={"order_id": order_id})
     resp = []
     for user_db in users_db:
         resp.append(await send_response(user_db.telegram_user_id, text))

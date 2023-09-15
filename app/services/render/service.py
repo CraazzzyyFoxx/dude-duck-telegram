@@ -19,8 +19,9 @@ async def create(config_in: models.RenderConfigCreate) -> models.RenderConfig:
 
 
 async def delete(config_id: int):
-    user_order = await get(config_id)
-    await user_order.delete()
+    config = await get(config_id)
+    if config:
+        await config.delete()
 
 
 async def get_by_name(name: str) -> models.RenderConfig | None:

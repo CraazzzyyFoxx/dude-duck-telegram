@@ -3,6 +3,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from app.core import config
 from app.core.cbdata import OrderRespondCallback, OrderRespondTimedCallback
+from app.services.api import flows as api_flows
 from app.services.api import schemas as api_schemas
 from app.services.api import service as api_service
 from app.services.channel import service as channel_service
@@ -169,20 +170,22 @@ async def pull_order_admins(
 
 
 async def pull_booster_resp_yes(
-        order: api_schemas.Order,
+        order_id: str,
         user: api_schemas.User,
         response: response_flows.models.OrderResponse,
         **_kwargs
 ):
+    tg_user = await api_service.get_by_user_id(user.id)
+    order = await api_flows.get_me_order(tg_user[0].telegram_user_id, order_id)
     return await response_flows.response_approved(order, user, response)
 
 
 async def pull_booster_resp_no(
-        order: api_schemas.Order,
+        order_id: str,
         user: api_schemas.User,
         **_kwargs
 ):
-    return await response_flows.response_declined(order, user)
+    return await response_flows.response_declined(order_id, user)
 
 
 async def send_request_verify(
