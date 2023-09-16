@@ -36,4 +36,4 @@ class TelegramUserUpdate(BaseModel):
     token: str | None = None
     user: User | None = None
 
-    last_login: datetime = Field(default_factory=datetime.utcnow)
+    last_login: datetime | None = None

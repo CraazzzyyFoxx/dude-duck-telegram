@@ -33,4 +33,4 @@ async def get_by_game_category(game: str, category: str = None) -> models.Channe
 
 
 async def get_by_game_categories(game: str, categories: list[str]) -> list[models.Channel]:
-    return await models.Channel.filter(Q(game=game) | Q(category__in=categories)).all()
+    return await models.Channel.filter(Q(game=game) & Q(category__in=categories)).all()

@@ -1,3 +1,5 @@
+import datetime
+
 from app.services.api import flows as api_flows
 from app.services.api import models as api_models
 from app.services.api import service as api_service
@@ -26,7 +28,8 @@ async def login(user_id: int, email: str, password: str) -> tuple[int, api_model
             await api_service.create(api_models.TelegramUserCreate(user_id=user.id, telegram_user_id=user_id))
 
         user_db = await api_service.get_by_telegram_user_id(user_id)
-        await api_service.update(user_db, api_models.TelegramUserUpdate.model_validate({"user": user, "token": token}))
+        update_model = api_models.TelegramUserUpdate(user=user, token=token, last_login=datetime.datetime.utcnow())
+        await api_service.update(user_db, update_model)
         return response.status_code, await api_service.get_by_telegram_user_id(user_id)
     return response.status_code, None
 

@@ -6,6 +6,7 @@ from app.core.cbdata import OrderRespondCallback, OrderRespondTimedCallback
 from app.services.api import flows as api_flows
 from app.services.api import schemas as api_schemas
 from app.services.api import service as api_service
+from app.services.api import models as api_models
 from app.services.channel import service as channel_service
 from app.services.message import models as message_models
 from app.services.message import service as message_service
@@ -210,6 +211,7 @@ async def send_verified(
 
     users_db = await api_service.get_by_user_id(user.id)
     for user_db in users_db:
+        await api_service.update(user_db, api_models.TelegramUserUpdate(user=user))
         _, status = await message_service.create(message_models.MessageCreate(
             text=render_flows.user("verified", user),
             channel_id=user_db.telegram_user_id,
@@ -221,12 +223,12 @@ async def send_verified(
 
 async def send_order_close_request(
         user: api_schemas.User,
-        order: api_schemas.Order,
+        order_id: str,
         url: str,
         message: str,
         **_kwargs
 ):
-    data = {"user": user, "order": order, "url": url, "message": message}
+    data = {"user": user, "order_id": order_id, "url": url, "message": message}
     _, status = await message_service.create(message_models.MessageCreate(
         text=render_flows.system("notify_order_close", data=data),
         channel_id=config.app.admin_important_events,
@@ -304,12 +306,12 @@ async def send_order_deleted_notify(
 
 
 async def send_response_chose_notify(
-        order: api_schemas.Order,
+        order_id: str,
         responses: int,
         user: api_schemas.User,
         **_kwargs
 ):
-    data = {"order": order, "total": responses, "user": user}
+    data = {"order_id": order_id, "total": responses, "user": user}
     _, status = await message_service.create(message_models.MessageCreate(
         text=render_flows.system("notify_response_chose", data=data),
         channel_id=config.app.admin_events,
