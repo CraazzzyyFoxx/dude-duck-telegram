@@ -5,7 +5,7 @@ from . import models
 
 async def me_close_order(user_id: int, data: models.CloseOrderForm):
     d = {"url": data.url, "message": data.message}
-    resp = await api_service.request(f'users/@me/orders/{data.order_id}/close-request', 'POST',
-                                     await api_service.get_token_user_id(user_id),
-                                     json=d)
+    resp = await api_service.request(
+        f"users/@me/orders/{data.order_id}/close-request", "POST", await api_service.get_token_user_id(user_id), json=d
+    )
     return resp.status_code

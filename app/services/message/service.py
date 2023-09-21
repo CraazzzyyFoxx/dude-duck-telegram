@@ -1,5 +1,4 @@
-from aiogram.exceptions import (TelegramBadRequest, TelegramForbiddenError,
-                                TelegramNotFound)
+from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError, TelegramNotFound
 
 from app.core.bot import bot
 
@@ -45,8 +44,9 @@ async def _create(message_in: models.MessageCreate):
     except TelegramForbiddenError:
         return None, models.MessageStatus.FORBIDDEN
 
-    message_db = await models.Message.create(message_id=msg.message_id,
-                                             **message_in.model_dump(exclude_unset=True, exclude_none=True))
+    message_db = await models.Message.create(
+        message_id=msg.message_id, **message_in.model_dump(exclude_unset=True, exclude_none=True)
+    )
     return message_db, models.MessageStatus.CREATED
 
 
@@ -77,16 +77,17 @@ async def create(message_in: models.MessageCreate) -> tuple[models.Message | Non
 
 
 async def update(
-        message: models.Message,
-        message_in: models.MessageUpdate
+    message: models.Message, message_in: models.MessageUpdate
 ) -> tuple[models.Message | None, models.MessageStatus]:
     try:
         if message_in.text is None and message_in.inline_keyboard is None:
             await bot.edit_message_reply_markup(
-                message.channel_id, message.message_id, reply_markup=message_in.inline_keyboard)
+                message.channel_id, message.message_id, reply_markup=message_in.inline_keyboard
+            )
         else:
             await bot.edit_message_text(
-                message_in.text, message.channel_id, message.message_id, reply_markup=message_in.inline_keyboard)
+                message_in.text, message.channel_id, message.message_id, reply_markup=message_in.inline_keyboard
+            )
     except TelegramBadRequest:
         return None, models.MessageStatus.SAME_TEXT
     except TelegramNotFound:

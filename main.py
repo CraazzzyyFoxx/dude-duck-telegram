@@ -38,12 +38,16 @@ async def lifespan(application: FastAPI):  # noqa
     bot.dp.include_router(tg_router)
     await api_service.ApiService.init()
     await bot.bot.set_my_commands(
-        commands=enums.my_commands_ru, scope=BotCommandScopeAllPrivateChats(), language_code="ru")
+        commands=enums.my_commands_ru, scope=BotCommandScopeAllPrivateChats(), language_code="ru"
+    )
     await bot.bot.set_my_commands(
-        commands=enums.my_commands_en, scope=BotCommandScopeAllPrivateChats(), language_code="en")
-    await bot.bot.set_webhook(url=f"{config.app.webhook_url}/bot/api/telegram/webhook",
-                              secret_token=config.app.api_token,
-                              drop_pending_updates=True)
+        commands=enums.my_commands_en, scope=BotCommandScopeAllPrivateChats(), language_code="en"
+    )
+    await bot.bot.set_webhook(
+        url=f"{config.app.webhook_url}/bot/api/telegram/webhook",
+        secret_token=config.app.api_token,
+        drop_pending_updates=True,
+    )
     logger.info("Bot... Online!")
     yield
     await api_service.ApiService.shutdown()
@@ -61,11 +65,12 @@ api_app.mount("/static", StaticFiles(directory="static"), name="static")
 api_app.include_router(router)
 api_app.add_middleware(ExceptionMiddleware)
 
-app.add_middleware(CORSMiddleware,
-                   allow_origins=["*"],
-                   allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PATCH", "PUT"],
-                   allow_headers=["*"]
-                   )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PATCH", "PUT"],
+    allow_headers=["*"],
+)
 
 srh = SimpleRequestHandler(bot.dp, bot.bot, handle_in_background=False, _bot=bot.bot)
 srh.register(api_app, "/api/telegram/webhook")

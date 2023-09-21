@@ -21,14 +21,15 @@ async def update(channel: models.Channel, channel_in: models.ChannelUpdate) -> m
 
 async def delete(channel_id: int) -> None:
     channel = await get(channel_id)
-    await channel.delete()
+    if channel:
+        await channel.delete()
 
 
 async def get_all() -> list[models.Channel]:
     return await models.Channel.all()
 
 
-async def get_by_game_category(game: str, category: str = None) -> models.Channel | None:
+async def get_by_game_category(game: str, category: str | None = None) -> models.Channel | None:
     return await models.Channel.filter(game=game, category=category).first()
 
 

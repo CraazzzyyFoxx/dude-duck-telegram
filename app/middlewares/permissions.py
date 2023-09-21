@@ -12,13 +12,10 @@ from app.services.render import flows as render_flows
 
 class PermissionMessageMiddleware(BaseMiddleware):
     async def __call__(
-            self,
-            handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]],
-            event: Message,
-            data: Dict[str, Any]
+        self, handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]], event: Message, data: Dict[str, Any]
     ) -> Any:
         data["user"] = None
-        chat_action = get_flag(data, 'chat_action')
+        chat_action = get_flag(data, "chat_action")
         if chat_action is not None:
             is_superuser = "is_superuser" in chat_action
             is_private = "is_private" in chat_action
@@ -53,19 +50,19 @@ class PermissionMessageMiddleware(BaseMiddleware):
             await event.answer(render_flows.user("missing_perms", user))
             return
 
-        data['user'] = user
+        data["user"] = user
         return await handler(event, data)
 
 
 class PermissionCallbackMiddleware(BaseMiddleware):
     async def __call__(
-            self,
-            handler: Callable[[CallbackQuery, Dict[str, Any]], Awaitable[Any]],
-            event: CallbackQuery,
-            data: Dict[str, Any]
+        self,
+        handler: Callable[[CallbackQuery, Dict[str, Any]], Awaitable[Any]],
+        event: CallbackQuery,
+        data: Dict[str, Any],
     ) -> Any:
         data["user"] = None
-        chat_action = get_flag(data, 'chat_action')
+        chat_action = get_flag(data, "chat_action")
         if chat_action is not None:
             is_superuser = "is_superuser" in chat_action
             is_private = "is_private" in chat_action
@@ -95,5 +92,5 @@ class PermissionCallbackMiddleware(BaseMiddleware):
             await event.answer(render_flows.user("missing_perms", user), show_alert=True)
             return
 
-        data['user'] = user
+        data["user"] = user
         return await handler(event, data)

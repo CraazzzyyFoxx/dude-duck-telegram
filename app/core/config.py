@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class AppConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8', extra="ignore")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     token: str
     webhook_url: str
@@ -35,7 +35,7 @@ class AppConfig(BaseSettings):
     admin_noise_events: int
 
 
-app = AppConfig(_env_file='.env', _env_file_encoding='utf-8')
+app = AppConfig(_env_file=".env", _env_file_encoding="utf-8")
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 TEMPLATES_DIR = BASE_DIR / "templates"
@@ -60,7 +60,7 @@ tortoise = {
                 "app.services.channel.models",
                 "app.services.message.models",
                 "app.services.render.models",
-                "aerich.models"
+                "aerich.models",
             ],
         }
     },

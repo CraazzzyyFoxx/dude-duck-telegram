@@ -1,6 +1,6 @@
 from pydantic import BaseModel, HttpUrl, constr
 
-__all__ = ("CloseOrderForm", )
+__all__ = ("CloseOrderForm",)
 
 
 class CloseOrderForm(BaseModel):

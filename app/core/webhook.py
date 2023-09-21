@@ -41,9 +41,7 @@ class BaseRequestHandler(ABC):
     and propagate it to the Dispatcher
     """
 
-    def __init__(
-            self, dispatcher: Dispatcher, handle_in_background: bool = True, **data: Any
-    ) -> None:
+    def __init__(self, dispatcher: Dispatcher, handle_in_background: bool = True, **data: Any) -> None:
         """
         :param dispatcher: instance of :class:`aiogram.dispatcher.dispatcher.Dispatcher`
         :param handle_in_background: immediately respond to the Telegram instead of waiting end of handler process
@@ -61,12 +59,13 @@ class BaseRequestHandler(ABC):
         :param kwargs:
         """
         app.add_event_handler("shutdown", self._handle_close)
-        app.add_api_route(path=path,
-                          endpoint=self.handle,
-                          methods=["POST"],
-                          dependencies=[Depends(requires_authorization_telegram)],
-                          include_in_schema=False,
-                          )
+        app.add_api_route(
+            path=path,
+            endpoint=self.handle,
+            methods=["POST"],
+            dependencies=[Depends(requires_authorization_telegram)],
+            include_in_schema=False,
+        )
 
     async def _handle_close(self) -> None:
         await self.close()
@@ -85,11 +84,7 @@ class BaseRequestHandler(ABC):
             await self.dispatcher.silent_call_request(bot=bot, result=result)
 
     async def _handle_request_background(self, bot: Bot, request: Request) -> Response:
-        asyncio.create_task(
-            self._background_feed_update(
-                bot=bot, update=bot.session.json_loads(await request.body())
-            )
-        )
+        asyncio.create_task(self._background_feed_update(bot=bot, update=bot.session.json_loads(await request.body())))
         return Response(bot.session.json_dumps({}), media_type="application/json")
 
     async def _handle_request(self, bot: Bot, request: Request) -> Response:
@@ -111,10 +106,7 @@ class BaseRequestHandler(ABC):
 
 
 class SimpleRequestHandler(BaseRequestHandler):
-
-    def __init__(
-            self, dispatcher: Dispatcher, bot: Bot, handle_in_background: bool = True, **data: Any
-    ) -> None:
+    def __init__(self, dispatcher: Dispatcher, bot: Bot, handle_in_background: bool = True, **data: Any) -> None:
         super().__init__(dispatcher=dispatcher, handle_in_background=handle_in_background, **data)
         self.bot = bot
 
@@ -131,11 +123,11 @@ class TokenBasedRequestHandler(BaseRequestHandler):
     """
 
     def __init__(
-            self,
-            dispatcher: Dispatcher,
-            handle_in_background: bool = True,
-            bot_settings: Optional[Dict[str, Any]] = None,
-            **data: Any,
+        self,
+        dispatcher: Dispatcher,
+        handle_in_background: bool = True,
+        bot_settings: Optional[Dict[str, Any]] = None,
+        **data: Any,
     ) -> None:
         """
         :param dispatcher: instance of :class:`aiogram.dispatcher.dispatcher.Dispatcher`

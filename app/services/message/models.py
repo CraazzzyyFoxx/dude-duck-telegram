@@ -1,8 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
-from aiogram.types import (ForceReply, InlineKeyboardMarkup,
-                           ReplyKeyboardMarkup, ReplyKeyboardRemove)
+from aiogram.types import ForceReply, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from pydantic import BaseModel, Field
 from tortoise import fields
 from tortoise.models import Model
@@ -59,7 +58,9 @@ class MessageCreate(BaseModel):
     type: MessageType
 
     text: str
-    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = Field(default=None)
+    reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = Field(
+        default=None
+    )
 
 
 class MessageUpdate(BaseModel):

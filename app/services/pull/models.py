@@ -66,10 +66,6 @@ class MessageResponse(BaseModel):
     channel_id: int
 
 
-class MessageResponses(BaseModel):
-    statuses: list[MessageResponse]
-
-
 class MessageEventPayload(BaseModel):
     order_id: str | None = Field(default=None)
 

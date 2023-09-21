@@ -12,7 +12,7 @@ from . import models
 
 
 class ApiServiceMeta:
-    __slots__ = ("client", )
+    __slots__ = ("client",)
 
     def __init__(self) -> None:
         self.client = AsyncClient(timeout=8)
@@ -49,9 +49,7 @@ async def get_by_telegram_user_id(user_id: int) -> models.TelegramUser | None:
 
 
 async def create(user_order_in: models.TelegramUserCreate) -> models.TelegramUser:
-    return await models.TelegramUser.create(
-        **user_order_in.model_dump()
-    )
+    return await models.TelegramUser.create(**user_order_in.model_dump())
 
 
 async def delete(user_id: id):
@@ -91,12 +89,12 @@ async def get_token_user_id(user_id: int) -> str | None:
 
 
 async def request(
-        url: str,
-        method: typing.Literal["GET", "POST", "PATCH", "DELETE"],
-        token: str | None,
-        *,
-        json: typing.Any = None,
-        data: dict = None
+    url: str,
+    method: typing.Literal["GET", "POST", "PATCH", "DELETE"],
+    token: str | None,
+    *,
+    json: typing.Any = None,
+    data: dict = None,
 ) -> Response:
     if token is None:
         raise errors.AuthorizationExpired()
@@ -124,12 +122,12 @@ async def request(
 
 
 async def request_auth(
-        url: str,
-        method: typing.Literal["GET", "POST", "PUT", "DELETE"],
-        *,
-        token: str | None = None,
-        json: typing.Any = None,
-        data: dict = None
+    url: str,
+    method: typing.Literal["GET", "POST", "PUT", "DELETE"],
+    *,
+    token: str | None = None,
+    json: typing.Any = None,
+    data: dict = None,
 ) -> Response:
     try:
         response = await ApiService.client.request(

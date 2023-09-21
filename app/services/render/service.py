@@ -5,9 +5,19 @@ from app.services.api import schemas as api_schemas
 from . import models
 
 
-def get_all_config_names(order: api_schemas.Order):
-    return ["order", "eta-price", "response", "response-check",
-            order.info.game, f"{order.info.game}-cd", "pre-order", "pre-eta-price"]
+def get_all_config_names(
+        order: api_schemas.Order | api_schemas.PreOrder
+) -> list[str]:
+    return [
+        "order",
+        "eta-price",
+        "response",
+        "response-check",
+        order.info.game,
+        f"{order.info.game}-cd",
+        "pre-order",
+        "pre-eta-price",
+    ]
 
 
 async def get(config_id: int) -> models.RenderConfig | None:
@@ -18,7 +28,7 @@ async def create(config_in: models.RenderConfigCreate) -> models.RenderConfig:
     return await models.RenderConfig.create(**config_in.model_dump())
 
 
-async def delete(config_id: int):
+async def delete(config_id: int) -> None:
     config = await get(config_id)
     if config:
         await config.delete()
@@ -40,5 +50,7 @@ async def update(parser: models.RenderConfig, parser_in: models.RenderConfigUpda
     return parser
 
 
-async def get_all_configs_for_order(order: api_schemas.Order) -> list[models.RenderConfig]:
+async def get_all_configs_for_order(
+        order: api_schemas.Order | api_schemas.PreOrder
+) -> list[models.RenderConfig]:
     return await models.RenderConfig.filter(Q(name__in=get_all_config_names(order))).all()

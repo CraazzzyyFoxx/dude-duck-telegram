@@ -5,13 +5,13 @@ from . import models, service
 
 
 async def get(channel_id: int) -> models.Channel:
-    channel_id = await service.get(channel_id)
-    if not channel_id:
+    channel = await service.get(channel_id)
+    if not channel:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=[{"msg": "A channel with this id does not exist."}],
         )
-    return channel_id
+    return channel
 
 
 async def get_channel_by_game_category(game: str, category: str = None) -> models.Channel:

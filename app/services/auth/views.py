@@ -10,12 +10,11 @@ from starlette.templating import Jinja2Templates
 from app.core.bot import bot
 from app.core.enums import RouteTag
 from app.helpers import process_language
-from app.services.api import service as api_service
 from app.services.render import flows as render_flows
 
 from . import models, service
 
-router = APIRouter(prefix='/auth', tags=[RouteTag.AUTH])
+router = APIRouter(prefix="/auth", tags=[RouteTag.AUTH])
 templates = Jinja2Templates(directory="static")
 
 
@@ -34,17 +33,17 @@ async def response_web_query(init_data: WebAppInitData, title: str, message: str
 
 
 @router.get("/login", response_class=HTMLResponse)
-async def read_items(request: Request, message_id: int):
+async def login(request: Request, message_id: int):
     return templates.TemplateResponse("login.html", {"request": request, "message_id": message_id})
 
 
 @router.get("/signup", response_class=HTMLResponse)
-async def read_items(request: Request, message_id: int):
+async def signup(request: Request, message_id: int):
     return templates.TemplateResponse("signup.html", {"request": request, "message_id": message_id})
 
 
 @router.post("/login")
-async def auth_login(data: dict):
+async def login(data: dict):
     try:
         init_data = safe_parse_webapp_init_data(token=bot.token, init_data=data["_auth"])
     except (ValueError, KeyError):
@@ -75,7 +74,7 @@ async def auth_login(data: dict):
 
 
 @router.post("/signup")
-async def auth_register(data: dict):
+async def signup(data: dict):
     try:
         init_data = safe_parse_webapp_init_data(token=bot.token, init_data=data["_auth"])
     except ValueError:

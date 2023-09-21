@@ -35,13 +35,13 @@ class User(BaseModel):
 
 
 class OrderInfo(BaseModel):
-    boost_type: str | None
+    boost_type: str
     region_fraction: str | None
     server: str | None
     category: str | None
     character_class: str | None
     platform: str | None
-    game: str | None
+    game: str
     purchase: str | None
     comment: str | None
     eta: str | None
@@ -107,8 +107,8 @@ class UserUpdate(BaseModel):
     binance_id: int | None = None
     max_orders: int
 
-    @model_validator(mode='after')
-    def check_passwords_match(self) -> 'UserUpdate':
+    @model_validator(mode="after")
+    def check_passwords_match(self) -> "UserUpdate":
         if self.phone and not self.bank:
             raise ValueError("When filling in the phone number, you must also fill in the name of the bank")
 

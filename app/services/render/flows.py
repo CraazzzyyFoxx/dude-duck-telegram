@@ -50,37 +50,33 @@ async def delete(name: str) -> models.RenderConfig:
     return await service.delete(parser.id)
 
 
-def get_order_configs(order: api_schemas.Order, *, creds: bool = False) -> list[str]:
-    game = order.info.game if not creds else f"{order.info.game}-cd"
+def get_order_configs(order_model: api_schemas.Order, *, pre: bool = False, creds: bool = False) -> list[str]:
+    game = order_model.info.game if not creds else f"{order_model.info.game}-cd"
+    if pre:
+        return ["pre-order", game, "pre-eta-price"]
     return ["order", game, "eta-price"]
 
 
-def get_order_response_configs(order: api_schemas.Order, *, creds: bool = False, checked: bool = False) -> list[str]:
-    game = order.info.game if not creds else f"{order.info.game}-cd"
+def get_order_response_configs(
+    order_model: api_schemas.Order | api_schemas.PreOrder,
+    *,
+    pre: bool = False,
+    creds: bool = False,
+    checked: bool = False,
+) -> list[str]:
+    game = order_model.info.game if not creds else f"{order_model.info.game}-cd"
     resp = "response" if not checked else "response-check"
+    if pre:
+        return ["pre-order", game, "pre-eta-price", resp]
     return ["order", game, "eta-price", resp]
 
 
-def get_preorder_configs(preorder: api_schemas.PreOrder, *, creds: bool = False) -> list[str]:
-    game = preorder.info.game if not creds else f"{preorder.info.game}-cd"
-    return ["pre-order", game, "pre-eta-price"]
-
-
-def get_preorder_response_configs(
-        preorder: api_schemas.PreOrder,
-        *,
-        creds: bool = False,
-        checked: bool = False
-) -> list[str]:
-    game = preorder.info.game if not creds else f"{preorder.info.game}-cd"
-    resp = "response" if not checked else "response-check"
-    return ["pre-order", game, "pre-eta-price", resp]
-
-
-async def check_availability_all_render_config_order(order: api_schemas.Order) -> tuple[bool, list[str]]:
-    configs = await service.get_all_configs_for_order(order)
-    names = service.get_all_config_names(order)
-    exist_names = [config.name for config in configs]
+async def check_availability_all_render_config_order(
+    order_model: api_schemas.Order | api_schemas.PreOrder,
+) -> tuple[bool, list[str]]:
+    configs = await service.get_all_configs_for_order(order_model)
+    names = service.get_all_config_names(order_model)
+    exist_names = [cfg.name for cfg in configs]
     if len(configs) != len(names):
         missing = []
         for name in names:
@@ -131,30 +127,30 @@ def _get_template_env() -> jinja2.Environment:
             loader=template_loader,
             trim_blocks=True,
             lstrip_blocks=True,
-            # autoescape=True,
         )
 
         _get_template_env.template_env = env
     return _get_template_env.template_env
 
 
-async def _order(templates: list[str], *, data: dict) -> str:
+async def pre_rendered_order(templates: list[str], *, data: dict) -> str:
     resp: list[str] = []
     last_len = 0
     for index, render_config_name in enumerate(templates, 1):
         render_config = await service.get_by_name(render_config_name)
-        template = jinja2.Template(render_config.binary)
-        rendered = template.render(**data)
-        if not render_config.allow_separator_top and len(resp) > 0:
-            resp.pop(-1)
-        if len(rendered) > 1:
-            resp.append(rendered)
-        if index < len(templates) and len(resp) > last_len:
-            resp.append(f"{render_config.separator} <br>")
-        last_len = len(resp)
-    rendered = ''.join(resp)
+        if render_config:
+            template = jinja2.Template(render_config.binary)
+            rendered = template.render(**data)
+            if not render_config.allow_separator_top and len(resp) > 0:
+                resp.pop(-1)
+            if len(rendered) > 1:
+                resp.append(rendered)
+            if index < len(templates) and len(resp) > last_len:
+                resp.append(f"{render_config.separator} <br>")
+            last_len = len(resp)
+    rendered = "".join(resp)
     return rendered
 
 
 async def order(templates: list[str], *, data: dict) -> str:
-    return system("order", data={"rendered_order": await _order(templates, data=data)})
+    return system("order", data={"rendered_order": await pre_rendered_order(templates, data=data)})

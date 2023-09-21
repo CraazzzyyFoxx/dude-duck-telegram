@@ -16,12 +16,12 @@ class ConversionMode(int, Enum):
 class TimeService:
     @classmethod
     def convert_time(
-            cls,
-            time_str: str,
-            *,
-            now: datetime.datetime | None = None,
-            conversion_mode: ConversionMode | None = None,
-            future_time: bool = False,
+        cls,
+        time_str: str,
+        *,
+        now: datetime.datetime | None = None,
+        conversion_mode: ConversionMode | None = None,
+        future_time: bool = False,
     ) -> datetime.datetime:
         """Try converting a string of human-readable time to a datetime object."""
         logger.debug(f"String passed for time conversion: {time_str}")
@@ -66,7 +66,7 @@ class TimeService:
                 else:
                     for string, value in time_word_dict.items():
                         if (
-                                category.lower() == string or category.lower()[:-1] == string
+                            category.lower() == string or category.lower()[:-1] == string
                         ):  # Account for plural forms of the word
                             time += value * float(input_str)
                             break
@@ -77,7 +77,7 @@ class TimeService:
 
                 return datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=time)
 
-            time_parsed = dateparser.parse(time_str, settings={'PREFER_DATES_FROM': 'future'})
+            time_parsed = dateparser.parse(time_str, settings={"PREFER_DATES_FROM": "future"})
 
             if time_parsed:
                 return time_parsed
@@ -86,12 +86,9 @@ class TimeService:
                 raise ValueError("Failed time conversion. (relative)")
 
         if not conversion_mode or conversion_mode == ConversionMode.ABSOLUTE:
-
             timezone = "UTC"
 
-            time_parsed = dateparser.parse(
-                time_str, settings={"TIMEZONE": timezone}
-            )
+            time_parsed = dateparser.parse(time_str, settings={"TIMEZONE": timezone})
 
             if not time_parsed:
                 raise ValueError("Time could not be parsed. (absolute)")

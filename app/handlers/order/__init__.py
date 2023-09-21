@@ -27,22 +27,18 @@ async def entry_point(call: types.CallbackQuery, callback_data: OrderRespondCall
     data = [("Accept", True), ("Decline", False)]
     for row in data:
         call_data = OrderRespondYesNoCallback(
-            order_id=callback_data.order_id,
-            state=row[1],
-            preorder=callback_data.preorder
+            order_id=callback_data.order_id, state=row[1], preorder=callback_data.preorder
         )
         builder.add(InlineKeyboardButton(text=row[0], callback_data=call_data.pack()))
-    if not callback_data.preorder:
-        configs = render_flows.get_order_configs(order)
-    else:
-        configs = render_flows.get_preorder_configs(order)
-    msg, status = await message_service.create(message_models.MessageCreate(
-        channel_id=call.from_user.id,
-        text=await render_flows.order(configs, data={"order": order}),
-        type=message_models.MessageType.MESSAGE,
-        reply_markup=builder.as_markup()
-
-    ))
+    configs = render_flows.get_order_configs(order, pre=callback_data.preorder)
+    msg, status = await message_service.create(
+        message_models.MessageCreate(
+            channel_id=call.from_user.id,
+            text=await render_flows.order(configs, data={"order": order}),
+            type=message_models.MessageType.MESSAGE,
+            reply_markup=builder.as_markup(),
+        )
+    )
     if status == message_models.MessageStatus.FORBIDDEN:
         me = await call.bot.get_me()
         await call.answer(url=f"https://t.me/{me.username}?start=Hello")

@@ -13,7 +13,7 @@ from app.services.api import flows as api_flows
 from app.services.api import schemas as api_schemas
 from app.services.render import flows as render_flows
 
-router = APIRouter(prefix='/users', tags=[enums.RouteTag.USERS])
+router = APIRouter(prefix="/users", tags=[enums.RouteTag.USERS])
 templates = Jinja2Templates(directory="static")
 
 
@@ -37,7 +37,7 @@ async def read_users(request: Request, user_id: int):
     return templates.TemplateResponse("user_update.html", {"request": request, "users": users.results})
 
 
-@router.post('/get/{user_id}')
+@router.post("/get/{user_id}")
 async def read_user(user_id: str, data: dict):
     try:
         init_data = safe_parse_webapp_init_data(token=bot.token, init_data=data["_auth"])
@@ -47,7 +47,7 @@ async def read_user(user_id: str, data: dict):
     return await api_flows.get_user(init_data.user.id, user_id)
 
 
-@router.post('/update/{user_id}')
+@router.post("/update/{user_id}")
 async def update_user(user_id: str, data: dict):
     try:
         init_data = safe_parse_webapp_init_data(token=bot.token, init_data=data["_auth"])
@@ -61,8 +61,9 @@ async def update_user(user_id: str, data: dict):
             try:
                 msg.append(f"{e['loc'][0]} - {e['msg']}")
             except IndexError:
-                msg.append(e['msg'])
-        await response_web_query(init_data, "Users", '\n'.join(msg))
+                msg.append(e["msg"])
+        await response_web_query(init_data, "Users", "\n".join(msg))
         return
     user = await api_flows.update_user(init_data.user.id, user_id, payload)
     await response_web_query(init_data, "Users", render_flows.user("user", user))
+    return ORJSONResponse({"ok": True})

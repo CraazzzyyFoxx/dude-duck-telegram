@@ -19,7 +19,7 @@ class SignInForm(BaseModel):
     discord: str = Field(min_length=3)
     message_id: int
 
-    @field_validator('discord')
+    @field_validator("discord")
     def discord_validate(cls, v: str) -> str:
         if v.startswith("@"):
             if len(v.replace(" ", "")) != len(v):
@@ -32,7 +32,7 @@ class SignInForm(BaseModel):
             raise ValueError("The discord username should be @craaazzzyyfoxx or CraazzzyyFoxx#0001 format")
         return v
 
-    @field_validator('username')
+    @field_validator("username")
     def username_validate(cls, v: str):
         regex = re.fullmatch(r"([\w{L}]+)", v)
         if not regex:

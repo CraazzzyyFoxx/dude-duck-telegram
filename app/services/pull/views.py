@@ -5,11 +5,12 @@ from app.services.auth.bearers import requires_authorization
 
 from . import flows, models
 
-router = APIRouter(prefix='/message', tags=[enums.RouteTag.ORDER_MESSAGES],
-                   dependencies=[Depends(requires_authorization)])
+router = APIRouter(
+    prefix="/message", tags=[enums.RouteTag.ORDER_MESSAGES], dependencies=[Depends(requires_authorization)]
+)
 
 
-@router.post('')
+@router.post("")
 async def send_message(data: dict):
     event = models.MessageEvent.model_validate(data)
     return await flows.process_event(event=event)

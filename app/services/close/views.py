@@ -16,7 +16,7 @@ from app.services.render import flows as render_flows
 
 from . import flows, models
 
-router = APIRouter(prefix='/order', tags=[RouteTag.CLOSE], include_in_schema=False)
+router = APIRouter(prefix="/order", tags=[RouteTag.CLOSE], include_in_schema=False)
 templates = Jinja2Templates(directory="static")
 
 

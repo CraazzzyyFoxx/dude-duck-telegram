@@ -18,7 +18,7 @@ from .utils import Jinja
 router = Router()
 
 
-async def on_finish(callback: CallbackQuery, _: Button, manager: DialogManager):
+async def on_finish(callback: CallbackQuery, _: Button, manager: DialogManager) -> None:
     if manager.is_preview():
         await manager.done()
         return
@@ -28,10 +28,10 @@ async def on_finish(callback: CallbackQuery, _: Button, manager: DialogManager):
     await manager.done()
 
 
-async def get_data(dialog_manager: DialogManager, **_kwargs):
+async def get_data(dialog_manager: DialogManager, **_kwargs) -> dict:
     if dialog_manager.start_data is None:
         await dialog_manager.done()
-        return
+        return {}
 
     if dialog_manager.dialog_data.get("user") is None:
         dialog_manager.dialog_data["user"] = dialog_manager.start_data.get("user")
@@ -39,17 +39,19 @@ async def get_data(dialog_manager: DialogManager, **_kwargs):
     dialog_manager.dialog_data["message"] = dialog_manager.start_data.get("message")
     user = dialog_manager.dialog_data["user"]
     lang = "🇺🇸" if user.language == api_schemas.UserLanguage.EN else "🇷🇺"
-    return {"user": user,
-            "message": dialog_manager.start_data.get("message"),
-            "auth_url": config.app.auth_url,
-            "lang": lang}
+    return {
+        "user": user,
+        "message": dialog_manager.start_data.get("message"),
+        "auth_url": config.app.auth_url,
+        "lang": lang,
+    }
 
 
-async def to_acc(callback: CallbackQuery, _: Button, dialog_manager: DialogManager):
+async def to_acc(dialog_manager: DialogManager, **_kwargs) -> None:
     await dialog_manager.switch_to(Main.ACC)
 
 
-async def to_orders(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+async def to_orders(button: Button, dialog_manager: DialogManager, **_kwargs) -> None:
     if dialog_manager.start_data is None:
         await dialog_manager.done()
         return
@@ -64,7 +66,7 @@ async def to_orders(callback: CallbackQuery, button: Button, dialog_manager: Dia
     await dialog_manager.switch_to(Main.ORDERS)
 
 
-async def change_language(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+async def change_language(callback: CallbackQuery, dialog_manager: DialogManager, **_kwargs) -> None:
     dialog_manager.dialog_data["user"] = await api_flows.change_language(callback.from_user.id)
     await dialog_manager.switch_to(Main.MAIN)
 
@@ -75,17 +77,17 @@ main_dialog = Dialog(
         Button(
             text=Const("📊 Balance"),
             id="accounting",
-            on_click=to_acc,
+            on_click=to_acc,  # type: ignore
         ),
         Button(
             text=Format("📋 Active orders"),
             id="active_orders",
-            on_click=to_orders,
+            on_click=to_orders,  # type: ignore
         ),
         Button(
             text=Format("📂 Completed orders"),
             id="completed_orders",
-            on_click=to_orders,
+            on_click=to_orders,  # type: ignore
         ),
         WebApp(
             text=Const("🧷 Close order"),
@@ -95,7 +97,7 @@ main_dialog = Dialog(
         Button(
             text=Format("{lang} Language"),
             id="change_language",
-            on_click=change_language,
+            on_click=change_language,  # type: ignore
         ),
         Button(
             text=Const("👋 See you"),
@@ -113,7 +115,6 @@ main_dialog = Dialog(
 router.include_router(main_dialog)
 
 
-@router.message(Command('menu'), flags={'chat_action': {"is_private"}})
+@router.message(Command("menu"), flags={"chat_action": {"is_private"}})
 async def menu(message: types.Message, dialog_manager: DialogManager, user) -> None:
-    await dialog_manager.start(Main.MAIN, data={"message": message, "user": user},
-                               mode=StartMode.NORMAL)
+    await dialog_manager.start(Main.MAIN, data={"message": message, "user": user}, mode=StartMode.NORMAL)

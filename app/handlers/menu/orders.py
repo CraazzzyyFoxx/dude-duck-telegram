@@ -1,6 +1,5 @@
 from aiogram_dialog import DialogManager, Window
-from aiogram_dialog.widgets.kbd import (Button, FirstPage, LastPage, NextPage,
-                                        PrevPage, Row, StubScroll)
+from aiogram_dialog.widgets.kbd import Button, FirstPage, LastPage, NextPage, PrevPage, Row, StubScroll
 from aiogram_dialog.widgets.text import Const, Format
 
 from app.services.api import flows as api_flows
@@ -11,7 +10,7 @@ from .utils import MAIN_MENU_BUTTON, Jinja
 ID_STUB_SCROLL = "stub_scroll"
 
 
-async def paging_getter_aco(dialog_manager: DialogManager, **_kwargs):
+async def paging_getter_aco(dialog_manager: DialogManager, **_kwargs) -> dict:
     current_page = await dialog_manager.find(ID_STUB_SCROLL).get_page()
     d = dialog_manager.dialog_data.get("message", None)
     user = dialog_manager.start_data.get("user", None)
@@ -37,24 +36,27 @@ orders_window = Window(
     StubScroll(id=ID_STUB_SCROLL, pages="pages"),
     Row(
         FirstPage(
-            scroll=ID_STUB_SCROLL, text=Const("⏮️"),
+            scroll=ID_STUB_SCROLL,
+            text=Const("⏮️"),
         ),
         PrevPage(
-            scroll=ID_STUB_SCROLL, text=Const("◀️"),
+            scroll=ID_STUB_SCROLL,
+            text=Const("◀️"),
         ),
         Button(
             text=Format("{current_page} in {pages}"),
             id=ID_STUB_SCROLL,
         ),
         NextPage(
-            scroll=ID_STUB_SCROLL, text=Const("▶️"),
+            scroll=ID_STUB_SCROLL,
+            text=Const("▶️"),
         ),
         LastPage(
-            scroll=ID_STUB_SCROLL, text=Const("⏭️"),
+            scroll=ID_STUB_SCROLL,
+            text=Const("⏭️"),
         ),
     ),
     MAIN_MENU_BUTTON,
     getter=paging_getter_aco,
     state=states.Main.ORDERS,
-
 )

@@ -9,8 +9,8 @@ from app.services.render import flows as render_flows
 router = Router()
 
 
-@router.message(Command('verify'), flags={'chat_action': {"is_superuser"}})
-async def verify(message: types.Message, command: CommandObject):
+@router.message(Command("verify"), flags={"chat_action": {"is_superuser"}})
+async def verify(message: types.Message, command: CommandObject) -> None:
     status = await auth_service.verify(command.args)
     if status:
         msg = await message.answer(render_flows.system("verify_200"))

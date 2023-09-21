@@ -21,7 +21,7 @@ httpx = "^0.25"
 orjson = "^3.9.4"
 babel = "^2.12.1"
 pydantic-extra-types = "^2.0.0"
-phonenumbers = "^8.13.18"
+phonenumbers = "^8.13.21"
 dateparser = "^1.1.8"
 gunicorn = "^21.2.0"
 tortoise-orm = "^0.20.0"
@@ -32,9 +32,70 @@ asyncpg = "^0.28.0"
 mypy = "^1.5.1"
 ruff = "^0.0.287"
 isort = "^5.12.0"
+black = "^23.9.1"
+
+[tool.black]
+line-length = 120
+target_version = ['py311']
+include = '\.pyi?$'
 
 [tool.ruff]
-line-length = 120
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    # "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # complexity
+]
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["A", "B", "C", "D", "E", "F"]
+unfixable = []
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Same as Black.
+line-length = 100
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Assume Python 3.11
+target-version = "py311"
+
+[tool.ruff.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10
+
+[tool.ruff.isort]
+known-third-party = ["fastapi", "pydantic", "starlette"]
 
 [mypy]
 plugins = "pydantic.mypy"
@@ -42,8 +103,6 @@ plugins = "pydantic.mypy"
 follow_imports = "silent"
 warn_redundant_casts = "True"
 warn_unused_ignores = "True"
-disallow_any_generics = "True"
-check_untyped_defs = "True"
 no_implicit_reexport = "True"
 
 # for strict mypy: (this is the tricky one :-))
