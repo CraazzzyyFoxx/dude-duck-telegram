@@ -50,14 +50,14 @@ async def auth_login(data: dict):
     except (ValueError, KeyError):
         return ORJSONResponse({"ok": False, "err": "Unauthorized"}, status_code=401)
     try:
-        await bot.delete_message(init_data.user.id, data["message_id"])
+        if data.get("message_id"):
+            await bot.delete_message(init_data.user.id, data["message_id"])
     except:
         pass
     try:
         valid = models.LoginForm.model_validate(data)
     except ValidationError:
-        user = await api_service.get_by_telegram_user_id(init_data.user.id)
-        lang = process_language(init_data.user, user.user)
+        lang = process_language(init_data.user, None)
         await response_web_query(init_data, "Login", render_flows.base("login_422", lang))
         return
 
