@@ -47,7 +47,7 @@ tortoise = {
                 "database": app.postgres_db,
                 "host": app.postgres_host,  # db for docker
                 "password": app.postgres_password,
-                "port": 5432,
+                "port": app.postgres_port,
                 "user": app.postgres_user,
             },
         }
