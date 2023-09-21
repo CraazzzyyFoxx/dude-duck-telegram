@@ -59,6 +59,7 @@ app.add_middleware(TimeMiddleware)
 api_app = FastAPI(title="DudeDuck CRM Telegram", root_path="/bot", debug=config.app.debug)
 api_app.mount("/static", StaticFiles(directory="static"), name="static")
 api_app.include_router(router)
+api_app.add_middleware(ExceptionMiddleware)
 
 app.add_middleware(CORSMiddleware,
                    allow_origins=["*"],
