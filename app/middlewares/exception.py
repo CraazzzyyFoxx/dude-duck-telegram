@@ -9,6 +9,8 @@ from starlette.middleware.base import (BaseHTTPMiddleware,
 from starlette.requests import Request
 from starlette.responses import Response
 
+from app.core import config
+
 
 class ExceptionMiddleware(BaseHTTPMiddleware):
     async def dispatch(
@@ -20,7 +22,8 @@ class ExceptionMiddleware(BaseHTTPMiddleware):
             response = ORJSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                                       content={"detail": jsonable_encoder(e.errors())},
                                       )
-            logger.exception("What!?")
+            if config.app.debug:
+                logger.exception("What!?")
         except ValidationError as e:
             logger.exception("What!?")
             response = ORJSONResponse(
