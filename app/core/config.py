@@ -27,6 +27,7 @@ class AppConfig(BaseSettings):
     postgres_db: str
     postgres_host: str
     postgres_port: str
+    postgres_port_app: str
 
     admin_order: int
     admin_important_events: int
@@ -47,7 +48,7 @@ tortoise = {
                 "database": app.postgres_db,
                 "host": app.postgres_host,  # db for docker
                 "password": app.postgres_password,
-                "port": app.postgres_port,
+                "port": app.postgres_port_app,
                 "user": app.postgres_user,
             },
         }
