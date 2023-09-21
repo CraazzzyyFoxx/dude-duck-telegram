@@ -20,6 +20,7 @@ class ExceptionMiddleware(BaseHTTPMiddleware):
             response = ORJSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                                       content={"detail": jsonable_encoder(e.errors())},
                                       )
+            logger.exception("What!?")
         except ValidationError as e:
             logger.exception("What!?")
             response = ORJSONResponse(
@@ -28,12 +29,14 @@ class ExceptionMiddleware(BaseHTTPMiddleware):
             )
         except HTTPException as e:
             response = ORJSONResponse({"detail": e.detail}, status_code=e.status_code)
+            logger.exception("What!?")
         except ValueError:
             logger.exception("What!?")
             response = ORJSONResponse(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 content={"detail": [{"msg": "Unknown", "loc": ["Unknown"], "type": "Unknown"}]},
             )
+            logger.exception("What!?")
         except Exception:
             logger.exception("What!?")
             response = ORJSONResponse(
