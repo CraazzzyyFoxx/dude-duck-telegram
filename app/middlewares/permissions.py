@@ -20,12 +20,14 @@ class PermissionMessageMiddleware(BaseMiddleware):
             is_superuser = "is_superuser" in chat_action
             is_private = "is_private" in chat_action
             is_auth = "is_auth" in chat_action
+            is_verify = "is_verify" in chat_action
         else:
             is_superuser = False
             is_private = False
             is_auth = False
+            is_verify = False
 
-        if is_auth and event.chat.type != "private":
+        if is_auth or is_verify and event.chat.type != "private":
             lang = process_language(event.from_user)
             await event.answer(render_flows.base("only_private", lang))
             return
@@ -34,6 +36,10 @@ class PermissionMessageMiddleware(BaseMiddleware):
             return await handler(event, data)
 
         user = await api_flows.get_me_user_id(event.from_user.id)
+        data["user"] = user
+
+        if is_verify:
+            return await handler(event, data)
 
         if user is None:
             raise errors.AuthorizationExpired()
@@ -50,7 +56,6 @@ class PermissionMessageMiddleware(BaseMiddleware):
             await event.answer(render_flows.user("missing_perms", user))
             return
 
-        data["user"] = user
         return await handler(event, data)
 
 
@@ -67,15 +72,26 @@ class PermissionCallbackMiddleware(BaseMiddleware):
             is_superuser = "is_superuser" in chat_action
             is_private = "is_private" in chat_action
             is_auth = "is_auth" in chat_action
+            is_verify = "is_verify" in chat_action
         else:
             is_superuser = False
             is_private = False
             is_auth = False
+            is_verify = False
+
+        if is_auth or is_verify and event.chat.type != "private":
+            lang = process_language(event.from_user)
+            await event.answer(render_flows.base("only_private", lang))
+            return
 
         if is_auth:
             return await handler(event, data)
 
         user = await api_flows.get_me_user_id(event.from_user.id)
+        data["user"] = user
+
+        if is_verify:
+            return await handler(event, data)
 
         if user is None:
             raise errors.AuthorizationExpired()
@@ -92,5 +108,4 @@ class PermissionCallbackMiddleware(BaseMiddleware):
             await event.answer(render_flows.user("missing_perms", user), show_alert=True)
             return
 
-        data["user"] = user
         return await handler(event, data)

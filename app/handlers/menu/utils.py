@@ -1,3 +1,4 @@
+from aiogram.types import CallbackQuery
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const
@@ -8,7 +9,7 @@ from app.services.render import flows as render_flows
 from . import states
 
 
-async def to_main(manager: DialogManager, **_kwargs) -> None:
+async def to_main(callback: CallbackQuery, button: Button, manager: DialogManager) -> None:
     await manager.switch_to(states.Main.MAIN)
 
 

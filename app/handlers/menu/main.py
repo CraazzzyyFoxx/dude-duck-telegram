@@ -47,11 +47,11 @@ async def get_data(dialog_manager: DialogManager, **_kwargs) -> dict:
     }
 
 
-async def to_acc(dialog_manager: DialogManager, **_kwargs) -> None:
+async def to_acc(callback: CallbackQuery, button: Button, dialog_manager: DialogManager) -> None:
     await dialog_manager.switch_to(Main.ACC)
 
 
-async def to_orders(button: Button, dialog_manager: DialogManager, **_kwargs) -> None:
+async def to_orders(callback: CallbackQuery, button: Button, dialog_manager: DialogManager) -> None:
     if dialog_manager.start_data is None:
         await dialog_manager.done()
         return
@@ -66,7 +66,7 @@ async def to_orders(button: Button, dialog_manager: DialogManager, **_kwargs) ->
     await dialog_manager.switch_to(Main.ORDERS)
 
 
-async def change_language(callback: CallbackQuery, dialog_manager: DialogManager, **_kwargs) -> None:
+async def change_language(callback: CallbackQuery, button: Button, dialog_manager: DialogManager, **_kwargs) -> None:
     dialog_manager.dialog_data["user"] = await api_flows.change_language(callback.from_user.id)
     await dialog_manager.switch_to(Main.MAIN)
 

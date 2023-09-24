@@ -8,7 +8,7 @@ from app.services.render import flows as render_flows
 router = Router()
 
 
-@router.message(Command("request_verify"), flags={"chat_action": {"is_private"}})
+@router.message(Command("request_verify"), flags={"chat_action": {"is_private", "is_verify"}})
 async def request_verify(message: types.Message, user) -> None:
     lang = process_language(message.from_user, None)
     if user is None:

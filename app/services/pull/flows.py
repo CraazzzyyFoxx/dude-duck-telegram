@@ -29,3 +29,4 @@ async def process_event(event: models.MessageEvent):
     func = event_map.get(event.type)
     if func:
         return await func(**dict(event.payload))
+    return {"error": "not found"}
