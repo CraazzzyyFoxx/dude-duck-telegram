@@ -1,6 +1,7 @@
 from aiogram import Router
 
-from app.handlers import admin_close, auth, get_id, manage_users, menu, order, request_verify, start, verify
+from app.handlers import (admin_close, auth, get_id, manage_users, menu, order,
+                          request_verify, start, verify)
 
 router = Router()
 router.include_router(router=start.router)

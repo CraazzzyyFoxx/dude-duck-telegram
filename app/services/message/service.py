@@ -1,4 +1,5 @@
-from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError, TelegramNotFound
+from aiogram.exceptions import (TelegramBadRequest, TelegramForbiddenError,
+                                TelegramNotFound)
 
 from app.core.bot import bot
 

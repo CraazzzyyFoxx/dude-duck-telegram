@@ -1,6 +1,7 @@
 from aiogram import Router, types
 from aiogram.filters import Command
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
+                           WebAppInfo)
 
 from app.core import config
 from app.services.render import flows as render_flows

@@ -2,6 +2,7 @@ from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
 from aiogram.utils.web_app import WebAppInitData, safe_parse_webapp_init_data
 from fastapi import APIRouter
 from fastapi.responses import ORJSONResponse
+from loguru import logger
 from pydantic import ValidationError
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
@@ -51,7 +52,8 @@ async def login(data: dict):
     try:
         if data.get("message_id"):
             await bot.delete_message(init_data.user.id, data["message_id"])
-    except:
+    except Exception as e:
+        logger.exception(e)
         pass
     try:
         valid = models.LoginForm.model_validate(data)
@@ -80,7 +82,12 @@ async def signup(data: dict):
     except ValueError:
         return ORJSONResponse({"ok": False, "err": "Unauthorized"}, status_code=401)
 
-    await bot.delete_message(init_data.user.id, data["message_id"])
+    try:
+        if data.get("message_id"):
+            await bot.delete_message(init_data.user.id, data["message_id"])
+    except Exception as e:
+        logger.exception(e)
+        pass
     try:
         valid = models.SignInForm.model_validate(data)
     except ValidationError:

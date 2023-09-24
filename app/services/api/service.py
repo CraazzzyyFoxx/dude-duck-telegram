@@ -107,9 +107,9 @@ async def request(
             headers={"Authorization": "Bearer " + token} if token else None,
         )
     except TimeoutException:
-        raise errors.ServerNotResponseError()
+        raise errors.ServerNotResponseError() from None
     except HTTPError:
-        raise errors.InternalServerError()
+        raise errors.InternalServerError() from None
     else:
         if response.status_code == 401:
             raise errors.AuthorizationExpired()
@@ -138,9 +138,9 @@ async def request_auth(
             headers={"Authorization": "Bearer " + token} if token else None,
         )
     except TimeoutException:
-        raise errors.ServerNotResponseError()
+        raise errors.ServerNotResponseError() from None
     except HTTPError:
-        raise errors.InternalServerError()
+        raise errors.InternalServerError() from None
     else:
         if response.status_code == 500:
             raise errors.InternalServerError()

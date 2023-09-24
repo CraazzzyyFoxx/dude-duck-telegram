@@ -5,9 +5,7 @@ from app.services.api import schemas as api_schemas
 from . import models
 
 
-def get_all_config_names(
-        order: api_schemas.Order | api_schemas.PreOrder
-) -> list[str]:
+def get_all_config_names(order: api_schemas.Order | api_schemas.PreOrder) -> list[str]:
     return [
         "order",
         "eta-price",
@@ -50,7 +48,5 @@ async def update(parser: models.RenderConfig, parser_in: models.RenderConfigUpda
     return parser
 
 
-async def get_all_configs_for_order(
-        order: api_schemas.Order | api_schemas.PreOrder
-) -> list[models.RenderConfig]:
+async def get_all_configs_for_order(order: api_schemas.Order | api_schemas.PreOrder) -> list[models.RenderConfig]:
     return await models.RenderConfig.filter(Q(name__in=get_all_config_names(order))).all()
