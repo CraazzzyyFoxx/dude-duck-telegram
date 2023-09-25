@@ -2,17 +2,34 @@ from typing import Any, Awaitable, Callable, Dict
 
 from aiogram import BaseMiddleware
 from aiogram.dispatcher.flags import get_flag
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, TelegramObject
 
 from app.core import errors
 from app.helpers import process_language
 from app.services.api import flows as api_flows
+from app.services.api import models as api_models
 from app.services.render import flows as render_flows
 
 
 class PermissionMessageMiddleware(BaseMiddleware):
+    async def send_template(
+            self,
+            event: TelegramObject,
+            template_name: str,
+            user: api_models.User | None = None
+    ) -> None:
+        kwargs = {}
+        if isinstance(event, CallbackQuery):
+            kwargs.update({"show_alert": True})
+        if user is not None:
+            text = render_flows.user(template_name, user)
+        else:
+            lang = process_language(event.from_user)
+            text = render_flows.base(template_name, lang)
+        await event.answer(text, **kwargs)
+
     async def __call__(
-        self, handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]], event: Message, data: Dict[str, Any]
+            self, handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]], event: Message, data: Dict[str, Any]
     ) -> Any:
         data["user"] = None
         chat_action = get_flag(data, "chat_action")
@@ -26,86 +43,23 @@ class PermissionMessageMiddleware(BaseMiddleware):
             is_private = False
             is_auth = False
             is_verify = False
-
-        if (is_auth or is_verify) and event.chat.type != "private":
-            lang = process_language(event.from_user)
-            await event.answer(render_flows.base("only_private", lang))
-            return
-
-        if is_auth:
-            return await handler(event, data)
-
-        user = await api_flows.get_me_user_id(event.from_user.id)
-        data["user"] = user
-
-        if is_verify:
-            return await handler(event, data)
-
-        if user is None:
-            raise errors.AuthorizationExpired()
-
-        if not user.is_verified:
-            await event.answer(render_flows.user("verify_no", user))
-            return
 
         if is_private and event.chat.type != "private":
-            await event.answer(render_flows.user("only_private", user))
-            return
-
-        if is_superuser and not user.is_superuser:
-            await event.answer(render_flows.user("missing_perms", user))
-            return
-
-        return await handler(event, data)
-
-
-class PermissionCallbackMiddleware(BaseMiddleware):
-    async def __call__(
-        self,
-        handler: Callable[[CallbackQuery, Dict[str, Any]], Awaitable[Any]],
-        event: CallbackQuery,
-        data: Dict[str, Any],
-    ) -> Any:
-        data["user"] = None
-        chat_action = get_flag(data, "chat_action")
-        if chat_action is not None:
-            is_superuser = "is_superuser" in chat_action
-            is_private = "is_private" in chat_action
-            is_auth = "is_auth" in chat_action
-            is_verify = "is_verify" in chat_action
-        else:
-            is_superuser = False
-            is_private = False
-            is_auth = False
-            is_verify = False
-
-        if (is_auth or is_verify) and event.chat.type != "private":
-            lang = process_language(event.from_user)
-            await event.answer(render_flows.base("only_private", lang))
-            return
-
-        if is_auth:
+            return await self.send_template(event, "only_private")
+        if is_auth or is_verify:
             return await handler(event, data)
-
-        user = await api_flows.get_me_user_id(event.from_user.id)
-        data["user"] = user
-
+        try:
+            user = await api_flows.get_me_user_id(event.from_user.id)
+            data["user"] = user
+        except errors.AuthorizationExpired:
+            return await self.send_template(event, "expired")
+        if user is None:
+            return await self.send_template(event, "expired")
         if is_verify:
             return await handler(event, data)
-
-        if user is None:
-            raise errors.AuthorizationExpired()
-
         if not user.is_verified:
-            await event.answer(render_flows.user("verify_no", user), show_alert=True)
-            return
-
-        if is_private and event.message.chat.type != "private":
-            await event.answer(render_flows.user("only_private", user), show_alert=True)
-            return
-
+            return await self.send_template(event, "verify_no")
         if is_superuser and not user.is_superuser:
-            await event.answer(render_flows.user("missing_perms", user), show_alert=True)
-            return
+            return await self.send_template(event, "missing_perms")
 
         return await handler(event, data)

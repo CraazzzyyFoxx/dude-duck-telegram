@@ -9,15 +9,11 @@ from loguru import logger
 
 from app.core import config, errors
 from app.helpers import process_language
-from app.middlewares.permissions import (PermissionCallbackMiddleware,
-                                         PermissionMessageMiddleware)
+from app.middlewares.permissions import PermissionMessageMiddleware
 from app.services.render import flows as render_flows
 
 bot = Bot(token=config.app.token, parse_mode="HTML")
 dp = Dispatcher()
-
-dp.message.middleware(PermissionMessageMiddleware())
-dp.callback_query.middleware(PermissionCallbackMiddleware())
 
 
 @dp.error(ExceptionTypeFilter(errors.AuthorizationExpired))
@@ -63,5 +59,8 @@ async def handle_message_server_error(event: ErrorEvent, user=None, dialog_manag
         await event.update.message.answer(render_flows.base("internal_error", lang))
     try:
         raise event.exception
-    except:
-        logger.exception("Прогер долбаеб....")
+    except Exception as e:
+        logger.exception(e)
+
+
+dp.message.middleware(PermissionMessageMiddleware())
