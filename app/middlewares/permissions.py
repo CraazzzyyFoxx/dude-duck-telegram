@@ -27,7 +27,7 @@ class PermissionMessageMiddleware(BaseMiddleware):
             is_auth = False
             is_verify = False
 
-        if is_auth or is_verify and event.chat.type != "private":
+        if (is_auth or is_verify) and event.chat.type != "private":
             lang = process_language(event.from_user)
             await event.answer(render_flows.base("only_private", lang))
             return
@@ -79,7 +79,7 @@ class PermissionCallbackMiddleware(BaseMiddleware):
             is_auth = False
             is_verify = False
 
-        if is_auth or is_verify and event.chat.type != "private":
+        if (is_auth or is_verify) and event.chat.type != "private":
             lang = process_language(event.from_user)
             await event.answer(render_flows.base("only_private", lang))
             return
