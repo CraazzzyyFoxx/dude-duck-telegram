@@ -64,3 +64,4 @@ async def handle_message_server_error(event: ErrorEvent, user=None, dialog_manag
 
 
 dp.message.middleware(PermissionMessageMiddleware())
+dp.callback_query.middleware(PermissionMessageMiddleware())
