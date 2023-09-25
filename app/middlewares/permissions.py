@@ -12,12 +12,8 @@ from app.services.render import flows as render_flows
 
 
 class PermissionMessageMiddleware(BaseMiddleware):
-    async def send_template(
-            self,
-            event: TelegramObject,
-            template_name: str,
-            user: api_models.User | None = None
-    ) -> None:
+    @staticmethod
+    async def send_template(event: TelegramObject, template_name: str, user: api_models.User | None = None) -> None:
         kwargs = {}
         if isinstance(event, CallbackQuery):
             kwargs.update({"show_alert": True})
@@ -29,20 +25,14 @@ class PermissionMessageMiddleware(BaseMiddleware):
         await event.answer(text, **kwargs)
 
     async def __call__(
-            self, handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]], event: Message, data: Dict[str, Any]
+        self, handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]], event: Message, data: Dict[str, Any]
     ) -> Any:
         data["user"] = None
-        chat_action = get_flag(data, "chat_action")
-        if chat_action is not None:
-            is_superuser = "is_superuser" in chat_action
-            is_private = "is_private" in chat_action
-            is_auth = "is_auth" in chat_action
-            is_verify = "is_verify" in chat_action
-        else:
-            is_superuser = False
-            is_private = False
-            is_auth = False
-            is_verify = False
+        chat_action = get_flag(data, "chat_action", default={})
+        is_superuser = "is_superuser" in chat_action
+        is_private = "is_private" in chat_action
+        is_auth = "is_auth" in chat_action
+        is_verify = "is_verify" in chat_action
 
         if is_private and event.chat.type != "private":
             return await self.send_template(event, "only_private")

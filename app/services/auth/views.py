@@ -34,12 +34,12 @@ async def response_web_query(init_data: WebAppInitData, title: str, message: str
 
 
 @router.get("/login", response_class=HTMLResponse)
-async def login(request: Request, message_id: int):
+async def login_template(request: Request, message_id: int):
     return templates.TemplateResponse("login.html", {"request": request, "message_id": message_id})
 
 
 @router.get("/signup", response_class=HTMLResponse)
-async def signup(request: Request, message_id: int):
+async def signup_template(request: Request, message_id: int):
     return templates.TemplateResponse("signup.html", {"request": request, "message_id": message_id})
 
 
