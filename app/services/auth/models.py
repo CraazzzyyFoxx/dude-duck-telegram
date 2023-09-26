@@ -21,16 +21,13 @@ class SignInForm(BaseModel):
 
     @field_validator("discord")
     def discord_validate(cls, v: str) -> str:
-        if v.startswith("@"):
-            if len(v.replace(" ", "")) != len(v):
-                raise ValueError("The discord username should be @craaazzzyyfoxx or CraazzzyyFoxx#0001 format")
-        elif "#" in v:
+        if "#" in v:
             name, dis = v.split("#")
-            if len(dis) != 4:
-                raise ValueError("The discord username should be @craaazzzyyfoxx or CraazzzyyFoxx#0001 format")
-        else:
-            raise ValueError("The discord username should be @craaazzzyyfoxx or CraazzzyyFoxx#0001 format")
-        return v
+            if len(dis) == 4:
+                return v
+        if len(v.replace(" ", "")) == len(v):
+            return v
+        raise ValueError("The discord username should be craaazzzyyfoxx or CraazzzyyFoxx#0001 format")
 
     @field_validator("username")
     def username_validate(cls, v: str):

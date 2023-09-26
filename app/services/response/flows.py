@@ -9,7 +9,6 @@ from app.services.api import schemas as api_schemas
 from app.services.api import service as api_service
 from app.services.message import models as message_models
 from app.services.message import service as message_service
-from app.services.pull import models as pull_models
 from app.services.render import flows as render_flows
 
 from . import models
@@ -68,18 +67,18 @@ async def approve_response(user_id: int, order_id: str, booster_id: str, preorde
     return 200
 
 
-async def send_response(channel_id: int, text: str) -> pull_models.MessageResponse:
+async def send_response(channel_id: int, text: str) -> message_models.MessageResponse:
     _, status = await message_service.create(
         message_models.MessageCreate(channel_id=channel_id, text=text, type=message_models.MessageType.MESSAGE)
     )
-    return pull_models.MessageResponse(status=status, channel_id=channel_id)
+    return message_models.MessageResponse(status=status, channel_id=channel_id)
 
 
 async def response_approved(
     order: api_schemas.OrderRead,
     user: api_schemas.User,
     response: models.OrderResponse,
-) -> list[pull_models.MessageResponse]:
+) -> list[message_models.MessageResponse]:
     users_db = await api_service.get_by_user_id(user.id)
     configs = render_flows.get_order_configs(order, creds=True)
     rendered_order = await render_flows.pre_rendered_order(configs, data={"order": order})
@@ -91,7 +90,7 @@ async def response_approved(
 async def response_declined(
     order_id: str,
     user: api_schemas.User,
-) -> list[pull_models.MessageResponse]:
+) -> list[message_models.MessageResponse]:
     users_db = await api_service.get_by_user_id(user.id)
     text = render_flows.user("response_declined", user, data={"order_id": order_id})
     return [await send_response(user_db.telegram_user_id, text) for user_db in users_db]
@@ -103,7 +102,7 @@ async def response_to_admins(
     user: api_schemas.User,
     response: models.OrderResponse,
     is_preorder: bool,
-) -> pull_models.MessageResponse:
+) -> message_models.MessageResponse:
     order_rv = order_rv if not is_preorder else preorder
 
     configs = render_flows.get_order_response_configs(order_rv, pre=is_preorder, checked=False)
@@ -123,4 +122,4 @@ async def response_to_admins(
         )
     )
 
-    return pull_models.MessageResponse(status=status, channel_id=msg.channel_id)
+    return message_models.MessageResponse(status=status, channel_id=msg.channel_id)

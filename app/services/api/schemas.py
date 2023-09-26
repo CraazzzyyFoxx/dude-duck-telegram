@@ -48,8 +48,8 @@ class OrderInfo(BaseModel):
 
 
 class OrderPrice(BaseModel):
-    price_booster_rub: float | None = None
     price_booster_dollar: float | None = None
+    price_booster_rub: float | None = None
     price_booster_gold: float | None = None
 
 
@@ -81,13 +81,12 @@ class OrderRead(Order):
     credentials: OrderCredentials
 
     paid_time: datetime.datetime | None
-    auth_date: datetime.datetime | None = None
-    end_date: datetime.datetime | None = None
+    auth_date: datetime.datetime | None
+    end_date: datetime.datetime | None
 
 
 class PreOrder(BaseModel):
     id: str
-    date: datetime.datetime
 
     info: OrderInfo
     price: OrderPrice
