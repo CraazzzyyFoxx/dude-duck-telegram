@@ -21,12 +21,21 @@ router = APIRouter(
 
 
 @router.post("/order_create", response_model=models.OrderResponse)
-async def order_create(order: api_schemas.Order, categories: list[str], configs: list[str], is_gold: bool):
+async def order_create(
+        order: api_schemas.Order,
+        categories: list[str],
+        configs: list[str],
+        is_gold: bool = Body(..., embed=True)
+):
     return await flows.pull_create(order, categories, configs, is_preorder=False, is_gold=is_gold)
 
 
 @router.post("/order_update", response_model=models.OrderResponse)
-async def order_update(order: api_schemas.Order, configs: list[str], is_gold: bool):
+async def order_update(
+        order: api_schemas.Order,
+        configs: list[str],
+        is_gold: bool = Body(..., embed=True)
+):
     return await flows.pull_update(order, configs, is_preorder=False, is_gold=is_gold)
 
 
