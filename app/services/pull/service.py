@@ -172,7 +172,7 @@ async def send_verified(user: api_schemas.User, **_kwargs) -> list[models.Messag
 
     users_db = await api_service.get_by_user_id(user.id)
     for user_db in users_db:
-        await api_service.update(user_db, api_models.TelegramUserUpdate(user=user))
+        await api_service.update(user_db, api_models.TelegramUserUpdate(user=user, token=user_db.token))
         _, status = await message_service.create(
             message_models.MessageCreate(
                 text=render_flows.user("verified", user),

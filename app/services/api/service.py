@@ -70,15 +70,6 @@ async def update(user: models.TelegramUser, user_in: models.TelegramUserUpdate) 
     return user
 
 
-async def get_token(user_id: int) -> str | None:
-    user = await get(user_id)
-    if user is None:
-        return None
-    if user.last_login is not None and user.last_login > (datetime.now() - timedelta(days=1)).astimezone(pytz.UTC):
-        return None
-    return user.token
-
-
 async def get_token_user_id(user_id: int) -> str | None:
     user = await get_by_telegram_user_id(user_id)
     if user is None:
