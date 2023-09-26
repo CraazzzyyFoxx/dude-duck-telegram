@@ -27,6 +27,7 @@ class MessageStatus(str, Enum):
 
 
 class Message(Model):
+    id: int = fields.IntField(pk=True)
     order_id: str | None = fields.CharField(max_length=24, null=True)
     user_id: str | None = fields.CharField(max_length=24, null=True)
     channel_id: int = fields.BigIntField()

@@ -9,12 +9,14 @@ def get_all_config_names(order: api_schemas.Order | api_schemas.PreOrder) -> lis
     return [
         "order",
         "eta-price",
+        "eta-price-gold",
         "response",
         "response-check",
         order.info.game,
         f"{order.info.game}-cd",
         "pre-order",
         "pre-eta-price",
+        "pre-eta-price-gold",
     ]
 
 

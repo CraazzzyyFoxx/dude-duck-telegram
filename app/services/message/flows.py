@@ -27,12 +27,12 @@ def get_reply_markup_response(order_id: str, *, preorder=False) -> InlineKeyboar
     return blr.as_markup()
 
 
-async def generate_body(order, configs: list[str], preorder: bool) -> tuple[bool, str]:
+async def generate_body(order, configs: list[str], is_preorder: bool, is_gold: bool) -> tuple[bool, str]:
     status, missing = await render_flows.check_availability_all_render_config_order(order)
     if not status:
         return status, f"Some configs for order missing, configs=[{', '.join(missing)}]"
     if not configs:
-        configs = render_flows.get_order_configs(order, pre=preorder)
+        configs = render_flows.get_order_configs(order, is_pre=is_preorder, is_gold=is_gold)
     text = await render_flows.order(configs, data={"order": order})
     return status, text
 
@@ -41,18 +41,18 @@ async def pull_create(
     order: api_schemas.Order | api_schemas.PreOrder,
     categories: list[str],
     configs: list[str],
-    preorder: bool,
-    **_kwargs,
+    is_preorder: bool,
+    is_gold: bool
 ) -> models.OrderResponse:
     chs_id = [ch.channel_id for ch in await channel_service.get_by_game_categories(order.info.game, categories)]
     if not chs_id:
         return models.OrderResponse(error=True, error_msg="A channels with this game do not exist")
     created, skipped = [], []
-    status, text = await generate_body(order, configs, preorder)
+    status, text = await generate_body(order, configs, is_preorder, is_gold)
     if not status:
         return models.OrderResponse(error=True, error_msg=text)
-    markup = get_reply_markup_response(order.id, preorder=preorder)
-    message_type = message_models.MessageType.ORDER if not preorder else message_models.MessageType.PRE_ORDER
+    markup = get_reply_markup_response(order.id, preorder=is_preorder)
+    message_type = message_models.MessageType.ORDER if not is_preorder else message_models.MessageType.PRE_ORDER
     for channel_id in chs_id:
         msg_in = message_models.MessageCreate(
             order_id=order.id, channel_id=channel_id, text=text, reply_markup=markup, type=message_type
@@ -66,16 +66,19 @@ async def pull_create(
 
 
 async def pull_update(
-    order: api_schemas.Order | api_schemas.PreOrder, configs: list[str], preorder: bool, **_kwargs
+    order: api_schemas.Order | api_schemas.PreOrder,
+    configs: list[str],
+    is_preorder: bool,
+    is_gold: bool
 ) -> models.OrderResponse:
-    msgs = await message_service.get_by_order_id(order.id, preorder)
-    status, text = await generate_body(order, configs, preorder)
+    msgs = await message_service.get_by_order_id(order.id, is_preorder)
+    status, text = await generate_body(order, configs, is_preorder, is_gold)
     if not status:
         return models.OrderResponse(error=True, error_msg=text)
     updated, skipped = [], []
     for msg in msgs:
         msg_in = message_models.MessageUpdate(
-            text=text, inline_keyboard=get_reply_markup_response(order.id, preorder=preorder)
+            text=text, inline_keyboard=get_reply_markup_response(order.id, preorder=is_preorder)
         )
         message, status = await message_service.update(msg, msg_in)
         if not message:
@@ -86,9 +89,10 @@ async def pull_update(
 
 
 async def pull_delete(
-    order: api_schemas.Order | api_schemas.PreOrder, preorder: bool, **_kwargs
+    order: api_schemas.Order | api_schemas.PreOrder,
+    is_preorder: bool,
 ) -> models.OrderResponse:
-    msgs = await message_service.get_by_order_id(order.id, preorder)
+    msgs = await message_service.get_by_order_id(order.id, is_preorder)
     deleted, skipped = [], []
     for msg in msgs:
         message, status = await message_service.delete(msg)

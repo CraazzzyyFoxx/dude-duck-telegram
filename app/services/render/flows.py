@@ -45,16 +45,22 @@ async def update(name: str, parser_in: models.RenderConfigUpdate) -> models.Rend
     return await service.update(data, parser_in)
 
 
-async def delete(name: str) -> models.RenderConfig:
+async def delete(name: str) -> None:
     parser = await get_by_name(name)
     return await service.delete(parser.id)
 
 
-def get_order_configs(order_model: api_schemas.Order, *, pre: bool = False, creds: bool = False) -> list[str]:
+def get_order_configs(
+        order_model: api_schemas.Order,
+        *,
+        is_pre: bool = False,
+        creds: bool = False,
+        is_gold: bool = False
+) -> list[str]:
     game = order_model.info.game if not creds else f"{order_model.info.game}-cd"
-    if pre:
-        return ["pre-order", game, "pre-eta-price"]
-    return ["order", game, "eta-price"]
+    if is_pre:
+        return ["pre-order", game, "pre-eta-price" if not is_gold else "pre-eta-price-gold"]
+    return ["order", game, "eta-price" if not is_gold else "eta-price-gold"]
 
 
 def get_order_response_configs(
@@ -63,12 +69,13 @@ def get_order_response_configs(
     pre: bool = False,
     creds: bool = False,
     checked: bool = False,
+    is_gold: bool = False
 ) -> list[str]:
     game = order_model.info.game if not creds else f"{order_model.info.game}-cd"
     resp = "response" if not checked else "response-check"
     if pre:
-        return ["pre-order", game, "pre-eta-price", resp]
-    return ["order", game, "eta-price", resp]
+        return ["pre-order", game, "pre-eta-price" if not is_gold else "pre-eta-price-gold", resp]
+    return ["order", game, "eta-price" if not is_gold else "eta-price-gold", resp]
 
 
 async def check_availability_all_render_config_order(

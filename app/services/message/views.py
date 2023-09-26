@@ -21,33 +21,33 @@ router = APIRouter(
 
 
 @router.post("/order_create", response_model=models.OrderResponse)
-async def order_create(order: api_schemas.Order, categories: list[str], configs: list[str]):
-    return await flows.pull_create(order, categories, configs, preorder=False)
+async def order_create(order: api_schemas.Order, categories: list[str], configs: list[str], is_gold: bool):
+    return await flows.pull_create(order, categories, configs, is_preorder=False, is_gold=is_gold)
 
 
 @router.post("/order_update", response_model=models.OrderResponse)
-async def order_update(order: api_schemas.Order, configs: list[str]):
-    return await flows.pull_update(order, configs, preorder=False)
+async def order_update(order: api_schemas.Order, configs: list[str], is_gold: bool):
+    return await flows.pull_update(order, configs, is_preorder=False, is_gold=is_gold)
 
 
 @router.post("/order_delete", response_model=models.OrderResponse)
 async def order_delete(order: api_schemas.Order):
-    return await flows.pull_delete(order, preorder=False)
+    return await flows.pull_delete(order, is_preorder=False)
 
 
 @router.post("/preorder_create", response_model=models.OrderResponse)
-async def preorder_create(order: api_schemas.PreOrder, categories: list[str], configs: list[str]):
-    return await flows.pull_create(order, categories, configs, preorder=True)
+async def preorder_create(order: api_schemas.PreOrder, categories: list[str], configs: list[str], is_gold: bool):
+    return await flows.pull_create(order, categories, configs, is_preorder=True, is_gold=is_gold)
 
 
 @router.post("/preorder_update", response_model=models.OrderResponse)
-async def preorder_update(order: api_schemas.PreOrder, configs: list[str]):
-    return await flows.pull_update(order, configs, preorder=True)
+async def preorder_update(order: api_schemas.PreOrder, configs: list[str], is_gold: bool):
+    return await flows.pull_update(order, configs, is_preorder=True, is_gold=is_gold)
 
 
 @router.post("/preorder_delete", response_model=models.OrderResponse)
 async def preorder_delete(order: api_schemas.PreOrder):
-    return await flows.pull_delete(order, preorder=True)
+    return await flows.pull_delete(order, is_preorder=True)
 
 
 @router.post("/order_admins", response_model=models.MessageResponse)

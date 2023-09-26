@@ -57,7 +57,7 @@ async def respond_done_order(message: Message, state: FSMContext, user: api_sche
         await state.clear()
         return
     data = {"order": order, "response": resp, "user": await api_flows.get_me_user_id(message.from_user.id)}
-    configs = render_flows.get_order_configs(order, pre=preorder)
+    configs = render_flows.get_order_configs(order, is_pre=preorder)
     await message_service.update(msg, message_models.MessageUpdate(text=await render_flows.order(configs, data=data)))
     await message.answer(render_flows.user("response_201", user))
     await state.clear()

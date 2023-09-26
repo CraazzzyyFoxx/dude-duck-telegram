@@ -4,6 +4,7 @@ from tortoise.models import Model
 
 
 class RenderConfig(Model):
+    id: int = fields.IntField(pk=True)
     name: str = fields.TextField()
     lang: str = fields.TextField()
     binary: str = fields.TextField()
