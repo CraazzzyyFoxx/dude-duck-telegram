@@ -1,5 +1,3 @@
-import asyncio
-
 from aiogram import Router, types
 from aiogram.filters import Command, CommandObject
 
@@ -16,6 +14,3 @@ async def verify(message: types.Message, command: CommandObject) -> None:
         msg = await message.answer(render_flows.system("verify_200"))
     else:
         msg = await message.answer(render_flows.system("verify_400"))
-    await asyncio.sleep(5)
-    await message.delete()
-    await msg.delete()
