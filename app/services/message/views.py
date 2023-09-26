@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Body
 
 from app.core import enums, config
 from app.services.auth.bearers import requires_authorization
@@ -36,12 +36,21 @@ async def order_delete(order: api_schemas.Order):
 
 
 @router.post("/preorder_create", response_model=models.OrderResponse)
-async def preorder_create(order: api_schemas.PreOrder, categories: list[str], configs: list[str], is_gold: bool):
+async def preorder_create(
+        order: api_schemas.PreOrder,
+        categories: list[str],
+        configs: list[str],
+        is_gold: bool = Body(..., embed=True)
+):
     return await flows.pull_create(order, categories, configs, is_preorder=True, is_gold=is_gold)
 
 
 @router.post("/preorder_update", response_model=models.OrderResponse)
-async def preorder_update(order: api_schemas.PreOrder, configs: list[str], is_gold: bool):
+async def preorder_update(
+        order: api_schemas.PreOrder,
+        configs: list[str],
+        is_gold: bool = Body(..., embed=True)
+):
     return await flows.pull_update(order, configs, is_preorder=True, is_gold=is_gold)
 
 
@@ -56,16 +65,16 @@ async def order_admins_notify(
         preorder: api_schemas.PreOrder,
         user: api_schemas.User,
         response: response_flows.models.OrderResponse,
-        is_preorder: bool
+        is_preorder: bool = Body(..., embed=True)
 ):
     return await response_flows.response_to_admins(order, preorder, user, response, is_preorder)
 
 
 @router.post("/user_resp_approved_notify", response_model=list[models.MessageResponse])
 async def user_resp_approved_notify(
-        order_id: str,
         user: api_schemas.User,
-        response: response_flows.models.OrderResponse
+        response: response_flows.models.OrderResponse,
+        order_id: str = Body(..., embed=True)
 ):
     tg_user = await api_service.get_by_user_id(user.id)
     order = await api_flows.get_me_order(tg_user[0].telegram_user_id, order_id)
@@ -74,8 +83,8 @@ async def user_resp_approved_notify(
 
 @router.post("/user_resp_declined_notify", response_model=list[models.MessageResponse])
 async def user_resp_declined_notify(
-        order_id: str,
-        user: api_schemas.User
+        user: api_schemas.User,
+        order_id: str = Body(..., embed=True),
 ):
     return await response_flows.response_declined(order_id, user)
 
@@ -107,7 +116,7 @@ async def registered_notify(user: api_schemas.User):
 
 
 @router.post("/request_verify_notify", response_model=models.MessageResponse)
-async def request_verify_notify(user: api_schemas.User, token: str):
+async def request_verify_notify(user: api_schemas.User, token: str = Body(..., embed=True)):
     data = {"user": user, "token": token}
     _, status = await message_service.create(
         message_models.MessageCreate(
@@ -138,7 +147,12 @@ async def verified_notify(user: api_schemas.User):
 
 
 @router.post("/order_close_request_notify", response_model=models.MessageResponse)
-async def order_close_request_notify(user: api_schemas.User, order_id: str, url: str, message: str):
+async def order_close_request_notify(
+        user: api_schemas.User,
+        order_id: str = Body(..., embed=True),
+        url: str = Body(..., embed=True),
+        message: str = Body(..., embed=True)
+):
     data = {"user": user, "order_id": order_id, "url": url, "message": message}
     _, status = await message_service.create(
         message_models.MessageCreate(
@@ -151,7 +165,10 @@ async def order_close_request_notify(user: api_schemas.User, order_id: str, url:
 
 
 @router.post("/order_sent_notify", response_model=models.MessageResponse)
-async def order_sent_notify(order_id: str, pull_payload):
+async def order_sent_notify(
+        pull_payload: models.OrderResponse,
+        order_id: str = Body(..., embed=True)
+):
     data = {"order_id": order_id, "payload": pull_payload}
     _, status = await message_service.create(
         message_models.MessageCreate(
@@ -164,7 +181,10 @@ async def order_sent_notify(order_id: str, pull_payload):
 
 
 @router.post("/order_edited_notify", response_model=models.MessageResponse)
-async def order_edited_notify(order_id: str, pull_payload):
+async def order_edited_notify(
+        pull_payload: models.OrderResponse,
+        order_id: str = Body(..., embed=True)
+):
     data = {"order_id": order_id, "payload": pull_payload}
     _, status = await message_service.create(
         message_models.MessageCreate(
@@ -177,7 +197,10 @@ async def order_edited_notify(order_id: str, pull_payload):
 
 
 @router.post("/order_deleted_notify", response_model=models.MessageResponse)
-async def order_deleted_notify(order_id: str, pull_payload):
+async def order_deleted_notify(
+        pull_payload: models.OrderResponse,
+        order_id: str = Body(..., embed=True)
+):
     data = {"order_id": order_id, "payload": pull_payload}
     _, status = await message_service.create(
         message_models.MessageCreate(
@@ -190,7 +213,11 @@ async def order_deleted_notify(order_id: str, pull_payload):
 
 
 @router.post("/response_chose_notify", response_model=models.MessageResponse)
-async def response_chose_notify(order_id: str, responses: int, user: api_schemas.User):
+async def response_chose_notify(
+        user: api_schemas.User,
+        order_id: str = Body(..., embed=True),
+        responses: int = Body(..., embed=True)
+):
     data = {"order_id": order_id, "total": responses, "user": user}
     _, status = await message_service.create(
         message_models.MessageCreate(
