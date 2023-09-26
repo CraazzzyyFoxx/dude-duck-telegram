@@ -5,8 +5,6 @@ from pydantic import BaseModel, EmailStr, model_validator
 from pydantic_extra_types.payment import PaymentCardNumber
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
-__all__ = ("User", "UserLanguage")
-
 
 class UserLanguage(str, enum.Enum):
     RU = "ru"
