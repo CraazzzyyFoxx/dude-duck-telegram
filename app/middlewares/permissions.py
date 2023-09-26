@@ -36,7 +36,7 @@ class PermissionMessageMiddleware(BaseMiddleware):
 
         if is_private and event.chat.type != "private":
             return await self.send_template(event, "only_private")
-        if is_auth or is_verify:
+        if is_auth:
             return await handler(event, data)
         try:
             user = await api_flows.get_me_user_id(event.from_user.id)
