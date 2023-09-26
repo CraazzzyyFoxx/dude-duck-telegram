@@ -48,12 +48,6 @@ class OrderInfo(BaseModel):
 
 
 class OrderPrice(BaseModel):
-    price_booster_dollar: float
-    price_booster_rub: float
-    price_booster_gold: float | None = None
-
-
-class PreOrderPrice(BaseModel):
     price_booster_rub: float | None = None
     price_booster_dollar: float | None = None
     price_booster_gold: float | None = None
@@ -96,7 +90,7 @@ class PreOrder(BaseModel):
     date: datetime.datetime
 
     info: OrderInfo
-    price: PreOrderPrice
+    price: OrderPrice
 
 
 class UserUpdate(BaseModel):
