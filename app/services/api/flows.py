@@ -30,7 +30,7 @@ async def get_me_user_id(user_id: int) -> models.User | None:
 
 
 async def get_user(user_id: int, u_id: str) -> models.User | None:
-    resp = await service.request(f"users/{u_id}", "GET", await service.get_token_user_id(user_id))
+    resp = await service.request(f"admin/users/{u_id}", "GET", await service.get_token_user_id(user_id))
     if resp.status_code == 200:
         user = models.User.model_validate(resp.json())
         return user
