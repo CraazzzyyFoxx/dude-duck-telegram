@@ -1,6 +1,6 @@
 {% if order.info.eta %}
 <b>ETA:</b> {{ order.info.eta }}<br>
 {% endif %}
-{% if order.price.price_booster_dollar or order.price.price_booster_rub %}
-<b>Price:</b> {{ order.price.price_booster_rub|round(0) }}rub. ({{ order.price.price_booster_dollar|round(2) }}$)<br>
+{% if order.price.price_booster_dollar %}
+<b>Price:</b> {{ order.price.price_booster_gold|round(0) }}k gold ({{ order.price.price_booster_dollar|round(2) }}$)<br>
 {% endif %}
