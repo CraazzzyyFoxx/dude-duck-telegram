@@ -31,7 +31,7 @@ class SignInForm(BaseModel):
 
     @field_validator("username")
     def username_validate(cls, v: str):
-        regex = re.fullmatch(r"([\w{L}]+)", v)
+        regex = re.fullmatch(r"([a-zA-Z0-9_-]+)", v)
         if not regex:
             raise ValueError("Only Latin, Cyrillic and numbers can be used in the username")
         return v
