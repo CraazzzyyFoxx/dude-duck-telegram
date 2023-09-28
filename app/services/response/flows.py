@@ -97,13 +97,13 @@ async def response_declined(
 
 
 async def response_to_admins(
-    order_rv: api_schemas.Order,
+    order: api_schemas.Order,
     preorder: api_schemas.PreOrder,
     user: api_schemas.User,
     response: models.OrderResponse,
     is_preorder: bool,
 ) -> message_models.MessageResponse:
-    order_rv = order_rv if not is_preorder else preorder
+    order_rv = order if not is_preorder else preorder
 
     configs = render_flows.get_order_response_configs(order_rv, pre=is_preorder, checked=False)
     text = await render_flows.order(configs, data={"order": order_rv, "response": response, "user": user})

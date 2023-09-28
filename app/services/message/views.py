@@ -70,11 +70,11 @@ async def preorder_delete(order: api_schemas.PreOrder):
 
 @router.post("/order_admins", response_model=models.MessageResponse)
 async def order_admins_notify(
-        order: api_schemas.Order,
-        preorder: api_schemas.PreOrder,
         user: api_schemas.User,
         response: response_flows.models.OrderResponse,
-        is_preorder: bool = Body(..., embed=True)
+        is_preorder: bool = Body(..., embed=True),
+        order: api_schemas.Order | None = None,
+        preorder: api_schemas.PreOrder | None = None,
 ):
     return await response_flows.response_to_admins(order, preorder, user, response, is_preorder)
 
