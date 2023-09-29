@@ -1,6 +1,6 @@
 Привет!<br>
 <br>
-Вы подали заявку на заказ #{{order.order_id}} и выбрали время начала в {% if resp.extra.data %} {{res.extra.eta.seconds / 60}} {% else %} 0 {% endif %} мин.<br>
+Вы подали заявку на заказ #{{order.order_id}} и выбрали время начала в {% if resp.extra.data %} {{resp.extra.eta.seconds / 60}} {% else %} 0 {% endif %} мин.<br>
 Вот полная информация о заказе. 👇<br>
 <br>
 {{rendered_order}}
