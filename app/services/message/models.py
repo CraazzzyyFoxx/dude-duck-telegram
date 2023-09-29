@@ -27,6 +27,7 @@ class MessageStatus(str, Enum):
 
 
 class Message(Model):
+    id: int = fields.IntField(pk=True)
     order_id: str | None = fields.CharField(max_length=24, null=True)
     user_id: str | None = fields.CharField(max_length=24, null=True)
     channel_id: int = fields.BigIntField()
@@ -67,3 +68,29 @@ class MessageCreate(BaseModel):
 class MessageUpdate(BaseModel):
     text: str | None = None
     inline_keyboard: InlineKeyboardMarkup | None = None
+
+
+class SuccessPull(BaseModel):
+    channel_id: int
+    message_id: int
+    status: MessageStatus
+
+
+class SkippedPull(BaseModel):
+    channel_id: int
+    status: MessageStatus
+
+
+class OrderResponse(BaseModel):
+    created: list[SuccessPull] = Field(default=[])
+    updated: list[SuccessPull] = Field(default=[])
+    deleted: list[SuccessPull] = Field(default=[])
+    skipped: list[SkippedPull] = Field(default=[])
+
+    error: bool = Field(default=False)
+    error_msg: str | None = Field(default=None)
+
+
+class MessageResponse(BaseModel):
+    status: MessageStatus
+    channel_id: int

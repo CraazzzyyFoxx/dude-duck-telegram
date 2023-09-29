@@ -30,7 +30,7 @@ async def get_me_user_id(user_id: int) -> models.User | None:
 
 
 async def get_user(user_id: int, u_id: str) -> models.User | None:
-    resp = await service.request(f"users/{u_id}", "GET", await service.get_token_user_id(user_id))
+    resp = await service.request(f"admin/users/{u_id}", "GET", await service.get_token_user_id(user_id))
     if resp.status_code == 200:
         user = models.User.model_validate(resp.json())
         return user
@@ -87,13 +87,13 @@ async def change_language(user_id: int):
 
 async def update_user(user_id: int, u_id: str, data: schemas.UserUpdate):
     resp = await service.request(
-        f"users/{u_id}", "PATCH", await service.get_token_user_id(user_id), json=data.model_dump()
+        f"admin/users/{u_id}", "PATCH", await service.get_token_user_id(user_id), json=data.model_dump()
     )
     return models.User.model_validate(resp.json())
 
 
 async def get_users(user_id: int):
     resp = await service.request(
-        "users?page=1&per_page=100&sort=created_at&order=asc", "GET", await service.get_token_user_id(user_id)
+        "admin/users?page=1&per_page=100&sort=created_at&order=asc", "GET", await service.get_token_user_id(user_id)
     )
     return search_service.models.Paginated[schemas.User].model_validate(resp.json())

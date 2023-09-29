@@ -4,6 +4,7 @@ from tortoise.models import Model
 
 
 class Channel(Model):
+    id: int = fields.IntField(pk=True)
     game: str = fields.TextField()
     category: str | None = fields.TextField(null=True)
     channel_id: int = fields.BigIntField()
