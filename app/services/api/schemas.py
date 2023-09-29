@@ -78,7 +78,7 @@ class OrderRead(Order):
     price: OrderPrice
     credentials: OrderCredentials
 
-    paid_time: datetime.datetime | None
+    paid_at: datetime.datetime | None
     auth_date: datetime.datetime | None
     end_date: datetime.datetime | None
 
