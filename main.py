@@ -8,6 +8,7 @@ from aiogram_dialog.widgets.text import setup_jinja
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.staticfiles import StaticFiles
 from tortoise import Tortoise, connections
 
@@ -57,6 +58,7 @@ async def lifespan(application: FastAPI):  # noqa
 
 app = FastAPI(openapi_url="", lifespan=lifespan, default_response_class=ORJSONResponse, debug=config.app.debug)
 app.add_middleware(ExceptionMiddleware)
+app.add_middleware(SentryAsgiMiddleware)
 app.add_middleware(TimeMiddleware)
 
 
@@ -64,6 +66,7 @@ api_app = FastAPI(title="DudeDuck CRM Telegram", root_path="/bot", debug=config.
 api_app.mount("/static", StaticFiles(directory="static"), name="static")
 api_app.include_router(router)
 api_app.add_middleware(ExceptionMiddleware)
+app.add_middleware(SentryAsgiMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
