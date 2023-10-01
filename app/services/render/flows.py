@@ -150,7 +150,7 @@ async def pre_rendered_order(templates: list[str], *, data: dict) -> str:
             rendered = template.render(**data)
             if not render_config.allow_separator_top and len(resp) > 0:
                 resp.pop(-1)
-            if len(rendered) > 1:
+            if len(rendered.replace("\n", "").replace("<br>", "")) > 1:
                 resp.append(rendered)
             if index < len(templates) and len(resp) > last_len:
                 resp.append(f"{render_config.separator} <br>")
