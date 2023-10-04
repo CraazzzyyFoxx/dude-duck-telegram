@@ -14,24 +14,24 @@ async def get_by_type(message_id: int, message_type: models.MessageType) -> list
     return await models.Message.filter(id=message_id, type=message_type).all()
 
 
-async def get_by_order_id(order_id: str, preorder: bool) -> list[models.Message]:
+async def get_by_order_id(order_id: int, preorder: bool) -> list[models.Message]:
     message_type = models.MessageType.PRE_ORDER if preorder else models.MessageType.ORDER
     return await models.Message.filter(order_id=order_id, type=message_type).all()
 
 
-async def get_by_user_id(user_id: str) -> list[models.Message]:
+async def get_by_user_id(user_id: int) -> list[models.Message]:
     return await models.Message.filter(user_id=user_id).all()
 
 
-async def get_by_order_id_user_id(order_id: str, user_id: str) -> models.Message | None:
+async def get_by_order_id_user_id(order_id: int, user_id: int) -> models.Message | None:
     return await models.Message.filter(user_id=user_id, order_id=order_id).first()
 
 
-async def get_by_order_id_type(order_id: str, message_type: models.MessageType) -> list[models.Message]:
+async def get_by_order_id_type(order_id: int, message_type: models.MessageType) -> list[models.Message]:
     return await models.Message.filter(order_id=order_id, type=message_type).all()
 
 
-async def get_by_order_id_channel_id(order_id: str, channel_id: int) -> list[models.Message]:
+async def get_by_order_id_channel_id(order_id: int, channel_id: int) -> list[models.Message]:
     return await models.Message.filter(order_id=order_id, channel_id=channel_id).all()
 
 

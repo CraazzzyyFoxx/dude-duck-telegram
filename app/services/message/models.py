@@ -28,8 +28,8 @@ class MessageStatus(str, Enum):
 
 class Message(Model):
     id: int = fields.IntField(pk=True)
-    order_id: str | None = fields.CharField(max_length=24, null=True)
-    user_id: str | None = fields.CharField(max_length=24, null=True)
+    order_id: int | None = fields.BigIntField(null=True)
+    user_id: int | None = fields.BigIntField(null=True)
     channel_id: int = fields.BigIntField()
     message_id: int = fields.BigIntField()
 
@@ -41,8 +41,8 @@ class Message(Model):
 
 
 class MessageRead(BaseModel):
-    order_id: str | None = None
-    user_id: str | None = None
+    order_id: int | None = None
+    user_id: int | None = None
     channel_id: int
     message_id: int
 
@@ -53,8 +53,8 @@ class MessageRead(BaseModel):
 
 
 class MessageCreate(BaseModel):
-    order_id: str | None = None
-    user_id: str | None = None
+    order_id: int | None = None
+    user_id: int | None = None
     channel_id: int
 
     type: MessageType

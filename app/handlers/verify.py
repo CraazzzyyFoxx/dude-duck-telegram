@@ -11,6 +11,6 @@ router = Router()
 async def verify(message: types.Message, command: CommandObject) -> None:
     status = await auth_service.verify(command.args)
     if status:
-        msg = await message.answer(render_flows.system("verify_200"))
+        await message.answer(render_flows.system("verify_200"))
     else:
-        msg = await message.answer(render_flows.system("verify_400"))
+        await message.answer(render_flows.system("verify_400"))

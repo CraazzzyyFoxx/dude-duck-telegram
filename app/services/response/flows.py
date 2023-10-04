@@ -14,7 +14,7 @@ from app.services.render import flows as render_flows
 from . import models
 
 
-def get_reply_markup_admin(order_id: str, user_id: str, preorder: bool) -> InlineKeyboardMarkup:
+def get_reply_markup_admin(order_id: int, user_id: int, preorder: bool) -> InlineKeyboardMarkup:
     blr = InlineKeyboardBuilder()
     cb_data = OrderRespondConfirmCallback(order_id=order_id, user_id=user_id, preorder=preorder)
     b = InlineKeyboardButton(text="Approve", callback_data=cb_data.pack())
@@ -23,7 +23,7 @@ def get_reply_markup_admin(order_id: str, user_id: str, preorder: bool) -> Inlin
 
 
 async def create_response(
-    user_id: int, order_id: str, data: models.OrderResponseExtra
+    user_id: int, order_id: int, data: models.OrderResponseExtra
 ) -> tuple[int, models.OrderResponse | None]:
     resp = await api_service.request(
         f"response/{order_id}", "POST", await api_service.get_token_user_id(user_id), json=data.model_dump()
@@ -34,7 +34,7 @@ async def create_response(
 
 
 async def create_preorder_response(
-    user_id: int, order_id: str, data: models.OrderResponseExtra
+    user_id: int, order_id: int, data: models.OrderResponseExtra
 ) -> tuple[int, models.OrderResponse | None]:
     resp = await api_service.request(
         f"response/preorder/{order_id}", "POST", await api_service.get_token_user_id(user_id), json=data.model_dump()
@@ -44,7 +44,7 @@ async def create_preorder_response(
     return resp.status_code, None
 
 
-async def approve_response(user_id: int, order_id: str, booster_id: str, preorder: bool) -> int:
+async def approve_response(user_id: int, order_id: int, booster_id: int, preorder: bool) -> int:
     if preorder:
         url = f"response/preorder/{order_id}/{booster_id}/approve"
         order = await api_flows.get_preorder(user_id, order_id)
@@ -88,7 +88,7 @@ async def response_approved(
 
 
 async def response_declined(
-    order_id: str,
+    order_id: int,
     user: api_schemas.User,
 ) -> list[message_models.MessageResponse]:
     users_db = await api_service.get_by_user_id(user.id)

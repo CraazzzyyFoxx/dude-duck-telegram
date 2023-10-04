@@ -29,7 +29,7 @@ async def get_me_user_id(user_id: int) -> models.User | None:
     return None
 
 
-async def get_user(user_id: int, u_id: str) -> models.User | None:
+async def get_user(user_id: int, u_id: int) -> models.User | None:
     resp = await service.request(f"admin/users/{u_id}", "GET", await service.get_token_user_id(user_id))
     if resp.status_code == 200:
         user = models.User.model_validate(resp.json())
@@ -47,7 +47,7 @@ async def get_me_orders(
     return search_service.models.Paginated[schemas.OrderRead].model_validate(resp.json())
 
 
-async def get_me_order(user_id: int, order_id: str) -> schemas.OrderRead:
+async def get_me_order(user_id: int, order_id: int) -> schemas.OrderRead:
     resp = await service.request(f"users/@me/orders/{order_id}", "GET", await service.get_token_user_id(user_id))
     return schemas.OrderRead.model_validate(resp.json())
 
@@ -58,12 +58,12 @@ async def get_me_accounting(user_id: int) -> dict:
         return resp.json()
 
 
-async def get_order(user_id: int, order_id: str) -> schemas.Order:
+async def get_order(user_id: int, order_id: int) -> schemas.Order:
     resp = await service.request(f"orders/{order_id}", "GET", await service.get_token_user_id(user_id))
     return schemas.Order.model_validate(resp.json())
 
 
-async def get_preorder(user_id: int, order_id: str) -> schemas.PreOrder:
+async def get_preorder(user_id: int, order_id: int) -> schemas.PreOrder:
     resp = await service.request(f"preorders/{order_id}", "GET", await service.get_token_user_id(user_id))
     return schemas.PreOrder.model_validate(resp.json())
 
@@ -85,7 +85,7 @@ async def change_language(user_id: int):
         return user
 
 
-async def update_user(user_id: int, u_id: str, data: schemas.UserUpdate):
+async def update_user(user_id: int, u_id: int, data: schemas.UserUpdate):
     resp = await service.request(
         f"admin/users/{u_id}", "PATCH", await service.get_token_user_id(user_id), json=data.model_dump()
     )

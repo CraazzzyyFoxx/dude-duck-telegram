@@ -38,7 +38,7 @@ class SignInForm(BaseModel):
 
 
 class RegisterResponse(BaseModel):
-    id: str
+    id: int
     email: EmailStr
     is_activa: bool
     is_superuser: bool

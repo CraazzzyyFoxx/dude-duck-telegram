@@ -83,7 +83,7 @@ async def order_admins_notify(
 async def user_resp_approved_notify(
         user: api_schemas.User,
         response: response_flows.models.OrderResponse,
-        order_id: str = Body(..., embed=True)
+        order_id: int = Body(..., embed=True)
 ):
     tg_user = await api_service.get_by_user_id(user.id)
     order = await api_flows.get_me_order(tg_user[0].telegram_user_id, order_id)
@@ -93,7 +93,7 @@ async def user_resp_approved_notify(
 @router.post("/user_resp_declined_notify", response_model=list[models.MessageResponse])
 async def user_resp_declined_notify(
         user: api_schemas.User,
-        order_id: str = Body(..., embed=True),
+        order_id: int = Body(..., embed=True),
 ):
     return await response_flows.response_declined(order_id, user)
 
@@ -158,7 +158,7 @@ async def verified_notify(user: api_schemas.User):
 @router.post("/order_close_request_notify", response_model=models.MessageResponse)
 async def order_close_request_notify(
         user: api_schemas.User,
-        order_id: str = Body(..., embed=True),
+        order_id: int = Body(..., embed=True),
         url: str = Body(..., embed=True),
         message: str = Body(..., embed=True)
 ):
@@ -176,7 +176,7 @@ async def order_close_request_notify(
 @router.post("/order_sent_notify", response_model=models.MessageResponse)
 async def order_sent_notify(
         pull_payload: models.OrderResponse,
-        order_id: str = Body(..., embed=True)
+        order_id: int = Body(..., embed=True)
 ):
     data = {"order_id": order_id, "payload": pull_payload}
     _, status = await message_service.create(
@@ -192,7 +192,7 @@ async def order_sent_notify(
 @router.post("/order_edited_notify", response_model=models.MessageResponse)
 async def order_edited_notify(
         pull_payload: models.OrderResponse,
-        order_id: str = Body(..., embed=True)
+        order_id: int = Body(..., embed=True)
 ):
     data = {"order_id": order_id, "payload": pull_payload}
     _, status = await message_service.create(
@@ -208,7 +208,7 @@ async def order_edited_notify(
 @router.post("/order_deleted_notify", response_model=models.MessageResponse)
 async def order_deleted_notify(
         pull_payload: models.OrderResponse,
-        order_id: str = Body(..., embed=True)
+        order_id: int = Body(..., embed=True)
 ):
     data = {"order_id": order_id, "payload": pull_payload}
     _, status = await message_service.create(
@@ -224,7 +224,7 @@ async def order_deleted_notify(
 @router.post("/response_chose_notify", response_model=models.MessageResponse)
 async def response_chose_notify(
         user: api_schemas.User,
-        order_id: str = Body(..., embed=True),
+        order_id: int = Body(..., embed=True),
         responses: int = Body(..., embed=True)
 ):
     data = {"order_id": order_id, "total": responses, "user": user}

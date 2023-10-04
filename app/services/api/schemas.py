@@ -12,7 +12,7 @@ class UserLanguage(str, enum.Enum):
 
 
 class User(BaseModel):
-    id: str
+    id: int
     email: EmailStr
     is_active: bool
     is_superuser: bool
@@ -61,7 +61,7 @@ class OrderCredentials(BaseModel):
 
 
 class Order(BaseModel):
-    id: str
+    id: int
     order_id: str
 
     info: OrderInfo
@@ -69,7 +69,7 @@ class Order(BaseModel):
 
 
 class OrderRead(Order):
-    id: str
+    id: int
     order_id: str
     screenshot: str | None
     status: str
@@ -84,7 +84,7 @@ class OrderRead(Order):
 
 
 class PreOrder(BaseModel):
-    id: str
+    id: int
 
     info: OrderInfo
     price: OrderPrice

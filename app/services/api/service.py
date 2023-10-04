@@ -40,7 +40,7 @@ async def get(user_id: int) -> models.TelegramUser | None:
     return await models.TelegramUser.filter(id=user_id).first()
 
 
-async def get_by_user_id(user_id: str) -> list[models.TelegramUser]:
+async def get_by_user_id(user_id: int) -> list[models.TelegramUser]:
     return await models.TelegramUser.filter(user_id=user_id).all()
 
 
@@ -52,8 +52,8 @@ async def create(user_order_in: models.TelegramUserCreate) -> models.TelegramUse
     return await models.TelegramUser.create(**user_order_in.model_dump())
 
 
-async def delete(user_id: id):
-    user_order = await models.TelegramUser.get(user_id)
+async def delete(user_id: int):
+    user_order = await get(user_id)
     if user_order:
         await user_order.delete()
 

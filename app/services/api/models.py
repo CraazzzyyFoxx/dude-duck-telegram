@@ -15,7 +15,8 @@ class OrderSelection(Enum):
 
 
 class TelegramUser(Model):
-    user_id: str = fields.CharField(max_length=24)
+    id: int = fields.IntField(pk=True)
+    user_id: int = fields.BigIntField()
     telegram_user_id: int = fields.BigIntField()
     token: str | None = fields.TextField(null=True)
     user: User | None = fields.JSONField(null=True, decoder=User.model_validate_json)
@@ -28,7 +29,7 @@ class TelegramUser(Model):
 
 
 class TelegramUserCreate(BaseModel):
-    user_id: str
+    user_id: int
     telegram_user_id: int
 
 

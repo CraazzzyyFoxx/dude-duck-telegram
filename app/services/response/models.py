@@ -11,9 +11,11 @@ class OrderResponseExtra(BaseModel):
 
 
 class OrderResponse(BaseModel):
-    order_id: str
-    user_id: str
+    order_id: int
+    user_id: int
 
-    approved: bool = Field(default=False)
-    closed: bool = Field(default=False)
-    extra: OrderResponseExtra
+    approved: bool
+    closed: bool
+    text: str | None = None
+    price: float | None = None
+    start_date: datetime | None = None
