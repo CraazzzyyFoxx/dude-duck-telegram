@@ -27,7 +27,6 @@ class AppConfig(BaseSettings):
     postgres_db: str
     postgres_host: str
     postgres_port: str
-    postgres_port_app: str
 
     admin_order: int
     admin_important_events: int
@@ -46,9 +45,9 @@ tortoise = {
             "engine": "tortoise.backends.asyncpg",
             "credentials": {
                 "database": app.postgres_db,
-                "host": app.postgres_host,  # db for docker
+                "host": app.postgres_host,
                 "password": app.postgres_password,
-                "port": app.postgres_port_app,
+                "port": app.postgres_port,
                 "user": app.postgres_user,
             },
         }
