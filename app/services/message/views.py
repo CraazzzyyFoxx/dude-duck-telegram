@@ -176,7 +176,7 @@ async def order_close_request_notify(
 @router.post("/order_sent_notify", response_model=models.MessageResponse)
 async def order_sent_notify(
         pull_payload: models.OrderResponse,
-        order_id: int = Body(..., embed=True)
+        order_id: str = Body(..., embed=True)
 ):
     data = {"order_id": order_id, "payload": pull_payload}
     _, status = await message_service.create(
@@ -192,7 +192,7 @@ async def order_sent_notify(
 @router.post("/order_edited_notify", response_model=models.MessageResponse)
 async def order_edited_notify(
         pull_payload: models.OrderResponse,
-        order_id: int = Body(..., embed=True)
+        order_id: str = Body(..., embed=True)
 ):
     data = {"order_id": order_id, "payload": pull_payload}
     _, status = await message_service.create(
@@ -208,7 +208,7 @@ async def order_edited_notify(
 @router.post("/order_deleted_notify", response_model=models.MessageResponse)
 async def order_deleted_notify(
         pull_payload: models.OrderResponse,
-        order_id: int = Body(..., embed=True)
+        order_id: str = Body(..., embed=True)
 ):
     data = {"order_id": order_id, "payload": pull_payload}
     _, status = await message_service.create(
