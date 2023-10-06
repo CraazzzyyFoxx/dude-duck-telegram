@@ -158,7 +158,7 @@ async def verified_notify(user: api_schemas.User):
 @router.post("/order_close_request_notify", response_model=models.MessageResponse)
 async def order_close_request_notify(
         user: api_schemas.User,
-        order_id: int = Body(..., embed=True),
+        order_id: str = Body(..., embed=True),
         url: str = Body(..., embed=True),
         message: str = Body(..., embed=True)
 ):
@@ -224,7 +224,7 @@ async def order_deleted_notify(
 @router.post("/response_chose_notify", response_model=models.MessageResponse)
 async def response_chose_notify(
         user: api_schemas.User,
-        order_id: int = Body(..., embed=True),
+        order_id: str = Body(..., embed=True),
         responses: int = Body(..., embed=True)
 ):
     data = {"order_id": order_id, "total": responses, "user": user}
