@@ -19,7 +19,7 @@ class OrderRespondState(StatesGroup):
     approved = State()
 
 
-@router.callback_query(OrderRespondYesNoCallback.filter(F.state == True))
+@router.callback_query(OrderRespondYesNoCallback.filter(F.state == True))  # noqa F722
 async def respond_order_yes_button(
     call: types.CallbackQuery, state: FSMContext, callback_data: OrderRespondYesNoCallback, user: api_schemas.User
 ) -> None:
@@ -34,7 +34,7 @@ async def respond_order_yes_button(
     await state.update_data(order=order, message=msg, preorder=callback_data.preorder)
 
 
-@router.callback_query(OrderRespondYesNoCallback.filter(F.state == False))
+@router.callback_query(OrderRespondYesNoCallback.filter(F.state == False))  # noqa F722
 async def respond_order_no_button_message(call: types.CallbackQuery) -> None:
     await call.answer()
     await bot.delete_message(call.message.chat.id, call.message.message_id)
@@ -47,10 +47,7 @@ async def respond_done_order(message: Message, state: FSMContext, user: api_sche
     msg: message_models.Message = data.get("message")
     preorder: bool = data.get("preorder")
     extra = response_flows.models.OrderResponseExtra(text=message.text)
-    if preorder:
-        status, resp = await response_flows.create_preorder_response(message.from_user.id, order.id, extra)
-    else:
-        status, resp = await response_flows.create_response(message.from_user.id, order.id, extra)
+    status, resp = await response_flows.create_response(message.from_user.id, order.id, extra, preorder)
 
     if status in (404, 400, 403, 409):
         await message.answer(render_flows.user(f"response_{status}", user))

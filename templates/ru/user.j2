@@ -2,16 +2,18 @@
 ✉️ <b>Почта:</b> {{ user.email }} <br>
 ✅ <b>Верифицирован:</b> {% if user.is_verified %} Да {% else %} Нет {% endif %} <br>
 🛒 <b>Макс. кол-во заказов:</b> {{ user.max_orders }} <br>
-{% if user.phone %}
-📞 <b>Телефон:</b> {{ user.phone[4:] }} <br>
-💰 <b>Банк:</b> {{ user.bank }} <br>
+{% for payroll in user.payrolls %}
+{% if payroll.type.value == "Phone" %}
+📞 <b>Телефон:</b> {{ payroll.value }} <br>
+💰 <b>Банк:</b> {{ payroll.bank }} <br>
 {% endif %}
-{% if user.bankcard %}
-💳 <b>Номер карты:</b> {{ user.bankcard }} <br>
+{% if payroll.type.value == "Card" %}
+💳 <b>Номер карты:</b> {{ payroll.value }} <br>
 {% endif %}
-{% if user.binance_email %}
-💸 <b>Binance Email:</b> {{ user.binance_email }} <br>
+{% if payroll.type.value == "Binance Email" %}
+💸 <b>Binance Email:</b> {{ payroll.value }} <br>
 {% endif %}
-{% if user.binance_id %}
-💸 <b>Binance ID:</b> {{ user.binance_id }} <br>
+{% if payroll.type.value == "Binance ID" %}
+💸 <b>Binance ID:</b> {{ payroll.value }} <br>
 {% endif %}
+{% endfor %}

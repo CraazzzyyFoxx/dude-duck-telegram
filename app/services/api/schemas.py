@@ -1,5 +1,6 @@
 import datetime
 import enum
+import typing
 
 from pydantic import BaseModel, EmailStr, model_validator
 from pydantic_extra_types.payment import PaymentCardNumber
@@ -11,6 +12,21 @@ class UserLanguage(str, enum.Enum):
     EN = "en"
 
 
+class PayrollType(str, enum.Enum):
+    binance_email = "Binance Email"
+    binance_id = "Binance ID"
+    trc20 = "TRC 20"
+    phone = "Phone"
+    card = "Card"
+
+
+class Payroll(BaseModel):
+    user_id: int
+    bank: str
+    type: PayrollType | typing.Literal["Хуй знает"]
+    value: str
+
+
 class User(BaseModel):
     id: int
     email: EmailStr
@@ -20,16 +36,15 @@ class User(BaseModel):
 
     name: str
     telegram: str
-    phone: PhoneNumber | None
-    bank: str | None
-    bankcard: PaymentCardNumber | None
-    binance_email: EmailStr | None
-    binance_id: int | None
     discord: str | None
 
     language: UserLanguage
     max_orders: int
     created_at: datetime.datetime
+
+
+class UserWithPayrolls(User):
+    payrolls: list[Payroll]
 
 
 class OrderInfo(BaseModel):
@@ -46,9 +61,9 @@ class OrderInfo(BaseModel):
 
 
 class OrderPrice(BaseModel):
-    price_booster_dollar: float | None = None
-    price_booster_rub: float | None = None
-    price_booster_gold: float | None = None
+    booster_dollar: float | None = None
+    booster_rub: float | None = None
+    booster_gold: float | None = None
 
 
 class OrderCredentials(BaseModel):

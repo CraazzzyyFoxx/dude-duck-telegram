@@ -6,12 +6,12 @@
 {% endif %}
 <br>
 <b>Price:</b>
-{% if order.price.price_booster_dollar %}
-{% if order.price.price_booster_dollar and order.price.price_booster_gold %}
-{{ order.price.price_booster_gold|round(0) }}k gold ({{ order.price.price_booster_dollar|round(2) }}$)
+{% if order.price.booster_dollar %}
+{% if order.price.booster_dollar and order.price.booster_gold %}
+{{ order.price.booster_gold|round(0) }}k gold ({{ order.price.booster_dollar|round(2) }}$)
 {% endif %}
-{% if order.price.price_booster_dollar and not order.price.price_booster_gold %}
-{{ order.price.price_booster_rub|round(0) }}rub. ({{ order.price.price_booster_dollar|round(2) }}$)
+{% if order.price.booster_dollar and not order.price.booster_gold %}
+{{ order.price.booster_rub|round(0) }}rub. ({{ order.price.booster_dollar|round(2) }}$)
 {% endif %}
 {% else %} 
 ?

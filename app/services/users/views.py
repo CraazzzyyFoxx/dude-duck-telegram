@@ -38,7 +38,7 @@ async def read_users(request: Request, user_id: int):
 
 
 @router.post("/get/{user_id}")
-async def read_user(user_id: str, data: dict):
+async def read_user(user_id: int, data: dict):
     try:
         init_data = safe_parse_webapp_init_data(token=bot.token, init_data=data["_auth"])
     except ValueError:
@@ -48,7 +48,7 @@ async def read_user(user_id: str, data: dict):
 
 
 @router.post("/update/{user_id}")
-async def update_user(user_id: str, data: dict):
+async def update_user(user_id: int, data: dict):
     try:
         init_data = safe_parse_webapp_init_data(token=bot.token, init_data=data["_auth"])
     except ValueError:

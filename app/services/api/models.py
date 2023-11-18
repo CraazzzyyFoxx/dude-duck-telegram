@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from tortoise import fields
 from tortoise.models import Model
 
-from .schemas import User
+from .schemas import User, UserWithPayrolls
 
 
 class OrderSelection(Enum):

@@ -1,6 +1,5 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from loguru import logger
 
 from app.core import config
 from app.core.cbdata import OrderRespondConfirmCallback
@@ -23,21 +22,13 @@ def get_reply_markup_admin(order_id: int, user_id: int, preorder: bool) -> Inlin
 
 
 async def create_response(
-    user_id: int, order_id: int, data: models.OrderResponseExtra
+        user_id: int, order_id: int, data: models.OrderResponseExtra, pre: bool = False
 ) -> tuple[int, models.OrderResponse | None]:
     resp = await api_service.request(
-        f"response/{order_id}", "POST", await api_service.get_token_user_id(user_id), json=data.model_dump()
-    )
-    if resp.status_code == 201:
-        return resp.status_code, models.OrderResponse.model_validate(resp.json())
-    return resp.status_code, None
-
-
-async def create_preorder_response(
-    user_id: int, order_id: int, data: models.OrderResponseExtra
-) -> tuple[int, models.OrderResponse | None]:
-    resp = await api_service.request(
-        f"response/preorder/{order_id}", "POST", await api_service.get_token_user_id(user_id), json=data.model_dump()
+        f"response?order_id={order_id}&is_preorder={pre}",
+        "POST",
+        await api_service.get_token_user_id(user_id),
+        json=data.model_dump()
     )
     if resp.status_code == 201:
         return resp.status_code, models.OrderResponse.model_validate(resp.json())
@@ -45,13 +36,16 @@ async def create_preorder_response(
 
 
 async def approve_response(user_id: int, order_id: int, booster_id: int, preorder: bool) -> int:
-    if preorder:
-        url = f"response/preorder/{order_id}/{booster_id}/approve"
-        order = await api_flows.get_preorder(user_id, order_id)
-    else:
-        url = f"response/{order_id}/{booster_id}/approve"
-        order = await api_flows.get_order(user_id, order_id)
-    resp = await api_service.request(url, "GET", await api_service.get_token_user_id(user_id))
+    order = (
+        await api_flows.get_preorder(user_id, order_id)
+        if preorder else
+        await api_flows.get_order(user_id, order_id)
+    )
+    resp = await api_service.request(
+        f"response/{order_id}/{booster_id}?approve=true&is_preorder={preorder}",
+        "PATCH",
+        await api_service.get_token_user_id(user_id)
+    )
     if resp.status_code in (404, 400, 403, 409):
         return resp.status_code
     for msg in await message_service.get_by_order_id_type(order_id, message_models.MessageType.RESPONSE):
@@ -59,7 +53,6 @@ async def approve_response(user_id: int, order_id: int, booster_id: int, preorde
             response = models.OrderResponse.model_validate(resp.json())
             configs = render_flows.get_order_response_configs(order, pre=preorder, checked=True)
             booster = await api_flows.get_user(user_id, booster_id)
-            logger.warning(booster)
             text = await render_flows.order(configs, data={"order": order, "response": response, "user": booster})
             _, status = await message_service.update(msg, message_models.MessageUpdate(text=text))
         else:
@@ -75,9 +68,9 @@ async def send_response(channel_id: int, text: str) -> message_models.MessageRes
 
 
 async def response_approved(
-    order: api_schemas.OrderRead,
-    user: api_schemas.User,
-    response: models.OrderResponse,
+        order: api_schemas.OrderRead,
+        user: api_schemas.User,
+        response: models.OrderResponse,
 ) -> list[message_models.MessageResponse]:
     users_db = await api_service.get_by_user_id(user.id)
     configs = render_flows.get_order_configs(order, creds=True)
@@ -88,8 +81,8 @@ async def response_approved(
 
 
 async def response_declined(
-    order_id: int,
-    user: api_schemas.User,
+        order_id: int,
+        user: api_schemas.User,
 ) -> list[message_models.MessageResponse]:
     users_db = await api_service.get_by_user_id(user.id)
     text = render_flows.user("response_declined", user, data={"order_id": order_id})
@@ -97,11 +90,11 @@ async def response_declined(
 
 
 async def response_to_admins(
-    order: api_schemas.Order,
-    preorder: api_schemas.PreOrder,
-    user: api_schemas.User,
-    response: models.OrderResponse,
-    is_preorder: bool,
+        order: api_schemas.Order,
+        preorder: api_schemas.PreOrder,
+        user: api_schemas.User,
+        response: models.OrderResponse,
+        is_preorder: bool,
 ) -> message_models.MessageResponse:
     order_rv = order if not is_preorder else preorder
 
