@@ -12,15 +12,15 @@ from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.staticfiles import StaticFiles
 from tortoise import Tortoise, connections
 
-from app.core import bot, config, enums
-from app.core.extensions import configure_extensions
-from app.core.logging import logger
-from app.core.webhook import SimpleRequestHandler, setup_application
-from app.handler import router as tg_router
-from app.middlewares.exception import ExceptionMiddleware
-from app.middlewares.time import TimeMiddleware
-from app.routers import router
-from app.services.api import service as api_service
+from src.core import bot, config, enums
+from src.core.extensions import configure_extensions
+from src.core.logging import logger
+from src.core.webhook import SimpleRequestHandler, setup_application
+from src.handler import router as tg_router
+from src.middlewares.exception import ExceptionMiddleware
+from src.middlewares.time import TimeMiddleware
+from src.routers import router
+from src.services.api import service as api_service
 
 configure_extensions()
 

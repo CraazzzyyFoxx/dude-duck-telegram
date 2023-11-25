@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "dude-duck-frontend"
+name = "dude-duck-teleram"
 version = "0.1.0"
 description = ""
 authors = ["CraazzzyyFoxx <craazzzyyfoxx@gmail.com>"]
