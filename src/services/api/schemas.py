@@ -2,7 +2,7 @@ import datetime
 import enum
 import typing
 
-from pydantic import BaseModel, EmailStr, model_validator
+from pydantic import BaseModel, EmailStr, model_validator, HttpUrl
 from pydantic_extra_types.payment import PaymentCardNumber
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
@@ -83,10 +83,19 @@ class Order(BaseModel):
     price: OrderPrice
 
 
+class ScreenshotRead(BaseModel):
+    id: int
+    created_at: datetime.datetime
+
+    source: str
+    url: HttpUrl
+    order_id: int
+
+
 class OrderRead(Order):
     id: int
     order_id: str
-    screenshot: str | None
+    screenshots: list[ScreenshotRead]
     status: str
 
     info: OrderInfo

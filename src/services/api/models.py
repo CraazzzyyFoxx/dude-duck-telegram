@@ -19,7 +19,7 @@ class TelegramUser(Model):
     user_id: int = fields.BigIntField()
     telegram_user_id: int = fields.BigIntField()
     token: str | None = fields.TextField(null=True)
-    user: User | None = fields.JSONField(null=True, decoder=User.model_validate_json)
+    user: UserWithPayrolls | None = fields.JSONField(null=True, decoder=UserWithPayrolls.model_validate_json)
 
     last_login: datetime | None = fields.DatetimeField(null=True)
     last_update: datetime | None = fields.DatetimeField(null=True)

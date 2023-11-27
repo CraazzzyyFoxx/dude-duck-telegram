@@ -252,4 +252,3 @@ cython_debug/
 
 /logs
 poetry.lock
-db/
