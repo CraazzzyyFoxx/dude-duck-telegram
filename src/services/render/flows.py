@@ -3,7 +3,7 @@ import re
 import jinja2
 
 from src.core import config
-from src.services.api import schemas as api_schemas
+from src import models, schemas
 from src.services.api import service as api_service
 
 
@@ -23,7 +23,7 @@ def _render_template(template_name: str, data: dict | None = None) -> str:
     return _render(rendered)
 
 
-def base(template_name: str, lang: api_schemas.UserLanguage, *, data: dict | None = None) -> str:
+def base(template_name: str, lang: schemas.UserLanguage, *, data: dict | None = None) -> str:
     return _render_template(f"{lang.value}/{template_name}", data)
 
 
@@ -32,11 +32,11 @@ def system(template_name: str, *, data: dict | None = None) -> str:
     return _render_template(template_name, data)
 
 
-def user(template_name: str, user_in: api_schemas.User, *, data: dict | None = None) -> str:
+def user(template_name: str, user_in: models.UserDB, *, data: dict | None = None) -> str:
     if data is not None:
-        data["user"] = user_in
+        data["user"] = user_in.user
     else:
-        data = {"user": user_in}
+        data = {"user": user_in.user}
     template_name = f"{user_in.language.value}/{template_name}"
     return _render_template(template_name, data)
 
@@ -55,7 +55,7 @@ def _get_template_env() -> jinja2.Environment:
 
 
 async def get_order_text(
-    user_id: int,
+    user_db: models.UserDB,
     order_id: int,
     is_preorder: bool = False,
     is_gold: bool = False,
@@ -76,7 +76,7 @@ async def get_order_text(
     )
     if response_user_id:
         url += f"&user_id={response_user_id}"
-    resp = await api_service.request(url.lower(), "GET", await api_service.get_token_user_id(user_id))
+    resp = await api_service.request(url.lower(), "GET", user_db.get_token())
     if resp.status_code == 200:
         return resp.json()["text"]
     elif resp.status_code == 400:

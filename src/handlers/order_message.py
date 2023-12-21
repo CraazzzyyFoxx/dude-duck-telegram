@@ -6,7 +6,7 @@ from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import Button, Checkbox
 from aiogram_dialog.widgets.text import Const, Format
 
-from src.services.api import schemas as api_schemas
+from src import models, schemas
 from src.services.render import flows as render_flows
 
 router = Router()
@@ -31,29 +31,21 @@ async def get_data(dialog_manager: DialogManager, **_kwargs) -> dict:
         await dialog_manager.done()
         return {}
 
-    if dialog_manager.dialog_data.get("user") is None:
-        dialog_manager.dialog_data["user"] = dialog_manager.start_data.get("user")
-
-    if dialog_manager.dialog_data.get("order_id") is None:
-        dialog_manager.dialog_data["order_id"] = dialog_manager.start_data.get("order_id")
-
+    dialog_manager.dialog_data["order_id"] = dialog_manager.start_data.get("order_id")
     dialog_manager.dialog_data["message"] = dialog_manager.start_data.get("message")
-    user = dialog_manager.dialog_data["user"]
-    order_id = dialog_manager.dialog_data["order_id"]
-    message = dialog_manager.dialog_data["message"]
-    lang = "🇺🇸" if user.language == api_schemas.UserLanguage.EN else "🇷🇺"
-
+    user: models.UserDB = dialog_manager.middleware_data["user"]
+    rendered_order = await render_flows.get_order_text(
+        user,
+        dialog_manager.dialog_data["order_id"],
+        dialog_manager.find("preorder_option").is_checked(),
+        dialog_manager.find("gold_option").is_checked(),
+        dialog_manager.find("credentials_option").is_checked(),
+    )
     return {
         "user": user,
         "message": dialog_manager.start_data.get("message"),
-        "rendered_order": await render_flows.get_order_text(
-            message.from_user.id,
-            order_id,
-            dialog_manager.find("preorder_option").is_checked(),
-            dialog_manager.find("gold_option").is_checked(),
-            dialog_manager.find("credentials_option").is_checked(),
-        ),
-        "lang": lang,
+        "rendered_order": rendered_order,
+        "lang": "🇺🇸" if user.language == schemas.UserLanguage.EN else "🇷🇺",
     }
 
 
@@ -87,8 +79,12 @@ input_window = Window(
 router.include_router(Dialog(input_window))
 
 
-@router.message(Command("order_message"), flags={"chat_action": {"is_superuser"}})
-async def get_id(message: types.Message, command: CommandObject, dialog_manager: DialogManager, user) -> None:
+@router.message(Command("order_text"), flags={"chat_action": {"is_superuser"}})
+async def get_id(
+    message: types.Message,
+    command: CommandObject,
+    dialog_manager: DialogManager,
+) -> None:
     if command.args is None:
         await message.answer("Error: You must provide an order id. Example: /order_message 500")
         return
@@ -97,4 +93,4 @@ async def get_id(message: types.Message, command: CommandObject, dialog_manager:
     except ValueError:
         await message.answer("Error: You must provide an order id. Example: /order_message 500")
         return
-    await dialog_manager.start(Switch.MAIN, data={"message": message, "user": user, "order_id": order_id})
+    await dialog_manager.start(Switch.MAIN, data={"message": message, "order_id": order_id})

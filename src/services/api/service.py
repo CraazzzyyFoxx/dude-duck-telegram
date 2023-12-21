@@ -1,82 +1,45 @@
 import typing
-from datetime import datetime, timedelta
 
-import pytz
+import sqlalchemy as sa
 from fastapi.encoders import jsonable_encoder
 from httpx import AsyncClient, HTTPError, Response, TimeoutException
 from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core import config, errors
-
-from . import models
-
-
-class ApiServiceMeta:
-    __slots__ = ("client",)
-
-    def __init__(self) -> None:
-        self.client = AsyncClient(timeout=8)
-
-    @staticmethod
-    def _build_client() -> AsyncClient:
-        return AsyncClient()
-
-    async def init(self) -> None:
-        if self.client.is_closed:
-            self.client = self._build_client()
-
-    async def shutdown(self) -> None:
-        if self.client.is_closed:
-            logger.debug("This HTTPXRequest is already shut down. Returning.")
-            return
-
-        await self.client.aclose()
+from src import models
 
 
-ApiService = ApiServiceMeta()
+api_client = AsyncClient(timeout=8, verify=False, base_url=f"{config.app.backend_url}api/v1")
 
 
-async def get(user_id: int) -> models.TelegramUser | None:
-    return await models.TelegramUser.filter(id=user_id).first()
+async def get_by_user_id(session: AsyncSession, user_id: int) -> models.UserDB | None:
+    query = sa.select(models.UserDB).where(models.UserDB.user_id == user_id)
+    result = await session.execute(query)
+    return result.scalars().first()
 
 
-async def get_by_user_id(user_id: int) -> list[models.TelegramUser]:
-    return await models.TelegramUser.filter(user_id=user_id).all()
+async def get_by_telegram(session: AsyncSession, user_id: int) -> models.UserDB | None:
+    query = sa.select(models.UserDB).where(models.UserDB.telegram_user_id == user_id)
+    result = await session.execute(query)
+    return result.scalars().first()
 
 
-async def get_by_telegram_user_id(user_id: int) -> models.TelegramUser | None:
-    return await models.TelegramUser.filter(telegram_user_id=user_id).first()
+async def create(session: AsyncSession, user_order_in: models.UserCreate) -> models.UserDB:
+    user_order = models.UserDB(**user_order_in.model_dump(mode="json"))
+    session.add(user_order)
+    await session.commit()
+    return user_order
 
 
-async def create(user_order_in: models.TelegramUserCreate) -> models.TelegramUser:
-    return await models.TelegramUser.create(**user_order_in.model_dump(mode="json"))
-
-
-async def delete(user_id: int):
-    user_order = await get(user_id)
-    if user_order:
-        await user_order.delete()
-
-
-async def update(user: models.TelegramUser, user_in: models.TelegramUserUpdate) -> models.TelegramUser:
-    user.token = user_in.token
-    if user_in.user:
-        user.user = user_in.user.model_dump()
-        user.last_update = datetime.utcnow()
-    if user_in.last_login:
-        user.last_login = user_in.last_login
-
-    await user.save()
-    return user
-
-
-async def get_token_user_id(user_id: int) -> str | None:
-    user = await get_by_telegram_user_id(user_id)
-    if user is None:
-        return None
-    if user.last_login is None or user.last_login < (datetime.now() - timedelta(days=1)).astimezone(pytz.UTC):
-        return None
-    return user.token
+async def update(session: AsyncSession, user: models.UserDB, user_in: models.UserUpdate) -> models.UserDB:
+    update_model = user_in.model_dump(exclude_defaults=True, exclude_unset=True)
+    if user_in.user_json:
+        update_model["user_json"] = user_in.user_json.model_dump(mode="json")
+    query = (sa.update(models.UserDB).filter_by(id=user.id).values(**update_model)).returning(models.UserDB)
+    result = await session.scalars(query)
+    await session.commit()
+    return result.one()
 
 
 async def request(
@@ -85,14 +48,14 @@ async def request(
     token: str | None,
     *,
     json: typing.Any = None,
-    data: dict = None,
+    data: dict | None = None,
 ) -> Response:
     if token is None:
         raise errors.AuthorizationExpired()
     try:
-        response = await ApiService.client.request(
+        response = await api_client.request(
             method=method,
-            url=f"{config.app.backend_url}api/v1/{url}",
+            url=url,
             json=jsonable_encoder(json) if json is not None else None,
             data=data,
             headers={"Authorization": "Bearer " + token} if token else None,
@@ -119,12 +82,12 @@ async def request_auth(
     *,
     token: str | None = None,
     json: typing.Any = None,
-    data: dict = None,
+    data: dict | None = None,
 ) -> Response:
     try:
-        response = await ApiService.client.request(
+        response = await api_client.request(
             method=method,
-            url=f"{config.app.backend_url}{url}",
+            url=f"{url}",
             json=jsonable_encoder(json) if json is not None else None,
             data=data,
             headers={"Authorization": "Bearer " + token} if token else None,

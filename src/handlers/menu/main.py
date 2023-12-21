@@ -6,9 +6,8 @@ from aiogram_dialog.widgets.kbd import Button, WebApp
 from aiogram_dialog.widgets.text import Const, Format
 
 from src.core import config
+from src import models, schemas
 from src.services.api import flows as api_flows
-from src.services.api import models as api_models
-from src.services.api import schemas as api_schemas
 
 from .accounting import acc_window
 from .orders import ID_STUB_SCROLL, orders_window
@@ -32,18 +31,14 @@ async def get_data(dialog_manager: DialogManager, **_kwargs) -> dict:
     if dialog_manager.start_data is None:
         await dialog_manager.done()
         return {}
-
-    if dialog_manager.dialog_data.get("user") is None:
-        dialog_manager.dialog_data["user"] = dialog_manager.start_data.get("user")
-
-    dialog_manager.dialog_data["message"] = dialog_manager.start_data.get("message")
-    user = dialog_manager.dialog_data["user"]
-    lang = "🇺🇸" if user.language == api_schemas.UserLanguage.EN else "🇷🇺"
+    if dialog_manager.dialog_data.get("message") is None:
+        dialog_manager.dialog_data["message"] = dialog_manager.start_data.get("message")
+    user: models.UserDB = dialog_manager.middleware_data["user"]
     return {
         "user": user,
         "message": dialog_manager.start_data.get("message"),
         "auth_url": config.app.auth_url,
-        "lang": lang,
+        "lang": "🇺🇸" if user.language == schemas.UserLanguage.EN else "🇷🇺",
     }
 
 
@@ -51,14 +46,14 @@ async def to_acc(callback: CallbackQuery, button: Button, dialog_manager: Dialog
     await dialog_manager.switch_to(Main.ACC)
 
 
-async def to_orders(callback: CallbackQuery, button: Button, dialog_manager: DialogManager) -> None:
+async def to_orders(_: CallbackQuery, button: Button, dialog_manager: DialogManager) -> None:
     if dialog_manager.start_data is None:
         await dialog_manager.done()
         return
     if button.widget_id == "active_orders":
-        status = api_models.OrderSelection.InProgress
+        status = models.OrderSelection.InProgress
     else:
-        status = api_models.OrderSelection.Completed
+        status = models.OrderSelection.Completed
     await dialog_manager.find(ID_STUB_SCROLL).set_page(0)
     dialog_manager.dialog_data["orders"] = status
     if dialog_manager.dialog_data.get("orders_data"):
@@ -66,8 +61,15 @@ async def to_orders(callback: CallbackQuery, button: Button, dialog_manager: Dia
     await dialog_manager.switch_to(Main.ORDERS)
 
 
-async def change_language(callback: CallbackQuery, button: Button, dialog_manager: DialogManager, **_kwargs) -> None:
-    dialog_manager.dialog_data["user"] = await api_flows.change_language(callback.from_user.id)
+async def change_language(
+    callback: CallbackQuery,
+    _: Button,
+    dialog_manager: DialogManager,
+    **_kwargs,
+) -> None:
+    dialog_manager.middleware_data["user"] = await api_flows.change_language(
+        dialog_manager.middleware_data["session"], callback.from_user.id
+    )
     await dialog_manager.switch_to(Main.MAIN)
 
 
@@ -116,5 +118,5 @@ router.include_router(main_dialog)
 
 
 @router.message(Command("menu"), flags={"chat_action": {"is_private"}})
-async def menu(message: types.Message, dialog_manager: DialogManager, user) -> None:
-    await dialog_manager.start(Main.MAIN, data={"message": message, "user": user}, mode=StartMode.NORMAL)
+async def menu(message: types.Message, dialog_manager: DialogManager) -> None:
+    await dialog_manager.start(Main.MAIN, data={"message": message}, mode=StartMode.NORMAL)

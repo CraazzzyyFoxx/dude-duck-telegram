@@ -8,7 +8,7 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 from starlette.requests import Request
 from starlette.responses import Response
 
-from src.core import config
+from src.core import config, errors
 
 
 class ExceptionMiddleware(BaseHTTPMiddleware):
@@ -16,27 +16,53 @@ class ExceptionMiddleware(BaseHTTPMiddleware):
         try:
             response = await call_next(request)
         except RequestValidationError as e:
-            logger.exception("What!?")
+            if config.app.debug:
+                logger.exception("What!?")
             response = ORJSONResponse(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content={"detail": jsonable_encoder(e.errors())}
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                content={
+                    "detail": [
+                        {
+                            "msg": jsonable_encoder(e.errors(), exclude={"url", "type", "ctx"}),
+                            "code": "unprocessable_entity",
+                        }
+                    ]
+                },
             )
         except ValidationError as e:
             logger.exception("What!?")
-            response = ORJSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content={"detail": e.json()})
-        except HTTPException as e:
-            logger.exception("What!?")
-            response = ORJSONResponse({"detail": e.detail}, status_code=e.status_code)
-        except ValueError:
-            logger.exception("What!?")
             response = ORJSONResponse(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                content={"detail": [{"msg": "Unknown", "loc": ["Unknown"], "type": "Unknown"}]},
+                content={
+                    "detail": [
+                        {
+                            "msg": e.errors(include_url=False),
+                            "code": "unprocessable_entity",
+                        }
+                    ]
+                },
             )
-        except Exception:
-            logger.exception("What!?")
+        except errors.ApiHTTPException as e:
+            response = ORJSONResponse(content={"detail": e.detail}, status_code=e.status_code)
+        except HTTPException as e:
+            response = ORJSONResponse(content={"detail": [e.detail]}, status_code=e.status_code)
+        except errors.AuthorizationExpired:
+            response = ORJSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={
+                    "detail": [
+                        {
+                            "msg": "Authorization expired",
+                            "code": "authorization_expired",
+                        }
+                    ]
+                },
+            )
+        except Exception as e:
+            logger.exception(e)
             response = ORJSONResponse(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                content={"detail": [{"msg": "Unknown", "loc": ["Unknown"], "type": "Unknown"}]},
+                content={"detail": [{"msg": "Unknown", "code": "Unknown"}]},
             )
 
         return response

@@ -9,6 +9,7 @@ from loguru import logger
 
 from src.core import config, errors
 from src.helpers import process_language
+from src.middlewares.db import DbSessionMiddleware
 from src.middlewares.permissions import PermissionMessageMiddleware
 from src.services.render import flows as render_flows
 
@@ -63,5 +64,7 @@ async def handle_message_server_error(event: ErrorEvent, user=None, dialog_manag
         logger.exception(e)
 
 
+dp.message.middleware(DbSessionMiddleware())
+dp.callback_query.middleware(DbSessionMiddleware())
 dp.message.middleware(PermissionMessageMiddleware())
 dp.callback_query.middleware(PermissionMessageMiddleware())

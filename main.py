@@ -6,13 +6,15 @@ from aiogram.types import BotCommandScopeAllPrivateChats
 from aiogram_dialog import setup_dialogs
 from aiogram_dialog.widgets.text import setup_jinja
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import ORJSONResponse
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
+from starlette.middleware.cors import CORSMiddleware
+from starlette.requests import Request
 from starlette.staticfiles import StaticFiles
-from tortoise import Tortoise, connections
 
-from src.core import bot, config, enums
+from src.core import bot, config, db, enums
 from src.core.extensions import configure_extensions
 from src.core.logging import logger
 from src.core.webhook import SimpleRequestHandler, setup_application
@@ -32,17 +34,19 @@ if os.name != "nt":
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):  # noqa
-    await Tortoise.init(config=config.tortoise)
-    await Tortoise.generate_schemas()
+    db.Base.metadata.create_all(db.engine)
     setup_dialogs(bot.dp)
     setup_jinja(bot.bot, loader=jinja2.FileSystemLoader(searchpath=config.TEMPLATES_DIR))
     bot.dp.include_router(tg_router)
-    await api_service.ApiService.init()
     await bot.bot.set_my_commands(
-        commands=enums.my_commands_ru, scope=BotCommandScopeAllPrivateChats(), language_code="ru"
+        commands=enums.my_commands_ru,
+        scope=BotCommandScopeAllPrivateChats(),
+        language_code="ru",
     )
     await bot.bot.set_my_commands(
-        commands=enums.my_commands_en, scope=BotCommandScopeAllPrivateChats(), language_code="en"
+        commands=enums.my_commands_en,
+        scope=BotCommandScopeAllPrivateChats(),
+        language_code="en",
     )
     await bot.bot.set_webhook(
         url=f"{config.app.webhook_url}/bot/api/telegram/webhook",
@@ -51,27 +55,55 @@ async def lifespan(application: FastAPI):  # noqa
     )
     logger.info("Bot... Online!")
     yield
-    await api_service.ApiService.shutdown()
+    await api_service.api_client.aclose()
     await bot.bot.session.close()
-    await connections.close_all()
 
 
-app = FastAPI(openapi_url="", lifespan=lifespan, default_response_class=ORJSONResponse, debug=config.app.debug)
+async def not_found(request: Request, _: Exception):
+    return ORJSONResponse(status_code=404, content={"detail": [{"msg": "Not Found"}]})
+
+
+exception_handlers = {404: not_found}
+
+app = FastAPI(
+    openapi_url="",
+    lifespan=lifespan,
+    default_response_class=ORJSONResponse,
+    debug=config.app.debug,
+    exception_handlers=exception_handlers,
+)
 app.add_middleware(ExceptionMiddleware)
 app.add_middleware(SentryAsgiMiddleware)
 app.add_middleware(TimeMiddleware)
-
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 api_app = FastAPI(title="DudeDuck CRM Telegram", root_path="/bot", debug=config.app.debug)
-api_app.mount("/static", StaticFiles(directory="static"), name="static")
 api_app.include_router(router)
 api_app.add_middleware(ExceptionMiddleware)
 app.add_middleware(SentryAsgiMiddleware)
 
+
+@api_app.exception_handler(RequestValidationError)
+async def validation_exception_handler(_: Request, exc: RequestValidationError):
+
+    return ORJSONResponse(
+        status_code=422,
+        content={
+            "detail": [
+                {
+                    "msg": jsonable_encoder(exc.errors(), exclude={"url", "type", "ctx"}),
+                    "code": "unprocessable_entity",
+                }
+            ]
+        },
+    )
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PATCH", "PUT"],
+    allow_origins=config.app.cors_origins if config.app.cors_origins else ["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "DELETE", "PATCH", "PUT"],
     allow_headers=["*"],
 )
 

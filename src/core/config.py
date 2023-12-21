@@ -7,6 +7,18 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class AppConfig(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
+    project_name: str = "Dude Duck CRM"
+    project_version: str = "1.0.0"
+    debug: bool = False
+    username_regex: str = r"([a-zA-Z0-9_-]+)"
+
+    # CORS_ORIGINS is a JSON-formatted list of origins
+    # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000"]'
+    cors_origins: list[str] = []
+    use_correlation_id: bool = False
+
+    port: int
+
     token: str
     webhook_url: str
 
@@ -14,10 +26,7 @@ class AppConfig(BaseSettings):
     backend_url: HttpUrl
     auth_url: HttpUrl
 
-    port: int
-
     sentry_dsn: str
-    debug: bool
 
     log_level: str = "info"
     logs_root_path: str = f"{Path.cwd()}/logs"
@@ -33,32 +42,24 @@ class AppConfig(BaseSettings):
     admin_events: int
     admin_noise_events: int
 
+    @property
+    def db_url_asyncpg(self):
+        url = (
+            f"{self.postgres_user}:{self.postgres_password}@"
+            f"{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+        )
+        return f"postgresql+asyncpg://{url}"
+
+    @property
+    def db_url(self):
+        url = (
+            f"{self.postgres_user}:{self.postgres_password}@"
+            f"{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+        )
+        return f"postgresql://{url}"
+
 
 app = AppConfig(_env_file=".env", _env_file_encoding="utf-8")
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 TEMPLATES_DIR = BASE_DIR / "templates"
-
-tortoise = {
-    "connections": {
-        "default": {
-            "engine": "tortoise.backends.asyncpg",
-            "credentials": {
-                "database": app.postgres_db,
-                "host": app.postgres_host,
-                "password": app.postgres_password,
-                "port": app.postgres_port,
-                "user": app.postgres_user,
-            },
-        }
-    },
-    "apps": {
-        "main": {
-            "models": [
-                "src.services.api.models",
-                "src.services.message.models",
-                "aerich.models",
-            ],
-        }
-    },
-}

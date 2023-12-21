@@ -21,3 +21,9 @@ class OrderRespondConfirmCallback(CallbackData, prefix="oac"):
     order_id: int
     user_id: int
     preorder: bool
+    state: bool
+
+
+class VerifyCallback(CallbackData, prefix="vr"):
+    user_id: int
+    state: bool

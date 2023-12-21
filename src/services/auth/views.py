@@ -1,21 +1,24 @@
+from aiogram.exceptions import TelegramAPIError
 from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
-from aiogram.utils.web_app import WebAppInitData, safe_parse_webapp_init_data
-from fastapi import APIRouter
+from aiogram.utils.web_app import WebAppInitData
+from fastapi import APIRouter, Depends
 from fastapi.responses import ORJSONResponse
-from loguru import logger
 from pydantic import ValidationError
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 
+from src.core import db, enums
 from src.core.bot import bot
-from src.core.enums import RouteTag
+from src import schemas
 from src.helpers import process_language
 from src.services.render import flows as render_flows
 
-from . import models, service
+from src.utils.web_query import validate_webapp_init_data
+from . import service
 
-router = APIRouter(prefix="/auth", tags=[RouteTag.AUTH])
+router = APIRouter(prefix="/auth", tags=[enums.RouteTag.AUTH])
 templates = Jinja2Templates(directory="static")
 
 
@@ -44,28 +47,27 @@ async def signup_template(request: Request, message_id: int):
 
 
 @router.post("/login")
-async def login(data: dict):
-    try:
-        init_data = safe_parse_webapp_init_data(token=bot.token, init_data=data["_auth"])
-    except (ValueError, KeyError):
-        return ORJSONResponse({"ok": False, "err": "Unauthorized"}, status_code=401)
+async def login(
+    data: dict,
+    session: AsyncSession = Depends(db.get_async_session),
+    init_data: WebAppInitData = Depends(validate_webapp_init_data),
+):
     try:
         if data.get("message_id"):
             await bot.delete_message(init_data.user.id, data["message_id"])
-    except Exception as e:
-        logger.exception(e)
+    except TelegramAPIError:
         pass
     try:
-        valid = models.LoginForm.model_validate(data)
+        valid = schemas.LoginForm.model_validate(data)
     except ValidationError:
         lang = process_language(init_data.user, None)
         await response_web_query(init_data, "Login", render_flows.base("login_422", lang))
         return
 
-    status, user = await service.login(init_data.user.id, valid.email, valid.password)
+    status, user = await service.login(session, init_data.user, valid.email, valid.password)
 
     if status == 200:
-        await response_web_query(init_data, "Login", render_flows.user("login_200", user.user))
+        await response_web_query(init_data, "Login", render_flows.user("login_200", user))
     elif status == 400:
         lang = process_language(init_data.user)
         await response_web_query(init_data, "Login", render_flows.base("login_400", lang))
@@ -76,20 +78,18 @@ async def login(data: dict):
 
 
 @router.post("/signup")
-async def signup(data: dict):
-    try:
-        init_data = safe_parse_webapp_init_data(token=bot.token, init_data=data["_auth"])
-    except ValueError:
-        return ORJSONResponse({"ok": False, "err": "Unauthorized"}, status_code=401)
-
+async def signup(
+    data: dict,
+    session: AsyncSession = Depends(db.get_async_session),
+    init_data: WebAppInitData = Depends(validate_webapp_init_data),
+):
     try:
         if data.get("message_id"):
             await bot.delete_message(init_data.user.id, data["message_id"])
-    except Exception as e:
-        logger.exception(e)
+    except TelegramAPIError:
         pass
     try:
-        valid = models.SignInForm.model_validate(data)
+        valid = schemas.SignInForm.model_validate(data)
     except ValidationError:
         lang = process_language(init_data.user, None)
         await response_web_query(init_data, "Sign Up", render_flows.base("register_422", lang))
@@ -100,7 +100,7 @@ async def signup(data: dict):
         await response_web_query(init_data, "Sign Up", render_flows.base("register_403", lang))
         return
 
-    status, resp = await service.register(init_data.user.id, init_data.user.username, valid)
+    status, resp = await service.register(session, init_data.user, valid)
     lang = process_language(init_data.user, None)
     if status == 400:
         await response_web_query(init_data, "Sign Up", render_flows.base("register_400", lang))

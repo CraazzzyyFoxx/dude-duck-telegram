@@ -1,5 +1,3 @@
-"""Custom Logger Using Loguru, inspired by Riki-1mg gist custom_logging.py"""
-
 import logging
 import sys
 from pathlib import Path
@@ -18,8 +16,8 @@ class InterceptHandler(logging.Handler):
             level = record.levelno
 
         # Find caller from where originated the logged message.
-        frame, depth = sys._getframe(6), 6  # type: ignore
-        while frame and frame.f_code.co_filename == logging.__file__:  # type: ignore
+        frame, depth = sys._getframe(6), 6
+        while frame and frame.f_code.co_filename == logging.__file__:
             frame = frame.f_back
             depth += 1
 
@@ -55,6 +53,7 @@ class APILogger:
         loguru_logger.remove()
         loguru_logger.add(
             sys.stdout,
+            enqueue=True,
             backtrace=True,
             level=level.upper(),
             format=log_format,
@@ -70,12 +69,19 @@ class APILogger:
             format=log_format,
         )
         logging.basicConfig(handlers=[InterceptHandler()], level=0)
-        for _log in ("uvicorn", "fastapi", "uvicorn.access"):
+        for _log in (
+            "uvicorn",
+            "uvicorn.access",
+            "fastapi",
+            "celery",
+            "sqlalchemy.engine.Engine",
+        ):
             _logger = logging.getLogger(_log)
             _logger.handlers = [InterceptHandler()]
-
+        for _log in ("uvicorn.access",):
+            _logger = logging.getLogger(_log)
+            _logger.handlers = []
         return loguru_logger
 
 
-# Instanciate generic logger for all the app
 logger = APILogger.make_logger()

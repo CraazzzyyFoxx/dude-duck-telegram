@@ -106,7 +106,13 @@ class BaseRequestHandler(ABC):
 
 
 class SimpleRequestHandler(BaseRequestHandler):
-    def __init__(self, dispatcher: Dispatcher, bot: Bot, handle_in_background: bool = True, **data: Any) -> None:
+    def __init__(
+        self,
+        dispatcher: Dispatcher,
+        bot: Bot,
+        handle_in_background: bool = True,
+        **data: Any,
+    ) -> None:
         super().__init__(dispatcher=dispatcher, handle_in_background=handle_in_background, **data)
         self.bot = bot
 

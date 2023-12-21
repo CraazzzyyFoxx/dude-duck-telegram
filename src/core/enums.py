@@ -11,6 +11,7 @@ class RouteTag(StrEnum):
     ORDER_CHANNELS = "🧷 Telegram Channels"
     ORDER_MESSAGES = "✉️ Telegram Order Messages"
     ORDER_RENDERS = " 🔪 Order Render Templates"
+    NOTIFICATIONS = "🔔 Notifications"
     AUTH = "🤷🏿‍♀️‍ Auth"
     USERS = "🤷🏿‍♀️‍ Users"
     CLOSE = "Close Order"

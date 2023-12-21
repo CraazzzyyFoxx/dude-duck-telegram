@@ -2,9 +2,26 @@ import datetime
 import enum
 import typing
 
-from pydantic import BaseModel, EmailStr, model_validator, HttpUrl
+from pydantic import BaseModel, EmailStr, HttpUrl, model_validator
 from pydantic_extra_types.payment import PaymentCardNumber
 from pydantic_extra_types.phone_numbers import PhoneNumber
+
+
+__all__ = (
+    "UserLanguage",
+    "PayrollType",
+    "Payroll",
+    "User",
+    "UserWithPayrolls",
+    "OrderInfo",
+    "OrderPrice",
+    "OrderCredentials",
+    "Order",
+    "OrderRead",
+    "PreOrder",
+    "ScreenshotRead",
+    "UserUpdate",
+)
 
 
 class UserLanguage(str, enum.Enum):
@@ -33,12 +50,8 @@ class User(BaseModel):
     is_active: bool
     is_superuser: bool
     is_verified: bool
-
+    is_verified_email: bool
     name: str
-    telegram: str
-    discord: str | None
-
-    language: UserLanguage
     max_orders: int
     created_at: datetime.datetime
 
