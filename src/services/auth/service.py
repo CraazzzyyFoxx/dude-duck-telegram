@@ -21,8 +21,8 @@ async def register(
         model = models.UserCreate(user_id=response.json()["id"], telegram_user_id=user.id)
         user_db = await api_service.create(session, model)
         status, user_db = await connect_telegram(user_db, user)
-        if status != 200:
-            return status, response.json()
+        # if status != 200:
+        #     return status, response.json()
     return response.status_code, response.json()
 
 
@@ -45,8 +45,8 @@ async def login(
             )
             await api_service.update(session, user_db, update_model)
             status, user_db = await connect_telegram(user_db, user)
-            if status != 200:
-                return status, None
+            # if status != 200:
+            #     return status, None
         else:
             await api_service.update(session, user_db, update_model)
         return response.status_code, await api_service.get_by_telegram(session, user.id)
