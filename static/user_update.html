@@ -27,7 +27,7 @@
                                 <select class="form-select" id="user_id" onchange="get_user()" onloadstart="get_user()">
                                     <optgroup label="Users">
                                         {% for user in users %}
-                                        <option value="{{ user.id }}" selected>{{ user.name }} @{{user.telegram}}</option>
+                                        <option value="{{ user.id }}" selected>{{ user.name }}</option>
                                         {% endfor %}
                                     </optgroup>
                                 </select></div>
@@ -45,6 +45,9 @@
                             </div>
                             <div class="mb-3">
                                 <input id="bankcard" class="form-control" type="text" name="bankcard" placeholder="Bank Card">
+                            </div>
+                            <div class="mb-3">
+                                <input id="trc20" class="form-control" type="text" name="trc20" placeholder="TRC20">
                             </div>
                             <div class="mb-3">
                                 <input id="max_orders" class="form-control" type="text" name="max_orders" placeholder="Max active orders">
@@ -67,16 +70,31 @@
 
         const get_user = async () => {
             let user_id = $('#user_id').val();
-            const {data} = await axios.post(`get/${user_id}`, {
+            const {data} = await axios.post(`${user_id}`, {
                 _auth: initData,
                 user_id: user_id
             })
-            $('#binance_email').val(data["binance_email"]);
-            $('#binance_id').val(data["binance_id"]);
-            $('#phone').val(data["phone"]);
-            $('#bank').val(data["bank"]);
-            $('#bankcard').val(data["bankcard"]);
             $('#max_orders').val(data["max_orders"]);
+
+            data["payrolls"].forEach(payroll => {
+                if (payroll["type"] === "binance_email") {
+                    $('#binance_email').val(payroll["value"]);
+                }
+                if (payroll["type"] === "binance_id") {
+                    $('#binance_id').val(payroll["value"]);
+                }
+                if (payroll["type"] === "trc20") {
+                    $('#trc20').val(payroll["value"]);
+                }
+                if (payroll["type"] === "phone") {
+                    $('#phone').val(payroll["value"]);
+                    $('#bank').val(payroll["bank"]);
+                }
+                if (payroll["type"] === "bankcard") {
+                    $('#bankcard').val(payroll["value"]);
+                    $('#bank').val(payroll["bank"]);
+                }
+            });
 
         }
 
@@ -88,7 +106,7 @@
             let bank = $('#bank').val();
             let bankcard = $('#bankcard').val();
             let max_orders = $('#max_orders').val();
-            axios.post(`update/${user_id}`, {
+            axios.patch(`${user_id}`, {
                 _auth: initData,
                 binance_email: (binance_email === "") ? null : binance_email,
                 binance_id: (binance_id === "") ? null : binance_id,

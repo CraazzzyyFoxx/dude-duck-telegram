@@ -1,1 +1,7 @@
-The user {{ user.name }} has registered!
+The user {{ user.name }} has registered! <br>
+{% if user.telegram %}
+Telegram: @{{ user.telegram.username }} <br>
+{% endif %}
+{% if user.discord %}
+Discord: {{ user.discord.username }} <br>
+{% endif %}

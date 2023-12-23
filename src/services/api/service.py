@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core import config, errors
 from src import models
 
-
 api_client = AsyncClient(timeout=8, verify=False, base_url=f"{config.app.backend_url}api/v1")
 
 
@@ -25,6 +24,14 @@ async def get_by_telegram(session: AsyncSession, user_id: int) -> models.UserDB 
     return result.scalars().first()
 
 
+async def get_by_telegram_user_id(session: AsyncSession, user_id: int, telegram_id: int) -> models.UserDB | None:
+    query = sa.select(models.UserDB).where(
+        models.UserDB.telegram_user_id == telegram_id, models.UserDB.user_id == user_id
+    )
+    result = await session.execute(query)
+    return result.scalars().first()
+
+
 async def create(session: AsyncSession, user_order_in: models.UserCreate) -> models.UserDB:
     user_order = models.UserDB(**user_order_in.model_dump(mode="json"))
     session.add(user_order)
@@ -33,22 +40,27 @@ async def create(session: AsyncSession, user_order_in: models.UserCreate) -> mod
 
 
 async def update(session: AsyncSession, user: models.UserDB, user_in: models.UserUpdate) -> models.UserDB:
-    update_model = user_in.model_dump(exclude_defaults=True, exclude_unset=True)
+    update_model = user_in.model_dump(exclude_unset=True)
     if user_in.user_json:
         update_model["user_json"] = user_in.user_json.model_dump(mode="json")
-    query = (sa.update(models.UserDB).filter_by(id=user.id).values(**update_model)).returning(models.UserDB)
+    query = (
+        sa.update(models.UserDB)
+        .where(models.UserDB.telegram_user_id == user.telegram_user_id, models.UserDB.user_id == user.user_id)
+        .values(update_model)
+        .returning(models.UserDB)
+    )
     result = await session.scalars(query)
     await session.commit()
     return result.one()
 
 
 async def request(
-    url: str,
-    method: typing.Literal["GET", "POST", "PATCH", "DELETE"],
-    token: str | None,
-    *,
-    json: typing.Any = None,
-    data: dict | None = None,
+        url: str,
+        method: typing.Literal["GET", "POST", "PATCH", "DELETE"],
+        token: str | None,
+        *,
+        json: typing.Any = None,
+        data: dict | None = None,
 ) -> Response:
     if token is None:
         raise errors.AuthorizationExpired()
@@ -77,12 +89,12 @@ async def request(
 
 
 async def request_auth(
-    url: str,
-    method: typing.Literal["GET", "POST", "PUT", "DELETE"],
-    *,
-    token: str | None = None,
-    json: typing.Any = None,
-    data: dict | None = None,
+        url: str,
+        method: typing.Literal["GET", "POST", "PUT", "DELETE"],
+        *,
+        token: str | None = None,
+        json: typing.Any = None,
+        data: dict | None = None,
 ) -> Response:
     try:
         response = await api_client.request(

@@ -20,18 +20,7 @@ class SignInForm(BaseModel):
         str,
         StringConstraints(strip_whitespace=True, to_lower=True, min_length=3, max_length=20),
     ]
-    discord: str = Field(min_length=3)
     message_id: int
-
-    @field_validator("discord")
-    def discord_validate(cls, v: str) -> str:
-        if "#" in v:
-            name, dis = v.split("#")
-            if len(dis) == 4:
-                return v
-        if len(v.replace(" ", "")) == len(v):
-            return v
-        raise ValueError("The discord username should be craaazzzyyfoxx or CraazzzyyFoxx#0001 format")
 
     @field_validator("username")
     def username_validate(cls, v: str):

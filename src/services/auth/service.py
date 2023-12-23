@@ -20,6 +20,9 @@ async def register(
     if response.status_code == 201:
         model = models.UserCreate(user_id=response.json()["id"], telegram_user_id=user.id)
         user_db = await api_service.create(session, model)
+        status, user_db = await connect_telegram(user_db, user)
+        if status != 200:
+            return status, response.json()
     return response.status_code, response.json()
 
 
@@ -31,19 +34,30 @@ async def login(
     if response.status_code == 200:
         token = response.json()["access_token"]
         user_db = await api_service.get_by_telegram(session, user.id)
-        user_api = await api_flows.get_me_login(token)
+        user_api = await api_flows.get_me_by_token(token)
+        if user_db and user_db.user_id != user_api.id:
+            return 401, None
         update_model = models.UserUpdate(user_json=user_api, token=token, last_login=datetime.datetime.utcnow())
         if not user_db:
             user_db = await api_service.create(
                 session,
-                models.UserCreate(user_id=user.id, telegram_user_id=user.id),
+                models.UserCreate(user_id=user_api.id, telegram_user_id=user.id),
             )
             await api_service.update(session, user_db, update_model)
-            await api_flows.connect_telegram(user_db, user)
+            status, user_db = await connect_telegram(user_db, user)
+            if status != 200:
+                return status, None
         else:
             await api_service.update(session, user_db, update_model)
         return response.status_code, await api_service.get_by_telegram(session, user.id)
     return response.status_code, None
+
+
+async def connect_telegram(user_db: models.UserDB, user: WebAppUser):
+    if user.username is None:
+        return 402, None
+    status = await api_flows.connect_telegram(user_db, user)
+    return status, user_db
 
 
 async def request_verify(user_db: models.UserDB) -> bool:

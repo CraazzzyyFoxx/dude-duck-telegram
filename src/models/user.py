@@ -29,9 +29,8 @@ class OrderSelection(enum.Enum):
 
 class UserDB(db.TimeStampMixin):
     __tablename__ = "user"
-    __table_args__ = (UniqueConstraint("user_id", "telegram_user_id", name="u_user_telegram_user_id"),)
     user_id: Mapped[int] = mapped_column(BigInteger(), nullable=False)
-    telegram_user_id: Mapped[int] = mapped_column(BigInteger(), nullable=False)
+    telegram_user_id: Mapped[int] = mapped_column(BigInteger(), nullable=False, unique=True)
     token: Mapped[str | None] = mapped_column(Text(), nullable=True)
     user_json: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
 

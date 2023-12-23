@@ -29,4 +29,4 @@ class JinjaOrder(Jinja_dialog):
                 data["middleware_data"]["user"], data["order"].id, with_credentials=True
             )
             rendered = rendered.format(rendered_order=order_text)
-        return rendered
+        return rendered.format(rendered_order="")

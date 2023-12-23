@@ -6,6 +6,11 @@ from src.core.bot import bot
 
 
 async def validate_webapp_init_data(data: dict) -> WebAppInitData:
+    # if not data:
+    #     raise errors.ApiHTTPException(
+    #         status_code=status.HTTP_401_UNAUTHORIZED,
+    #         detail=[errors.ApiException(msg="Unauthorized", code="unauthorized")],
+    #     )
     try:
         init_data = safe_parse_webapp_init_data(token=bot.token, init_data=data["_auth"])
     except (ValueError, KeyError) as e:

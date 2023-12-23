@@ -71,6 +71,9 @@ async def login(
     elif status == 400:
         lang = process_language(init_data.user)
         await response_web_query(init_data, "Login", render_flows.base("login_400", lang))
+    elif status == 401:
+        lang = process_language(init_data.user)
+        await response_web_query(init_data, "Login", render_flows.base("login_401", lang))
     else:
         lang = process_language(init_data.user)
         await response_web_query(init_data, "Login", render_flows.base("auth_not_available", lang))

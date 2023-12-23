@@ -11,6 +11,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import ORJSONResponse
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 from starlette.requests import Request
 from starlette.staticfiles import StaticFiles
 
@@ -49,7 +50,7 @@ async def lifespan(application: FastAPI):  # noqa
         language_code="en",
     )
     await bot.bot.set_webhook(
-        url=f"{config.app.webhook_url}/bot/api/telegram/webhook",
+        url=f"{config.app.webhook_url}/telegram/api/telegram/webhook",
         secret_token=config.app.api_token,
         drop_pending_updates=True,
     )
@@ -75,12 +76,18 @@ app = FastAPI(
 app.add_middleware(ExceptionMiddleware)
 app.add_middleware(SentryAsgiMiddleware)
 app.add_middleware(TimeMiddleware)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-api_app = FastAPI(title="DudeDuck CRM Telegram", root_path="/bot", debug=config.app.debug)
+api_app = FastAPI(
+    title="DudeDuck CRM Telegram",
+    root_path="/telegram",
+    debug=config.app.debug,
+    exception_handlers=exception_handlers,
+)
 api_app.include_router(router)
 api_app.add_middleware(ExceptionMiddleware)
-app.add_middleware(SentryAsgiMiddleware)
+api_app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 
 @api_app.exception_handler(RequestValidationError)
@@ -112,4 +119,4 @@ srh.register(api_app, "/api/telegram/webhook")
 setup_application(api_app, bot.dp, _bot=bot.bot, bot=bot.bot)
 
 
-app.mount("/bot", app=api_app)
+app.mount("/telegram", app=api_app)

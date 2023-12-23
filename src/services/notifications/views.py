@@ -41,7 +41,7 @@ async def response_approved_notification(
 @router.post("/response_declined", response_model=models.MessageResponse)
 async def response_declined_notification(
     user_id: int,
-    order_id: int = Body(..., embed=True),
+    order_id: str = Body(..., embed=True),
     session=Depends(db.get_async_session),
 ):
     return await response_flows.response_declined(session, user_id, order_id)
@@ -49,7 +49,7 @@ async def response_declined_notification(
 
 @router.post("/logged", response_model=models.MessageResponse)
 async def logged_notification(
-        user: schemas.User = Body(..., embed=True),
+        user: schemas.UserWithAccounts = Body(..., embed=True),
         session=Depends(db.get_async_session)
 ):
     _, status = await message_service.create(
@@ -65,7 +65,7 @@ async def logged_notification(
 
 @router.post("/registered", response_model=models.MessageResponse)
 async def registered_notification(
-        user: schemas.User = Body(..., embed=True),
+        user: schemas.UserWithAccounts = Body(..., embed=True),
         session=Depends(db.get_async_session)
 ):
     _, status = await message_service.create(
@@ -81,7 +81,7 @@ async def registered_notification(
 
 @router.post("/request_verify", response_model=models.MessageResponse)
 async def request_verify_notification(
-    user: schemas.User = Body(..., embed=True),
+    user: schemas.UserWithAccounts = Body(..., embed=True),
     session=Depends(db.get_async_session),
 ):
     msg, status = await message_service.create(
@@ -98,7 +98,7 @@ async def request_verify_notification(
 
 @router.post("/verified", response_model=models.MessageResponse)
 async def verified_notification(
-        user: schemas.User = Body(..., embed=True),
+        user: schemas.UserWithAccounts = Body(..., embed=True),
         session=Depends(db.get_async_session)
 ):
     user_db = await api_service.get_by_user_id(session, user.id)

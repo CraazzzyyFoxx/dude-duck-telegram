@@ -21,6 +21,7 @@ __all__ = (
     "PreOrder",
     "ScreenshotRead",
     "UserUpdate",
+    "UserWithAccounts",
 )
 
 
@@ -44,6 +45,14 @@ class Payroll(BaseModel):
     value: str
 
 
+class TelegramAccountRead(BaseModel):
+    id: int
+    account_id: int
+    username: str
+    first_name: str
+    created_at: datetime.datetime
+
+
 class User(BaseModel):
     id: int
     email: EmailStr
@@ -58,6 +67,10 @@ class User(BaseModel):
 
 class UserWithPayrolls(User):
     payrolls: list[Payroll]
+
+
+class UserWithAccounts(User):
+    telegram: TelegramAccountRead | None
 
 
 class OrderInfo(BaseModel):

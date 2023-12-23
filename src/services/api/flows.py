@@ -10,7 +10,7 @@ from src import models, schemas
 from . import service
 
 
-async def get_me_login(token: str) -> schemas.UserWithPayrolls | None:
+async def get_me_by_token(token: str) -> schemas.UserWithPayrolls | None:
     resp = await service.request("users/@me", "GET", token)
     if resp.status_code == 200:
         return schemas.UserWithPayrolls.model_validate(resp.json())
@@ -96,7 +96,7 @@ async def get_user(user_db: models.UserDB, user_id: int) -> schemas.UserWithPayr
 
 async def get_users(user_db: models.UserDB) -> pagination.Paginated[schemas.User]:
     resp = await service.request(
-        "admin/users?page=1&per_page=100&sort=created_at&order=asc",
+        "admin/users/filter?page=1&per_page=100&sort=created_at&order=asc",
         "GET",
         user_db.get_token(),
     )

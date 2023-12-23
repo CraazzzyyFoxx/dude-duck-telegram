@@ -1,3 +1,9 @@
 Order #{{ order_id }} <br>
 {{ user.name }} - @{{ user.telegram }} has been assigned as a booster. <br>
+{% if user.telegram %}
+<b>Telegram:</b> @{{ user.telegram.username }} <br>
+{% endif %}
+{% if user.discord %}
+<b>Discord: </b>{{ user.discord.username }} <br>
+{% endif %}
 He was chosen from {{ total }} applications

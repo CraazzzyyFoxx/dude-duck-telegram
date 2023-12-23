@@ -92,7 +92,7 @@ async def response_approved(
 async def response_declined(
     session: AsyncSession,
     user_id: int,
-    order_id: int,
+    order_id: str,
 ) -> models.SuccessCallback:
     user_db = await api_service.get_by_user_id(session, user_id)
     text = render_flows.user("response_declined", user_db, data={"order_id": order_id})

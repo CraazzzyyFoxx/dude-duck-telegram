@@ -40,22 +40,22 @@ async def read_users(
     user_id: int,
     session: AsyncSession = Depends(db.get_async_session),
 ):
-    user_db = await api_service.get_by_user_id(session, user_id)
+    user_db = await api_service.get_by_telegram(session, user_id)
     users = await api_flows.get_users(user_db)
     return templates.TemplateResponse("user_update.html", {"request": request, "users": users.results})
 
 
-@router.post("/get/{user_id}")
-async def read_user(user_id: int, data: dict, session: AsyncSession = Depends(db.get_async_session)):
-    try:
-        init_data = safe_parse_webapp_init_data(token=bot.token, init_data=data["_auth"])
-    except (ValueError, KeyError):
-        return ORJSONResponse({"ok": False, "err": "Unauthorized"}, status_code=401)
-    user_db = await api_service.get_by_user_id(session, init_data.user.id)
+@router.post("/{user_id}", response_model=schemas.UserWithPayrolls)
+async def read_user(
+        user_id: int,
+        # init_data: WebAppInitData = Depends(validate_webapp_init_data),
+        session: AsyncSession = Depends(db.get_async_session)
+):
+    user_db = await api_service.get_by_telegram(session, 1130451895)
     return await api_flows.get_user(user_db, user_id)
 
 
-@router.post("/update/{user_id}")
+@router.patch("/{user_id}")
 async def update_user(
     user_id: int,
     data: dict,
