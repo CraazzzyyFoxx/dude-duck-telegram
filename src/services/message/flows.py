@@ -7,7 +7,6 @@ from src.core.cbdata import OrderRespondCallback, OrderRespondTimedCallback
 from src.services.message import service as message_service
 
 
-
 def get_reply_markup_instantly(order_id: int) -> InlineKeyboardMarkup:
     blr = InlineKeyboardBuilder()
     for i in range(1, 5):
@@ -25,12 +24,12 @@ def get_reply_markup_response(order_id: int, *, preorder=False) -> InlineKeyboar
 
 
 async def create_order_message(
-    session: AsyncSession,
-    params: models.OrderMessageCreate,
+        session: AsyncSession,
+        params: models.OrderMessageCreate,
 ) -> models.MessageCallback:
     created, skipped = [], []
     markup = get_reply_markup_response(params.order_id, preorder=params.is_preorder)
-    message_type = models.MessageType.ORDER if not params.is_preorder else message_models.MessageType.PRE_ORDER
+    message_type = models.MessageType.ORDER if not params.is_preorder else models.MessageType.PRE_ORDER
     channel_id = params.channel_id
     msg_in = models.MessageCreate(
         order_id=params.order_id,
@@ -48,8 +47,8 @@ async def create_order_message(
 
 
 async def update_order_message(
-    session: AsyncSession,
-    params: models.OrderMessageUpdate,
+        session: AsyncSession,
+        params: models.OrderMessageUpdate,
 ) -> models.MessageCallback:
     updated, skipped = [], []
     msg = await message_service.get_by_channel_id_message_id(
@@ -68,8 +67,8 @@ async def update_order_message(
 
 
 async def delete_order_message(
-    session: AsyncSession,
-    params: models.OrderMessageDelete,
+        session: AsyncSession,
+        params: models.OrderMessageDelete,
 ) -> models.MessageCallback:
     deleted, skipped = [], []
     msg = await message_service.get_by_channel_id_message_id(
