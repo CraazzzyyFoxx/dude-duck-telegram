@@ -44,7 +44,7 @@ class UserDB(db.TimeStampMixin):
         return UserWithPayrolls.model_validate(self.user_json)
 
     def get_token(self):
-        if self.last_login is None or self.last_login < (datetime.now() - timedelta(days=1)).astimezone(pytz.UTC):
+        if self.last_login is None or self.last_login < (datetime.now() - timedelta(days=7)).astimezone(pytz.UTC):
             return None
         return self.token
 

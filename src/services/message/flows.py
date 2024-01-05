@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src import models
 from src.core.cbdata import OrderRespondCallback, OrderRespondTimedCallback
-from src.services.message import service as message_service
+from . import service
 
 
 def get_reply_markup_instantly(order_id: int) -> InlineKeyboardMarkup:
@@ -38,7 +38,7 @@ async def create_order_message(
         reply_markup=markup,
         type=message_type,
     )
-    msg, msg_status = await message_service.create(session, msg_in)
+    msg, msg_status = await service.create(session, msg_in)
     if not msg:
         skipped.append(models.SkippedCallback(channel_id=channel_id, status=msg_status))
     else:
@@ -51,14 +51,14 @@ async def update_order_message(
         params: models.OrderMessageUpdate,
 ) -> models.MessageCallback:
     updated, skipped = [], []
-    msg = await message_service.get_by_channel_id_message_id(
+    msg = await service.get_by_channel_id_message_id(
         session, params.message.channel_id, params.message.message_id
     )
     msg_in = models.MessageUpdate(
         text=params.text,
         inline_keyboard=get_reply_markup_response(params.message.order_id, preorder=params.message.is_preorder),
     )
-    message, msg_status = await message_service.update(session, msg, msg_in)
+    message, msg_status = await service.update(session, msg, msg_in)
     if not message:
         skipped.append(models.SkippedCallback(status=msg_status, channel_id=msg.channel_id))
     else:
@@ -71,10 +71,10 @@ async def delete_order_message(
         params: models.OrderMessageDelete,
 ) -> models.MessageCallback:
     deleted, skipped = [], []
-    msg = await message_service.get_by_channel_id_message_id(
+    msg = await service.get_by_channel_id_message_id(
         session, params.message.channel_id, params.message.message_id
     )
-    message, msg_status = await message_service.delete(session, msg)
+    message, msg_status = await service.delete(session, msg)
     if not message:
         skipped.append(models.SkippedCallback(status=msg_status, channel_id=msg.channel_id))
     else:

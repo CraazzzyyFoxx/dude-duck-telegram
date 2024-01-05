@@ -6,13 +6,6 @@ from src.core.bot import bot
 from src import models
 
 
-
-async def get(session: AsyncSession, message_id: int) -> models.Message | None:
-    query = sa.select(models.Message).where(models.Message.id == message_id)
-    result = await session.execute(query)
-    return result.scalar_one_or_none()
-
-
 async def get_by_order_id_user_id(session: AsyncSession, order_id: int, user_id: int) -> models.Message | None:
     query = sa.select(models.Message).where(models.Message.order_id == order_id, models.Message.user_id == user_id)
     result = await session.execute(query)
