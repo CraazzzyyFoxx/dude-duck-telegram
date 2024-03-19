@@ -50,12 +50,13 @@ async def response_declined_notification(
 @router.post("/logged", response_model=models.MessageResponse)
 async def logged_notification(
         user: schemas.UserWithAccounts = Body(..., embed=True),
+        integration: enums.Integration = Body(..., embed=True),
         session=Depends(db.get_async_session)
 ):
     _, status = await message_service.create(
         session,
         models.MessageCreate(
-            text=render_flows.system("notify_logged", data={"user": user}),
+            text=render_flows.system("notify_logged", data={"user": user, "integration": integration}),
             channel_id=config.app.admin_events,
             type=models.MessageType.MESSAGE,
         ),
@@ -66,12 +67,13 @@ async def logged_notification(
 @router.post("/registered", response_model=models.MessageResponse)
 async def registered_notification(
         user: schemas.UserWithAccounts = Body(..., embed=True),
+        integration: enums.Integration = Body(..., embed=True),
         session=Depends(db.get_async_session)
 ):
     _, status = await message_service.create(
         session,
         models.MessageCreate(
-            text=render_flows.system("notify_registered", data={"user": user}),
+            text=render_flows.system("notify_registered", data={"user": user, "integration": integration}),
             channel_id=config.app.admin_important_events,
             type=models.MessageType.MESSAGE,
         ),
@@ -143,9 +145,10 @@ async def order_close_request_notification(
 async def order_sent_notification(
     payload: models.MessageCallback,
     order_id: str = Body(..., embed=True),
+    integration: enums.Integration = Body(..., embed=True),
     session=Depends(db.get_async_session),
 ):
-    data = {"order_id": order_id, "payload": payload}
+    data = {"order_id": order_id, "integration": integration,  "payload": payload}
     _, status = await message_service.create(
         session,
         models.MessageCreate(
@@ -161,9 +164,10 @@ async def order_sent_notification(
 async def order_edited_notification(
     payload: models.MessageCallback,
     order_id: str = Body(..., embed=True),
+    integration: enums.Integration = Body(..., embed=True),
     session=Depends(db.get_async_session),
 ):
-    data = {"order_id": order_id, "payload": payload}
+    data = {"order_id": order_id, "integration": integration, "payload": payload}
     _, status = await message_service.create(
         session,
         models.MessageCreate(
@@ -179,9 +183,10 @@ async def order_edited_notification(
 async def order_deleted_notification(
     payload: models.MessageCallback,
     order_id: str = Body(..., embed=True),
+    integration: enums.Integration = Body(..., embed=True),
     session=Depends(db.get_async_session),
 ):
-    data = {"order_id": order_id, "payload": payload}
+    data = {"order_id": order_id, "integration": integration, "payload": payload}
     _, status = await message_service.create(
         session,
         models.MessageCreate(

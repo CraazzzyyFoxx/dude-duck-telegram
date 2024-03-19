@@ -9,7 +9,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core import config, errors
 from src import models
 
-api_client = AsyncClient(timeout=8, verify=False, base_url=f"{config.app.backend_url}api/v1")
+api_client = AsyncClient(
+    timeout=8,
+    verify=False,
+    base_url=f"{config.app.backend_url}api/v1",
+    headers={"User-Agent": "TelegramBot"}
+)
 
 
 async def get_by_user_id(session: AsyncSession, user_id: int) -> models.UserDB | None:

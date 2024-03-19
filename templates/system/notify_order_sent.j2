@@ -1,4 +1,5 @@
 Order #{{ order_id }} was placed in {{ payload.created|length }} channels! <br>
+Integration: {{ integration }} <br>
 
 {% if payload.error %}
 <b>Error: </b> <br>

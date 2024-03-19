@@ -1,4 +1,5 @@
 Order #{{ order_id }} was removed from {{ payload.deleted|length }} channels! <br>
+Integration: {{ integration }} <br>
 
 {% if payload.error %}
 <b>Error: </b> <br>

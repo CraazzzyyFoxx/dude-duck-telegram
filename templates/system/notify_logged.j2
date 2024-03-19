@@ -1,4 +1,4 @@
-The user {{ user.name }} has logged in! <br>
+The user {{ user.name }} has logged in! Via <b>{{integration}}</b> <br>
 {% if user.telegram %}
 <b>Telegram: </b>@{{ user.telegram.username }} <br>
 {% endif %}
