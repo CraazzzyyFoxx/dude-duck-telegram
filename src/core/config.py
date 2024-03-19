@@ -56,7 +56,7 @@ class AppConfig(BaseSettings):
             f"{self.postgres_user}:{self.postgres_password}@"
             f"{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
         )
-        return f"postgresql://{url}"
+        return f"postgresql+psycopg://{url}"
 
 
 app = AppConfig(_env_file=".env", _env_file_encoding="utf-8")

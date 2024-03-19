@@ -15,7 +15,7 @@ from starlette.middleware.gzip import GZipMiddleware
 from starlette.requests import Request
 from starlette.staticfiles import StaticFiles
 
-from src.core import bot, config, db, enums
+from src.core import bot, config, enums
 from src.core.extensions import configure_extensions
 from src.core.logging import logger
 from src.core.webhook import SimpleRequestHandler, setup_application
@@ -35,7 +35,6 @@ if os.name != "nt":
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):  # noqa
-    db.Base.metadata.create_all(db.engine)
     setup_dialogs(bot.dp)
     setup_jinja(bot.bot, loader=jinja2.FileSystemLoader(searchpath=config.TEMPLATES_DIR))
     bot.dp.include_router(tg_router)
